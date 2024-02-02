@@ -1,0 +1,18 @@
+Reserved classes of Identifiers
+__*__
+__*
+*
+
+
+TEST SHORTSTRINGCHAR IN LEXER
+
+
+f-string
+
+unput ki testing
+
+yield
+
+type comment, (slash default, star etc from parameters)
+star expression
+parameter complete krna bacha h 
