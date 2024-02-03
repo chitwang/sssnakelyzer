@@ -594,6 +594,11 @@ COMMENT                         #[^\n]*
     return DELIM_ELLIPSIS;
 }
 
+"_" {
+    yylval.strval = strdup(yytext);
+    return WILDCARD_UNDERSCORE;
+}
+
 {NAME} {
     yylval.strval = strdup(yytext);
     return NAME;

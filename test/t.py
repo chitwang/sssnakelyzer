@@ -16,8 +16,3 @@
 
 # a=5;b=4;c=6;
 # print(a,b,c)
-
-a=10
-num : a=15; print(a)
-print(a)
-# num
