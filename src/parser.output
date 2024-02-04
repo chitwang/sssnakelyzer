@@ -1,0 +1,4608 @@
+Nonterminals useless in grammar
+
+    multiple_star_targets
+    augassign
+    dotted_as_names
+    dotted_as_name
+    dotted_name
+    compare_op_bitwise_or_pair_plus
+    compare_op_bitwise_or_pair
+    eq_bitwise_or
+    noteq_bitwise_or
+    lte_bitwise_or
+    lt_bitwise_or
+    gte_bitwise_or
+    gt_bitwise_or
+    notin_bitwise_or
+    in_bitwise_or
+    isnot_bitwise_or
+    is_bitwise_or
+    string
+    strings
+    del_stmt
+    single_target
+    single_subscript_attribute_target
+    del_targets
+    star_etc
+
+
+Terminals unused in grammar
+
+    KEY_IMPORT
+    KEY_EXCEPT
+    KEY_FINALLY
+    KEY_IS
+    KEY_LAMBDA
+    KEY_AS
+    KEY_DEL
+    KEY_WITH
+    KEY_YIELD
+    OP_ASSIGN
+    OP_LESS_THAN
+    OP_GREATER_THAN
+    OP_LESS_THAN_EQUAL
+    OP_GREATER_THAN_EQUAL
+    OP_EQUAL
+    OP_NOT_EQUAL
+    DELIM_LEFT_CURLY
+    DELIM_RIGHT_CURLY
+    DELIM_ASSIGN_ADD
+    DELIM_ASSIGN_SUBTRACT
+    DELIM_ASSIGN_MULTIPLY
+    DELIM_ASSIGN_DIVIDE
+    DELIM_ASSIGN_FLOOR_DIVIDE
+    DELIM_ASSIGN_MODULO
+    DELIM_ASSIGN_BITWISE_AND
+    DELIM_ASSIGN_BITWISE_OR
+    DELIM_ASSIGN_BITWISE_XOR
+    DELIM_ASSIGN_RIGHT_SHIFT
+    DELIM_ASSIGN_LEFT_SHIFT
+    DELIM_ASSIGN_POWER
+    STRING_LITERAL
+    DUNDER_INIT
+    DUNDER_NAME
+    DUNDER_MAIN
+    WILDCARD_UNDERSCORE
+
+
+Rules useless in grammar
+
+  166 multiple_star_targets: star_targets DELIM_ASSIGN
+  167                      | star_targets DELIM_ASSIGN multiple_star_targets
+
+  168 augassign: DELIM_ASSIGN_ADD
+  169          | DELIM_ASSIGN_SUBTRACT
+  170          | DELIM_ASSIGN_MULTIPLY
+  171          | DELIM_ASSIGN_DIVIDE
+  172          | DELIM_ASSIGN_MODULO
+  173          | DELIM_ASSIGN_BITWISE_AND
+  174          | DELIM_ASSIGN_BITWISE_OR
+  175          | DELIM_ASSIGN_BITWISE_XOR
+  176          | DELIM_ASSIGN_LEFT_SHIFT
+  177          | DELIM_ASSIGN_RIGHT_SHIFT
+  178          | DELIM_ASSIGN_POWER
+  179          | DELIM_ASSIGN_FLOOR_DIVIDE
+
+  180 dotted_as_names: dotted_as_name
+  181                | dotted_as_name DELIM_COMMA dotted_as_names
+
+  182 dotted_as_name: dotted_name
+  183               | dotted_name KEY_AS NAME
+
+  184 dotted_name: dotted_name DELIM_DOT NAME
+  185            | NAME
+
+  186 comparison: bitwise_or compare_op_bitwise_or_pair_plus
+
+  187 compare_op_bitwise_or_pair_plus: compare_op_bitwise_or_pair compare_op_bitwise_or_pair_plus
+
+  188 compare_op_bitwise_or_pair: eq_bitwise_or
+  189                           | noteq_bitwise_or
+  190                           | lte_bitwise_or
+  191                           | lt_bitwise_or
+  192                           | gte_bitwise_or
+  193                           | gt_bitwise_or
+  194                           | notin_bitwise_or
+  195                           | in_bitwise_or
+  196                           | isnot_bitwise_or
+  197                           | is_bitwise_or
+
+  198 eq_bitwise_or: OP_EQUAL bitwise_or
+
+  199 noteq_bitwise_or: OP_NOT_EQUAL bitwise_or
+
+  200 lte_bitwise_or: OP_LESS_THAN_EQUAL bitwise_or
+
+  201 lt_bitwise_or: OP_LESS_THAN bitwise_or
+
+  202 gte_bitwise_or: OP_GREATER_THAN_EQUAL bitwise_or
+
+  203 gt_bitwise_or: OP_GREATER_THAN bitwise_or
+
+  204 notin_bitwise_or: KEY_NOT KEY_IN bitwise_or
+
+  205 in_bitwise_or: KEY_IN bitwise_or
+
+  206 isnot_bitwise_or: KEY_IS KEY_NOT bitwise_or
+
+  207 is_bitwise_or: KEY_IS bitwise_or
+
+  208 atom: strings
+
+  209 string: STRING_LITERAL
+
+  210 strings: string strings
+
+
+Rules useless in parser due to conflicts
+
+   18 statement_newline: ENDMARKER
+
+
+State 28 conflicts: 1 reduce/reduce
+State 52 conflicts: 1 shift/reduce
+State 181 conflicts: 1 shift/reduce
+State 209 conflicts: 1 shift/reduce
+State 234 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: start_symbol $end
+
+    1 start_symbol: file
+    2             | interactive
+    3             | eval
+
+    4 newline_star: NEWLINE
+    5             | NEWLINE newline_star
+
+    6 file: ENDMARKER
+    7     | statements ENDMARKER
+
+    8 eval: expressions ENDMARKER
+    9     | expressions newline_star ENDMARKER
+
+   10 interactive: statement_newline
+
+   11 statements: statement
+   12           | statement statements
+
+   13 statement: compound_stmt
+   14          | simple_stmts
+
+   15 statement_newline: compound_stmt NEWLINE
+   16                  | simple_stmts
+   17                  | NEWLINE
+   18                  | ENDMARKER
+
+   19 simple_stmts: simple_stmt NEWLINE
+   20             | simple_stmt DELIM_SEMICOLON NEWLINE
+   21             | simple_stmt DELIM_SEMICOLON simple_stmts
+
+   22 simple_stmt: assignment
+   23            | expressions
+   24            | return_stmt
+   25            | raise_stmt
+   26            | KEY_PASS
+   27            | assert_stmt
+   28            | KEY_BREAK
+   29            | KEY_CONTINUE
+   30            | global_stmt
+   31            | nonlocal_stmt
+
+   32 compound_stmt: function_def
+   33              | if_stmt
+   34              | class_def
+   35              | for_stmt
+   36              | while_stmt
+
+   37 assignment: NAME DELIM_COLON expression
+   38           | NAME DELIM_COLON expression DELIM_ASSIGN annotated_rhs
+
+   39 annotated_rhs: expressions
+
+   40 return_stmt: KEY_RETURN
+   41            | KEY_RETURN expressions
+
+   42 raise_stmt: KEY_RAISE
+   43           | KEY_RAISE expression KEY_FROM expression
+   44           | KEY_RAISE expression
+
+   45 global_stmt: KEY_GLOBAL comma_separated_name
+
+   46 nonlocal_stmt: KEY_NONLOCAL comma_separated_name
+
+   47 comma_separated_name: NAME
+   48                     | NAME DELIM_COMMA comma_separated_name
+
+   49 assert_stmt: KEY_ASSERT expression
+   50            | KEY_ASSERT expression DELIM_COMMA expression
+
+   51 block: NEWLINE INDENT statements DEDENT
+   52      | simple_stmts
+
+   53 class_def: class_def_raw
+
+   54 class_arguments: DELIM_LEFT_PAREN DELIM_RIGHT_PAREN
+   55                | DELIM_LEFT_PAREN arguments DELIM_RIGHT_PAREN
+
+   56 class_def_raw: KEY_CLASS NAME DELIM_COLON block
+   57              | KEY_CLASS NAME class_arguments DELIM_COLON block
+
+   58 function_def: function_def_raw
+
+   59 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_COLON block
+   60                 | KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON block
+   61                 | KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+   62                 | KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+
+   63 params: parameters
+
+   64 parameters: param_no_default_plus DELIM_COMMA param_with_default_plus
+   65           | param_with_default_plus
+   66           | param_no_default_plus
+   67           | param_no_default_plus DELIM_COMMA
+   68           | param_with_default_plus DELIM_COMMA
+
+   69 param_no_default_plus: param
+   70                      | param DELIM_COMMA param_no_default_plus
+
+   71 param_with_default_plus: param default
+   72                        | param default DELIM_COMMA param_with_default_plus
+
+   73 param: NAME
+   74      | NAME annotation
+
+   75 annotation: DELIM_COLON expression
+
+   76 default: DELIM_ASSIGN expression
+
+   77 if_stmt: KEY_IF named_expression DELIM_COLON block elif_stmt
+   78        | KEY_IF named_expression DELIM_COLON block
+   79        | KEY_IF named_expression DELIM_COLON block else_block
+
+   80 elif_stmt: KEY_ELIF named_expression DELIM_COLON block elif_stmt
+   81          | KEY_ELIF named_expression DELIM_COLON block
+   82          | KEY_ELIF named_expression DELIM_COLON block else_block
+
+   83 else_block: KEY_ELSE DELIM_COLON block
+
+   84 while_stmt: KEY_WHILE named_expression DELIM_COLON block
+   85           | KEY_WHILE named_expression DELIM_COLON block else_block
+
+   86 for_stmt: KEY_FOR star_targets KEY_IN expressions DELIM_COLON block
+   87         | KEY_FOR star_targets KEY_IN expressions DELIM_COLON block else_block
+
+   88 expressions: expression DELIM_COMMA expressions
+   89            | expression
+   90            | expression DELIM_COMMA
+
+   91 expression: disjunction KEY_IF disjunction KEY_ELSE expression
+   92           | disjunction
+
+   93 star_named_expressions: star_named_expression
+   94                       | star_named_expression DELIM_COMMA
+   95                       | star_named_expression DELIM_COMMA star_named_expressions
+
+   96 star_named_expression: named_expression
+
+   97 disjunction: conjunction KEY_OR disjunction
+   98            | conjunction
+
+   99 conjunction: inversion KEY_AND conjunction
+  100            | inversion
+
+  101 inversion: KEY_NOT inversion
+  102          | comparison
+
+  103 comparison: bitwise_or
+
+  104 bitwise_or: bitwise_or OP_BITWISE_OR bitwise_xor
+  105           | bitwise_xor
+
+  106 bitwise_xor: bitwise_xor OP_BITWISE_XOR bitwise_and
+  107            | bitwise_and
+
+  108 bitwise_and: bitwise_and OP_BITWISE_AND shift_expr
+  109            | shift_expr
+
+  110 shift_expr: shift_expr OP_LEFT_SHIFT sum
+  111           | shift_expr OP_RIGHT_SHIFT sum
+  112           | sum
+
+  113 sum: sum OP_ADD term
+  114    | sum OP_SUBTRACT term
+  115    | term
+
+  116 term: term OP_MULTIPLY factor
+  117     | term OP_DIVIDE factor
+  118     | term OP_FLOOR_DIVIDE factor
+  119     | term OP_MODULO factor
+  120     | term OP_AT factor
+  121     | factor
+
+  122 factor: OP_ADD factor
+  123       | OP_SUBTRACT factor
+  124       | OP_BITWISE_NOT factor
+  125       | power
+
+  126 power: primary OP_POWER factor
+  127      | primary
+
+  128 primary: primary DELIM_DOT NAME
+  129        | primary DELIM_LEFT_PAREN DELIM_RIGHT_PAREN
+  130        | primary DELIM_LEFT_PAREN arguments DELIM_RIGHT_PAREN
+  131        | primary DELIM_LEFT_BRACKET slices DELIM_RIGHT_BRACKET
+  132        | atom
+
+  133 slices: slice
+  134       | expression
+  135       | slice DELIM_COMMA
+  136       | expression DELIM_COMMA
+  137       | slice DELIM_COMMA slices
+  138       | expression DELIM_COMMA slices
+
+  139 slice: DELIM_COLON
+  140      | expression DELIM_COLON
+  141      | DELIM_COLON expression
+  142      | expression DELIM_COLON expression
+  143      | DELIM_COLON DELIM_COLON
+  144      | expression DELIM_COLON DELIM_COLON
+  145      | DELIM_COLON expression DELIM_COLON
+  146      | expression DELIM_COLON expression DELIM_COLON
+  147      | DELIM_COLON DELIM_COLON expression
+  148      | expression DELIM_COLON DELIM_COLON expression
+  149      | DELIM_COLON expression DELIM_COLON expression
+  150      | expression DELIM_COLON expression DELIM_COLON expression
+  151      | named_expression
+
+  152 atom: NAME
+  153     | KEY_TRUE
+  154     | KEY_FALSE
+  155     | KEY_NONE
+  156     | FLOAT_NUMBER
+  157     | IMAGINARY_NUMBER
+  158     | INTEGER
+  159     | list
+  160     | DELIM_ELLIPSIS
+
+  161 list: DELIM_LEFT_BRACKET star_named_expressions DELIM_RIGHT_BRACKET
+  162     | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET
+
+  163 star_targets: KEY_AWAIT
+
+  164 named_expression: KEY_ASYNC
+
+  165 arguments: KEY_TRY
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    KEY_FALSE (258) 154
+    KEY_AWAIT (259) 163
+    KEY_ELSE (260) 83 91
+    KEY_IMPORT (261)
+    KEY_PASS (262) 26
+    KEY_NONE (263) 155
+    KEY_BREAK (264) 28
+    KEY_EXCEPT (265)
+    KEY_IN (266) 86 87
+    KEY_RAISE (267) 42 43 44
+    KEY_TRUE (268) 153
+    KEY_CLASS (269) 56 57
+    KEY_FINALLY (270)
+    KEY_IS (271)
+    KEY_RETURN (272) 40 41
+    KEY_AND (273) 99
+    KEY_CONTINUE (274) 29
+    KEY_FOR (275) 86 87
+    KEY_LAMBDA (276)
+    KEY_TRY (277) 165
+    KEY_AS (278)
+    KEY_DEF (279) 59 60 61 62
+    KEY_FROM (280) 43
+    KEY_NONLOCAL (281) 46
+    KEY_WHILE (282) 84 85
+    KEY_ASSERT (283) 49 50
+    KEY_DEL (284)
+    KEY_GLOBAL (285) 45
+    KEY_NOT (286) 101
+    KEY_WITH (287)
+    KEY_ASYNC (288) 164
+    KEY_ELIF (289) 80 81 82
+    KEY_IF (290) 77 78 79 91
+    KEY_OR (291) 97
+    KEY_YIELD (292)
+    OP_ADD (293) 113 122
+    OP_SUBTRACT (294) 114 123
+    OP_MULTIPLY (295) 116
+    OP_POWER (296) 126
+    OP_DIVIDE (297) 117
+    OP_FLOOR_DIVIDE (298) 118
+    OP_MODULO (299) 119
+    OP_AT (300) 120
+    OP_LEFT_SHIFT (301) 110
+    OP_RIGHT_SHIFT (302) 111
+    OP_BITWISE_AND (303) 108
+    OP_BITWISE_OR (304) 104
+    OP_BITWISE_XOR (305) 106
+    OP_BITWISE_NOT (306) 124
+    OP_ASSIGN (307)
+    OP_LESS_THAN (308)
+    OP_GREATER_THAN (309)
+    OP_LESS_THAN_EQUAL (310)
+    OP_GREATER_THAN_EQUAL (311)
+    OP_EQUAL (312)
+    OP_NOT_EQUAL (313)
+    DELIM_LEFT_PAREN (314) 54 55 59 60 61 62 129 130
+    DELIM_RIGHT_PAREN (315) 54 55 59 60 61 62 129 130
+    DELIM_LEFT_BRACKET (316) 131 161 162
+    DELIM_RIGHT_BRACKET (317) 131 161 162
+    DELIM_LEFT_CURLY (318)
+    DELIM_RIGHT_CURLY (319)
+    DELIM_COMMA (320) 48 50 64 67 68 70 72 88 90 94 95 135 136 137 138
+    DELIM_COLON (321) 37 38 56 57 59 60 61 62 75 77 78 79 80 81 82 83 84 85 86 87 139 140 141 142 143 144 145 146 147 148 149 150
+    DELIM_DOT (322) 128
+    DELIM_SEMICOLON (323) 20 21
+    DELIM_ASSIGN (324) 38 76
+    DELIM_ARROW (325) 61 62
+    DELIM_ASSIGN_ADD (326)
+    DELIM_ASSIGN_SUBTRACT (327)
+    DELIM_ASSIGN_MULTIPLY (328)
+    DELIM_ASSIGN_DIVIDE (329)
+    DELIM_ASSIGN_FLOOR_DIVIDE (330)
+    DELIM_ASSIGN_MODULO (331)
+    DELIM_ASSIGN_BITWISE_AND (332)
+    DELIM_ASSIGN_BITWISE_OR (333)
+    DELIM_ASSIGN_BITWISE_XOR (334)
+    DELIM_ASSIGN_RIGHT_SHIFT (335)
+    DELIM_ASSIGN_LEFT_SHIFT (336)
+    DELIM_ASSIGN_POWER (337)
+    DELIM_ELLIPSIS (338) 160
+    NAME (339) 37 38 47 48 56 57 59 60 61 62 73 74 128 152
+    INDENT (340) 51
+    DEDENT (341) 51
+    NEWLINE (342) 4 5 15 17 19 20 51
+    FLOAT_NUMBER (343) 156
+    IMAGINARY_NUMBER (344) 157
+    INTEGER (345) 158
+    STRING_LITERAL (346)
+    DUNDER_INIT (347)
+    DUNDER_NAME (348)
+    DUNDER_MAIN (349)
+    ENDMARKER (350) 6 7 8 9 18
+    WILDCARD_UNDERSCORE (351)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (97)
+        on left: 0
+    start_symbol (98)
+        on left: 1 2 3
+        on right: 0
+    newline_star (99)
+        on left: 4 5
+        on right: 5 9
+    file (100)
+        on left: 6 7
+        on right: 1
+    eval (101)
+        on left: 8 9
+        on right: 3
+    interactive (102)
+        on left: 10
+        on right: 2
+    statements (103)
+        on left: 11 12
+        on right: 7 12 51
+    statement (104)
+        on left: 13 14
+        on right: 11 12
+    statement_newline (105)
+        on left: 15 16 17 18
+        on right: 10
+    simple_stmts (106)
+        on left: 19 20 21
+        on right: 14 16 21 52
+    simple_stmt (107)
+        on left: 22 23 24 25 26 27 28 29 30 31
+        on right: 19 20 21
+    compound_stmt (108)
+        on left: 32 33 34 35 36
+        on right: 13 15
+    assignment (109)
+        on left: 37 38
+        on right: 22
+    annotated_rhs (110)
+        on left: 39
+        on right: 38
+    return_stmt (111)
+        on left: 40 41
+        on right: 24
+    raise_stmt (112)
+        on left: 42 43 44
+        on right: 25
+    global_stmt (113)
+        on left: 45
+        on right: 30
+    nonlocal_stmt (114)
+        on left: 46
+        on right: 31
+    comma_separated_name (115)
+        on left: 47 48
+        on right: 45 46 48
+    assert_stmt (116)
+        on left: 49 50
+        on right: 27
+    block (117)
+        on left: 51 52
+        on right: 56 57 59 60 61 62 77 78 79 80 81 82 83 84 85 86 87
+    class_def (118)
+        on left: 53
+        on right: 34
+    class_arguments (119)
+        on left: 54 55
+        on right: 57
+    class_def_raw (120)
+        on left: 56 57
+        on right: 53
+    function_def (121)
+        on left: 58
+        on right: 32
+    function_def_raw (122)
+        on left: 59 60 61 62
+        on right: 58
+    params (123)
+        on left: 63
+        on right: 59 61
+    parameters (124)
+        on left: 64 65 66 67 68
+        on right: 63
+    param_no_default_plus (125)
+        on left: 69 70
+        on right: 64 66 67 70
+    param_with_default_plus (126)
+        on left: 71 72
+        on right: 64 65 68 72
+    param (127)
+        on left: 73 74
+        on right: 69 70 71 72
+    annotation (128)
+        on left: 75
+        on right: 74
+    default (129)
+        on left: 76
+        on right: 71 72
+    if_stmt (130)
+        on left: 77 78 79
+        on right: 33
+    elif_stmt (131)
+        on left: 80 81 82
+        on right: 77 80
+    else_block (132)
+        on left: 83
+        on right: 79 82 85 87
+    while_stmt (133)
+        on left: 84 85
+        on right: 36
+    for_stmt (134)
+        on left: 86 87
+        on right: 35
+    expressions (135)
+        on left: 88 89 90
+        on right: 8 9 23 39 41 86 87 88
+    expression (136)
+        on left: 91 92
+        on right: 37 38 43 44 49 50 75 76 88 89 90 91 134 136 138 140 141 142 144 145 146 147 148 149 150
+    star_named_expressions (137)
+        on left: 93 94 95
+        on right: 95 161
+    star_named_expression (138)
+        on left: 96
+        on right: 93 94 95
+    disjunction (139)
+        on left: 97 98
+        on right: 91 92 97
+    conjunction (140)
+        on left: 99 100
+        on right: 97 98 99
+    inversion (141)
+        on left: 101 102
+        on right: 99 100 101
+    comparison (142)
+        on left: 103
+        on right: 102
+    bitwise_or (143)
+        on left: 104 105
+        on right: 103 104
+    bitwise_xor (144)
+        on left: 106 107
+        on right: 104 105 106
+    bitwise_and (145)
+        on left: 108 109
+        on right: 106 107 108
+    shift_expr (146)
+        on left: 110 111 112
+        on right: 108 109 110 111
+    sum (147)
+        on left: 113 114 115
+        on right: 110 111 112 113 114
+    term (148)
+        on left: 116 117 118 119 120 121
+        on right: 113 114 115 116 117 118 119 120
+    factor (149)
+        on left: 122 123 124 125
+        on right: 116 117 118 119 120 121 122 123 124 126
+    power (150)
+        on left: 126 127
+        on right: 125
+    primary (151)
+        on left: 128 129 130 131 132
+        on right: 126 127 128 129 130 131
+    slices (152)
+        on left: 133 134 135 136 137 138
+        on right: 131 137 138
+    slice (153)
+        on left: 139 140 141 142 143 144 145 146 147 148 149 150 151
+        on right: 133 135 137
+    atom (154)
+        on left: 152 153 154 155 156 157 158 159 160
+        on right: 132
+    list (155)
+        on left: 161 162
+        on right: 159
+    star_targets (156)
+        on left: 163
+        on right: 86 87
+    named_expression (157)
+        on left: 164
+        on right: 77 78 79 80 81 82 84 85 96 151
+    arguments (158)
+        on left: 165
+        on right: 55 130
+
+
+State 0
+
+    0 $accept: . start_symbol $end
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_CLASS           shift, and go to state 7
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_FOR             shift, and go to state 10
+    KEY_DEF             shift, and go to state 11
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_WHILE           shift, and go to state 13
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    KEY_IF              shift, and go to state 17
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 24
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+    ENDMARKER           shift, and go to state 28
+
+    start_symbol       go to state 29
+    file               go to state 30
+    eval               go to state 31
+    interactive        go to state 32
+    statements         go to state 33
+    statement          go to state 34
+    statement_newline  go to state 35
+    simple_stmts       go to state 36
+    simple_stmt        go to state 37
+    compound_stmt      go to state 38
+    assignment         go to state 39
+    return_stmt        go to state 40
+    raise_stmt         go to state 41
+    global_stmt        go to state 42
+    nonlocal_stmt      go to state 43
+    assert_stmt        go to state 44
+    class_def          go to state 45
+    class_def_raw      go to state 46
+    function_def       go to state 47
+    function_def_raw   go to state 48
+    if_stmt            go to state 49
+    while_stmt         go to state 50
+    for_stmt           go to state 51
+    expressions        go to state 52
+    expression         go to state 53
+    disjunction        go to state 54
+    conjunction        go to state 55
+    inversion          go to state 56
+    comparison         go to state 57
+    bitwise_or         go to state 58
+    bitwise_xor        go to state 59
+    bitwise_and        go to state 60
+    shift_expr         go to state 61
+    sum                go to state 62
+    term               go to state 63
+    factor             go to state 64
+    power              go to state 65
+    primary            go to state 66
+    atom               go to state 67
+    list               go to state 68
+
+
+State 1
+
+  154 atom: KEY_FALSE .
+
+    $default  reduce using rule 154 (atom)
+
+
+State 2
+
+   26 simple_stmt: KEY_PASS .
+
+    $default  reduce using rule 26 (simple_stmt)
+
+
+State 3
+
+  155 atom: KEY_NONE .
+
+    $default  reduce using rule 155 (atom)
+
+
+State 4
+
+   28 simple_stmt: KEY_BREAK .
+
+    $default  reduce using rule 28 (simple_stmt)
+
+
+State 5
+
+   42 raise_stmt: KEY_RAISE .
+   43           | KEY_RAISE . expression KEY_FROM expression
+   44           | KEY_RAISE . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 42 (raise_stmt)
+
+    expression   go to state 70
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 6
+
+  153 atom: KEY_TRUE .
+
+    $default  reduce using rule 153 (atom)
+
+
+State 7
+
+   56 class_def_raw: KEY_CLASS . NAME DELIM_COLON block
+   57              | KEY_CLASS . NAME class_arguments DELIM_COLON block
+
+    NAME  shift, and go to state 71
+
+
+State 8
+
+   40 return_stmt: KEY_RETURN .
+   41            | KEY_RETURN . expressions
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 40 (return_stmt)
+
+    expressions  go to state 72
+    expression   go to state 53
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 9
+
+   29 simple_stmt: KEY_CONTINUE .
+
+    $default  reduce using rule 29 (simple_stmt)
+
+
+State 10
+
+   86 for_stmt: KEY_FOR . star_targets KEY_IN expressions DELIM_COLON block
+   87         | KEY_FOR . star_targets KEY_IN expressions DELIM_COLON block else_block
+
+    KEY_AWAIT  shift, and go to state 73
+
+    star_targets  go to state 74
+
+
+State 11
+
+   59 function_def_raw: KEY_DEF . NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_COLON block
+   60                 | KEY_DEF . NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON block
+   61                 | KEY_DEF . NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+   62                 | KEY_DEF . NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+
+    NAME  shift, and go to state 75
+
+
+State 12
+
+   46 nonlocal_stmt: KEY_NONLOCAL . comma_separated_name
+
+    NAME  shift, and go to state 76
+
+    comma_separated_name  go to state 77
+
+
+State 13
+
+   84 while_stmt: KEY_WHILE . named_expression DELIM_COLON block
+   85           | KEY_WHILE . named_expression DELIM_COLON block else_block
+
+    KEY_ASYNC  shift, and go to state 78
+
+    named_expression  go to state 79
+
+
+State 14
+
+   49 assert_stmt: KEY_ASSERT . expression
+   50            | KEY_ASSERT . expression DELIM_COMMA expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expression   go to state 80
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 15
+
+   45 global_stmt: KEY_GLOBAL . comma_separated_name
+
+    NAME  shift, and go to state 76
+
+    comma_separated_name  go to state 81
+
+
+State 16
+
+  101 inversion: KEY_NOT . inversion
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    inversion    go to state 82
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 17
+
+   77 if_stmt: KEY_IF . named_expression DELIM_COLON block elif_stmt
+   78        | KEY_IF . named_expression DELIM_COLON block
+   79        | KEY_IF . named_expression DELIM_COLON block else_block
+
+    KEY_ASYNC  shift, and go to state 78
+
+    named_expression  go to state 83
+
+
+State 18
+
+  122 factor: OP_ADD . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 84
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 19
+
+  123 factor: OP_SUBTRACT . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 85
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 20
+
+  124 factor: OP_BITWISE_NOT . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 86
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 21
+
+  161 list: DELIM_LEFT_BRACKET . star_named_expressions DELIM_RIGHT_BRACKET
+  162     | DELIM_LEFT_BRACKET . DELIM_RIGHT_BRACKET
+
+    KEY_ASYNC            shift, and go to state 78
+    DELIM_RIGHT_BRACKET  shift, and go to state 87
+
+    star_named_expressions  go to state 88
+    star_named_expression   go to state 89
+    named_expression        go to state 90
+
+
+State 22
+
+  160 atom: DELIM_ELLIPSIS .
+
+    $default  reduce using rule 160 (atom)
+
+
+State 23
+
+   37 assignment: NAME . DELIM_COLON expression
+   38           | NAME . DELIM_COLON expression DELIM_ASSIGN annotated_rhs
+  152 atom: NAME .
+
+    DELIM_COLON  shift, and go to state 91
+
+    $default  reduce using rule 152 (atom)
+
+
+State 24
+
+   17 statement_newline: NEWLINE .
+
+    $default  reduce using rule 17 (statement_newline)
+
+
+State 25
+
+  156 atom: FLOAT_NUMBER .
+
+    $default  reduce using rule 156 (atom)
+
+
+State 26
+
+  157 atom: IMAGINARY_NUMBER .
+
+    $default  reduce using rule 157 (atom)
+
+
+State 27
+
+  158 atom: INTEGER .
+
+    $default  reduce using rule 158 (atom)
+
+
+State 28
+
+    6 file: ENDMARKER .
+   18 statement_newline: ENDMARKER .
+
+    $end      reduce using rule 6 (file)
+    $end      [reduce using rule 18 (statement_newline)]
+    $default  reduce using rule 6 (file)
+
+
+State 29
+
+    0 $accept: start_symbol . $end
+
+    $end  shift, and go to state 92
+
+
+State 30
+
+    1 start_symbol: file .
+
+    $default  reduce using rule 1 (start_symbol)
+
+
+State 31
+
+    3 start_symbol: eval .
+
+    $default  reduce using rule 3 (start_symbol)
+
+
+State 32
+
+    2 start_symbol: interactive .
+
+    $default  reduce using rule 2 (start_symbol)
+
+
+State 33
+
+    7 file: statements . ENDMARKER
+
+    ENDMARKER  shift, and go to state 93
+
+
+State 34
+
+   11 statements: statement .
+   12           | statement . statements
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_CLASS           shift, and go to state 7
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_FOR             shift, and go to state 10
+    KEY_DEF             shift, and go to state 11
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_WHILE           shift, and go to state 13
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    KEY_IF              shift, and go to state 17
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 11 (statements)
+
+    statements        go to state 94
+    statement         go to state 34
+    simple_stmts      go to state 95
+    simple_stmt       go to state 37
+    compound_stmt     go to state 96
+    assignment        go to state 39
+    return_stmt       go to state 40
+    raise_stmt        go to state 41
+    global_stmt       go to state 42
+    nonlocal_stmt     go to state 43
+    assert_stmt       go to state 44
+    class_def         go to state 45
+    class_def_raw     go to state 46
+    function_def      go to state 47
+    function_def_raw  go to state 48
+    if_stmt           go to state 49
+    while_stmt        go to state 50
+    for_stmt          go to state 51
+    expressions       go to state 97
+    expression        go to state 53
+    disjunction       go to state 54
+    conjunction       go to state 55
+    inversion         go to state 56
+    comparison        go to state 57
+    bitwise_or        go to state 58
+    bitwise_xor       go to state 59
+    bitwise_and       go to state 60
+    shift_expr        go to state 61
+    sum               go to state 62
+    term              go to state 63
+    factor            go to state 64
+    power             go to state 65
+    primary           go to state 66
+    atom              go to state 67
+    list              go to state 68
+
+
+State 35
+
+   10 interactive: statement_newline .
+
+    $default  reduce using rule 10 (interactive)
+
+
+State 36
+
+   14 statement: simple_stmts .
+   16 statement_newline: simple_stmts .
+
+    $end      reduce using rule 16 (statement_newline)
+    $default  reduce using rule 14 (statement)
+
+
+State 37
+
+   19 simple_stmts: simple_stmt . NEWLINE
+   20             | simple_stmt . DELIM_SEMICOLON NEWLINE
+   21             | simple_stmt . DELIM_SEMICOLON simple_stmts
+
+    DELIM_SEMICOLON  shift, and go to state 98
+    NEWLINE          shift, and go to state 99
+
+
+State 38
+
+   13 statement: compound_stmt .
+   15 statement_newline: compound_stmt . NEWLINE
+
+    NEWLINE  shift, and go to state 100
+
+    $default  reduce using rule 13 (statement)
+
+
+State 39
+
+   22 simple_stmt: assignment .
+
+    $default  reduce using rule 22 (simple_stmt)
+
+
+State 40
+
+   24 simple_stmt: return_stmt .
+
+    $default  reduce using rule 24 (simple_stmt)
+
+
+State 41
+
+   25 simple_stmt: raise_stmt .
+
+    $default  reduce using rule 25 (simple_stmt)
+
+
+State 42
+
+   30 simple_stmt: global_stmt .
+
+    $default  reduce using rule 30 (simple_stmt)
+
+
+State 43
+
+   31 simple_stmt: nonlocal_stmt .
+
+    $default  reduce using rule 31 (simple_stmt)
+
+
+State 44
+
+   27 simple_stmt: assert_stmt .
+
+    $default  reduce using rule 27 (simple_stmt)
+
+
+State 45
+
+   34 compound_stmt: class_def .
+
+    $default  reduce using rule 34 (compound_stmt)
+
+
+State 46
+
+   53 class_def: class_def_raw .
+
+    $default  reduce using rule 53 (class_def)
+
+
+State 47
+
+   32 compound_stmt: function_def .
+
+    $default  reduce using rule 32 (compound_stmt)
+
+
+State 48
+
+   58 function_def: function_def_raw .
+
+    $default  reduce using rule 58 (function_def)
+
+
+State 49
+
+   33 compound_stmt: if_stmt .
+
+    $default  reduce using rule 33 (compound_stmt)
+
+
+State 50
+
+   36 compound_stmt: while_stmt .
+
+    $default  reduce using rule 36 (compound_stmt)
+
+
+State 51
+
+   35 compound_stmt: for_stmt .
+
+    $default  reduce using rule 35 (compound_stmt)
+
+
+State 52
+
+    8 eval: expressions . ENDMARKER
+    9     | expressions . newline_star ENDMARKER
+   23 simple_stmt: expressions .
+
+    NEWLINE    shift, and go to state 101
+    ENDMARKER  shift, and go to state 102
+
+    NEWLINE   [reduce using rule 23 (simple_stmt)]
+    $default  reduce using rule 23 (simple_stmt)
+
+    newline_star  go to state 103
+
+
+State 53
+
+   88 expressions: expression . DELIM_COMMA expressions
+   89            | expression .
+   90            | expression . DELIM_COMMA
+
+    DELIM_COMMA  shift, and go to state 104
+
+    $default  reduce using rule 89 (expressions)
+
+
+State 54
+
+   91 expression: disjunction . KEY_IF disjunction KEY_ELSE expression
+   92           | disjunction .
+
+    KEY_IF  shift, and go to state 105
+
+    $default  reduce using rule 92 (expression)
+
+
+State 55
+
+   97 disjunction: conjunction . KEY_OR disjunction
+   98            | conjunction .
+
+    KEY_OR  shift, and go to state 106
+
+    $default  reduce using rule 98 (disjunction)
+
+
+State 56
+
+   99 conjunction: inversion . KEY_AND conjunction
+  100            | inversion .
+
+    KEY_AND  shift, and go to state 107
+
+    $default  reduce using rule 100 (conjunction)
+
+
+State 57
+
+  102 inversion: comparison .
+
+    $default  reduce using rule 102 (inversion)
+
+
+State 58
+
+  103 comparison: bitwise_or .
+  104 bitwise_or: bitwise_or . OP_BITWISE_OR bitwise_xor
+
+    OP_BITWISE_OR  shift, and go to state 108
+
+    $default  reduce using rule 103 (comparison)
+
+
+State 59
+
+  105 bitwise_or: bitwise_xor .
+  106 bitwise_xor: bitwise_xor . OP_BITWISE_XOR bitwise_and
+
+    OP_BITWISE_XOR  shift, and go to state 109
+
+    $default  reduce using rule 105 (bitwise_or)
+
+
+State 60
+
+  107 bitwise_xor: bitwise_and .
+  108 bitwise_and: bitwise_and . OP_BITWISE_AND shift_expr
+
+    OP_BITWISE_AND  shift, and go to state 110
+
+    $default  reduce using rule 107 (bitwise_xor)
+
+
+State 61
+
+  109 bitwise_and: shift_expr .
+  110 shift_expr: shift_expr . OP_LEFT_SHIFT sum
+  111           | shift_expr . OP_RIGHT_SHIFT sum
+
+    OP_LEFT_SHIFT   shift, and go to state 111
+    OP_RIGHT_SHIFT  shift, and go to state 112
+
+    $default  reduce using rule 109 (bitwise_and)
+
+
+State 62
+
+  112 shift_expr: sum .
+  113 sum: sum . OP_ADD term
+  114    | sum . OP_SUBTRACT term
+
+    OP_ADD       shift, and go to state 113
+    OP_SUBTRACT  shift, and go to state 114
+
+    $default  reduce using rule 112 (shift_expr)
+
+
+State 63
+
+  115 sum: term .
+  116 term: term . OP_MULTIPLY factor
+  117     | term . OP_DIVIDE factor
+  118     | term . OP_FLOOR_DIVIDE factor
+  119     | term . OP_MODULO factor
+  120     | term . OP_AT factor
+
+    OP_MULTIPLY      shift, and go to state 115
+    OP_DIVIDE        shift, and go to state 116
+    OP_FLOOR_DIVIDE  shift, and go to state 117
+    OP_MODULO        shift, and go to state 118
+    OP_AT            shift, and go to state 119
+
+    $default  reduce using rule 115 (sum)
+
+
+State 64
+
+  121 term: factor .
+
+    $default  reduce using rule 121 (term)
+
+
+State 65
+
+  125 factor: power .
+
+    $default  reduce using rule 125 (factor)
+
+
+State 66
+
+  126 power: primary . OP_POWER factor
+  127      | primary .
+  128 primary: primary . DELIM_DOT NAME
+  129        | primary . DELIM_LEFT_PAREN DELIM_RIGHT_PAREN
+  130        | primary . DELIM_LEFT_PAREN arguments DELIM_RIGHT_PAREN
+  131        | primary . DELIM_LEFT_BRACKET slices DELIM_RIGHT_BRACKET
+
+    OP_POWER            shift, and go to state 120
+    DELIM_LEFT_PAREN    shift, and go to state 121
+    DELIM_LEFT_BRACKET  shift, and go to state 122
+    DELIM_DOT           shift, and go to state 123
+
+    $default  reduce using rule 127 (power)
+
+
+State 67
+
+  132 primary: atom .
+
+    $default  reduce using rule 132 (primary)
+
+
+State 68
+
+  159 atom: list .
+
+    $default  reduce using rule 159 (atom)
+
+
+State 69
+
+  152 atom: NAME .
+
+    $default  reduce using rule 152 (atom)
+
+
+State 70
+
+   43 raise_stmt: KEY_RAISE expression . KEY_FROM expression
+   44           | KEY_RAISE expression .
+
+    KEY_FROM  shift, and go to state 124
+
+    $default  reduce using rule 44 (raise_stmt)
+
+
+State 71
+
+   56 class_def_raw: KEY_CLASS NAME . DELIM_COLON block
+   57              | KEY_CLASS NAME . class_arguments DELIM_COLON block
+
+    DELIM_LEFT_PAREN  shift, and go to state 125
+    DELIM_COLON       shift, and go to state 126
+
+    class_arguments  go to state 127
+
+
+State 72
+
+   41 return_stmt: KEY_RETURN expressions .
+
+    $default  reduce using rule 41 (return_stmt)
+
+
+State 73
+
+  163 star_targets: KEY_AWAIT .
+
+    $default  reduce using rule 163 (star_targets)
+
+
+State 74
+
+   86 for_stmt: KEY_FOR star_targets . KEY_IN expressions DELIM_COLON block
+   87         | KEY_FOR star_targets . KEY_IN expressions DELIM_COLON block else_block
+
+    KEY_IN  shift, and go to state 128
+
+
+State 75
+
+   59 function_def_raw: KEY_DEF NAME . DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_COLON block
+   60                 | KEY_DEF NAME . DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON block
+   61                 | KEY_DEF NAME . DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+   62                 | KEY_DEF NAME . DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+
+    DELIM_LEFT_PAREN  shift, and go to state 129
+
+
+State 76
+
+   47 comma_separated_name: NAME .
+   48                     | NAME . DELIM_COMMA comma_separated_name
+
+    DELIM_COMMA  shift, and go to state 130
+
+    $default  reduce using rule 47 (comma_separated_name)
+
+
+State 77
+
+   46 nonlocal_stmt: KEY_NONLOCAL comma_separated_name .
+
+    $default  reduce using rule 46 (nonlocal_stmt)
+
+
+State 78
+
+  164 named_expression: KEY_ASYNC .
+
+    $default  reduce using rule 164 (named_expression)
+
+
+State 79
+
+   84 while_stmt: KEY_WHILE named_expression . DELIM_COLON block
+   85           | KEY_WHILE named_expression . DELIM_COLON block else_block
+
+    DELIM_COLON  shift, and go to state 131
+
+
+State 80
+
+   49 assert_stmt: KEY_ASSERT expression .
+   50            | KEY_ASSERT expression . DELIM_COMMA expression
+
+    DELIM_COMMA  shift, and go to state 132
+
+    $default  reduce using rule 49 (assert_stmt)
+
+
+State 81
+
+   45 global_stmt: KEY_GLOBAL comma_separated_name .
+
+    $default  reduce using rule 45 (global_stmt)
+
+
+State 82
+
+  101 inversion: KEY_NOT inversion .
+
+    $default  reduce using rule 101 (inversion)
+
+
+State 83
+
+   77 if_stmt: KEY_IF named_expression . DELIM_COLON block elif_stmt
+   78        | KEY_IF named_expression . DELIM_COLON block
+   79        | KEY_IF named_expression . DELIM_COLON block else_block
+
+    DELIM_COLON  shift, and go to state 133
+
+
+State 84
+
+  122 factor: OP_ADD factor .
+
+    $default  reduce using rule 122 (factor)
+
+
+State 85
+
+  123 factor: OP_SUBTRACT factor .
+
+    $default  reduce using rule 123 (factor)
+
+
+State 86
+
+  124 factor: OP_BITWISE_NOT factor .
+
+    $default  reduce using rule 124 (factor)
+
+
+State 87
+
+  162 list: DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET .
+
+    $default  reduce using rule 162 (list)
+
+
+State 88
+
+  161 list: DELIM_LEFT_BRACKET star_named_expressions . DELIM_RIGHT_BRACKET
+
+    DELIM_RIGHT_BRACKET  shift, and go to state 134
+
+
+State 89
+
+   93 star_named_expressions: star_named_expression .
+   94                       | star_named_expression . DELIM_COMMA
+   95                       | star_named_expression . DELIM_COMMA star_named_expressions
+
+    DELIM_COMMA  shift, and go to state 135
+
+    $default  reduce using rule 93 (star_named_expressions)
+
+
+State 90
+
+   96 star_named_expression: named_expression .
+
+    $default  reduce using rule 96 (star_named_expression)
+
+
+State 91
+
+   37 assignment: NAME DELIM_COLON . expression
+   38           | NAME DELIM_COLON . expression DELIM_ASSIGN annotated_rhs
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expression   go to state 136
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 92
+
+    0 $accept: start_symbol $end .
+
+    $default  accept
+
+
+State 93
+
+    7 file: statements ENDMARKER .
+
+    $default  reduce using rule 7 (file)
+
+
+State 94
+
+   12 statements: statement statements .
+
+    $default  reduce using rule 12 (statements)
+
+
+State 95
+
+   14 statement: simple_stmts .
+
+    $default  reduce using rule 14 (statement)
+
+
+State 96
+
+   13 statement: compound_stmt .
+
+    $default  reduce using rule 13 (statement)
+
+
+State 97
+
+   23 simple_stmt: expressions .
+
+    $default  reduce using rule 23 (simple_stmt)
+
+
+State 98
+
+   20 simple_stmts: simple_stmt DELIM_SEMICOLON . NEWLINE
+   21             | simple_stmt DELIM_SEMICOLON . simple_stmts
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 137
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 138
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 99
+
+   19 simple_stmts: simple_stmt NEWLINE .
+
+    $default  reduce using rule 19 (simple_stmts)
+
+
+State 100
+
+   15 statement_newline: compound_stmt NEWLINE .
+
+    $default  reduce using rule 15 (statement_newline)
+
+
+State 101
+
+    4 newline_star: NEWLINE .
+    5             | NEWLINE . newline_star
+
+    NEWLINE  shift, and go to state 101
+
+    $default  reduce using rule 4 (newline_star)
+
+    newline_star  go to state 139
+
+
+State 102
+
+    8 eval: expressions ENDMARKER .
+
+    $default  reduce using rule 8 (eval)
+
+
+State 103
+
+    9 eval: expressions newline_star . ENDMARKER
+
+    ENDMARKER  shift, and go to state 140
+
+
+State 104
+
+   88 expressions: expression DELIM_COMMA . expressions
+   90            | expression DELIM_COMMA .
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 90 (expressions)
+
+    expressions  go to state 141
+    expression   go to state 53
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 105
+
+   91 expression: disjunction KEY_IF . disjunction KEY_ELSE expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    disjunction  go to state 142
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 106
+
+   97 disjunction: conjunction KEY_OR . disjunction
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    disjunction  go to state 143
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 107
+
+   99 conjunction: inversion KEY_AND . conjunction
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    conjunction  go to state 144
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 108
+
+  104 bitwise_or: bitwise_or OP_BITWISE_OR . bitwise_xor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    bitwise_xor  go to state 145
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 109
+
+  106 bitwise_xor: bitwise_xor OP_BITWISE_XOR . bitwise_and
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    bitwise_and  go to state 146
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 110
+
+  108 bitwise_and: bitwise_and OP_BITWISE_AND . shift_expr
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    shift_expr  go to state 147
+    sum         go to state 62
+    term        go to state 63
+    factor      go to state 64
+    power       go to state 65
+    primary     go to state 66
+    atom        go to state 67
+    list        go to state 68
+
+
+State 111
+
+  110 shift_expr: shift_expr OP_LEFT_SHIFT . sum
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    sum      go to state 148
+    term     go to state 63
+    factor   go to state 64
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 112
+
+  111 shift_expr: shift_expr OP_RIGHT_SHIFT . sum
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    sum      go to state 149
+    term     go to state 63
+    factor   go to state 64
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 113
+
+  113 sum: sum OP_ADD . term
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    term     go to state 150
+    factor   go to state 64
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 114
+
+  114 sum: sum OP_SUBTRACT . term
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    term     go to state 151
+    factor   go to state 64
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 115
+
+  116 term: term OP_MULTIPLY . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 152
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 116
+
+  117 term: term OP_DIVIDE . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 153
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 117
+
+  118 term: term OP_FLOOR_DIVIDE . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 154
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 118
+
+  119 term: term OP_MODULO . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 155
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 119
+
+  120 term: term OP_AT . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 156
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 120
+
+  126 power: primary OP_POWER . factor
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    factor   go to state 157
+    power    go to state 65
+    primary  go to state 66
+    atom     go to state 67
+    list     go to state 68
+
+
+State 121
+
+  129 primary: primary DELIM_LEFT_PAREN . DELIM_RIGHT_PAREN
+  130        | primary DELIM_LEFT_PAREN . arguments DELIM_RIGHT_PAREN
+
+    KEY_TRY            shift, and go to state 158
+    DELIM_RIGHT_PAREN  shift, and go to state 159
+
+    arguments  go to state 160
+
+
+State 122
+
+  131 primary: primary DELIM_LEFT_BRACKET . slices DELIM_RIGHT_BRACKET
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    KEY_ASYNC           shift, and go to state 78
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_COLON         shift, and go to state 161
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expression        go to state 162
+    disjunction       go to state 54
+    conjunction       go to state 55
+    inversion         go to state 56
+    comparison        go to state 57
+    bitwise_or        go to state 58
+    bitwise_xor       go to state 59
+    bitwise_and       go to state 60
+    shift_expr        go to state 61
+    sum               go to state 62
+    term              go to state 63
+    factor            go to state 64
+    power             go to state 65
+    primary           go to state 66
+    slices            go to state 163
+    slice             go to state 164
+    atom              go to state 67
+    list              go to state 68
+    named_expression  go to state 165
+
+
+State 123
+
+  128 primary: primary DELIM_DOT . NAME
+
+    NAME  shift, and go to state 166
+
+
+State 124
+
+   43 raise_stmt: KEY_RAISE expression KEY_FROM . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expression   go to state 167
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 125
+
+   54 class_arguments: DELIM_LEFT_PAREN . DELIM_RIGHT_PAREN
+   55                | DELIM_LEFT_PAREN . arguments DELIM_RIGHT_PAREN
+
+    KEY_TRY            shift, and go to state 158
+    DELIM_RIGHT_PAREN  shift, and go to state 168
+
+    arguments  go to state 169
+
+
+State 126
+
+   56 class_def_raw: KEY_CLASS NAME DELIM_COLON . block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 172
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 127
+
+   57 class_def_raw: KEY_CLASS NAME class_arguments . DELIM_COLON block
+
+    DELIM_COLON  shift, and go to state 173
+
+
+State 128
+
+   86 for_stmt: KEY_FOR star_targets KEY_IN . expressions DELIM_COLON block
+   87         | KEY_FOR star_targets KEY_IN . expressions DELIM_COLON block else_block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expressions  go to state 174
+    expression   go to state 53
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 129
+
+   59 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN . params DELIM_RIGHT_PAREN DELIM_COLON block
+   60                 | KEY_DEF NAME DELIM_LEFT_PAREN . DELIM_RIGHT_PAREN DELIM_COLON block
+   61                 | KEY_DEF NAME DELIM_LEFT_PAREN . params DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+   62                 | KEY_DEF NAME DELIM_LEFT_PAREN . DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+
+    DELIM_RIGHT_PAREN  shift, and go to state 175
+    NAME               shift, and go to state 176
+
+    params                   go to state 177
+    parameters               go to state 178
+    param_no_default_plus    go to state 179
+    param_with_default_plus  go to state 180
+    param                    go to state 181
+
+
+State 130
+
+   48 comma_separated_name: NAME DELIM_COMMA . comma_separated_name
+
+    NAME  shift, and go to state 76
+
+    comma_separated_name  go to state 182
+
+
+State 131
+
+   84 while_stmt: KEY_WHILE named_expression DELIM_COLON . block
+   85           | KEY_WHILE named_expression DELIM_COLON . block else_block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 183
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 132
+
+   50 assert_stmt: KEY_ASSERT expression DELIM_COMMA . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expression   go to state 184
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 133
+
+   77 if_stmt: KEY_IF named_expression DELIM_COLON . block elif_stmt
+   78        | KEY_IF named_expression DELIM_COLON . block
+   79        | KEY_IF named_expression DELIM_COLON . block else_block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 185
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 134
+
+  161 list: DELIM_LEFT_BRACKET star_named_expressions DELIM_RIGHT_BRACKET .
+
+    $default  reduce using rule 161 (list)
+
+
+State 135
+
+   94 star_named_expressions: star_named_expression DELIM_COMMA .
+   95                       | star_named_expression DELIM_COMMA . star_named_expressions
+
+    KEY_ASYNC  shift, and go to state 78
+
+    $default  reduce using rule 94 (star_named_expressions)
+
+    star_named_expressions  go to state 186
+    star_named_expression   go to state 89
+    named_expression        go to state 90
+
+
+State 136
+
+   37 assignment: NAME DELIM_COLON expression .
+   38           | NAME DELIM_COLON expression . DELIM_ASSIGN annotated_rhs
+
+    DELIM_ASSIGN  shift, and go to state 187
+
+    $default  reduce using rule 37 (assignment)
+
+
+State 137
+
+   20 simple_stmts: simple_stmt DELIM_SEMICOLON NEWLINE .
+
+    $default  reduce using rule 20 (simple_stmts)
+
+
+State 138
+
+   21 simple_stmts: simple_stmt DELIM_SEMICOLON simple_stmts .
+
+    $default  reduce using rule 21 (simple_stmts)
+
+
+State 139
+
+    5 newline_star: NEWLINE newline_star .
+
+    $default  reduce using rule 5 (newline_star)
+
+
+State 140
+
+    9 eval: expressions newline_star ENDMARKER .
+
+    $default  reduce using rule 9 (eval)
+
+
+State 141
+
+   88 expressions: expression DELIM_COMMA expressions .
+
+    $default  reduce using rule 88 (expressions)
+
+
+State 142
+
+   91 expression: disjunction KEY_IF disjunction . KEY_ELSE expression
+
+    KEY_ELSE  shift, and go to state 188
+
+
+State 143
+
+   97 disjunction: conjunction KEY_OR disjunction .
+
+    $default  reduce using rule 97 (disjunction)
+
+
+State 144
+
+   99 conjunction: inversion KEY_AND conjunction .
+
+    $default  reduce using rule 99 (conjunction)
+
+
+State 145
+
+  104 bitwise_or: bitwise_or OP_BITWISE_OR bitwise_xor .
+  106 bitwise_xor: bitwise_xor . OP_BITWISE_XOR bitwise_and
+
+    OP_BITWISE_XOR  shift, and go to state 109
+
+    $default  reduce using rule 104 (bitwise_or)
+
+
+State 146
+
+  106 bitwise_xor: bitwise_xor OP_BITWISE_XOR bitwise_and .
+  108 bitwise_and: bitwise_and . OP_BITWISE_AND shift_expr
+
+    OP_BITWISE_AND  shift, and go to state 110
+
+    $default  reduce using rule 106 (bitwise_xor)
+
+
+State 147
+
+  108 bitwise_and: bitwise_and OP_BITWISE_AND shift_expr .
+  110 shift_expr: shift_expr . OP_LEFT_SHIFT sum
+  111           | shift_expr . OP_RIGHT_SHIFT sum
+
+    OP_LEFT_SHIFT   shift, and go to state 111
+    OP_RIGHT_SHIFT  shift, and go to state 112
+
+    $default  reduce using rule 108 (bitwise_and)
+
+
+State 148
+
+  110 shift_expr: shift_expr OP_LEFT_SHIFT sum .
+  113 sum: sum . OP_ADD term
+  114    | sum . OP_SUBTRACT term
+
+    OP_ADD       shift, and go to state 113
+    OP_SUBTRACT  shift, and go to state 114
+
+    $default  reduce using rule 110 (shift_expr)
+
+
+State 149
+
+  111 shift_expr: shift_expr OP_RIGHT_SHIFT sum .
+  113 sum: sum . OP_ADD term
+  114    | sum . OP_SUBTRACT term
+
+    OP_ADD       shift, and go to state 113
+    OP_SUBTRACT  shift, and go to state 114
+
+    $default  reduce using rule 111 (shift_expr)
+
+
+State 150
+
+  113 sum: sum OP_ADD term .
+  116 term: term . OP_MULTIPLY factor
+  117     | term . OP_DIVIDE factor
+  118     | term . OP_FLOOR_DIVIDE factor
+  119     | term . OP_MODULO factor
+  120     | term . OP_AT factor
+
+    OP_MULTIPLY      shift, and go to state 115
+    OP_DIVIDE        shift, and go to state 116
+    OP_FLOOR_DIVIDE  shift, and go to state 117
+    OP_MODULO        shift, and go to state 118
+    OP_AT            shift, and go to state 119
+
+    $default  reduce using rule 113 (sum)
+
+
+State 151
+
+  114 sum: sum OP_SUBTRACT term .
+  116 term: term . OP_MULTIPLY factor
+  117     | term . OP_DIVIDE factor
+  118     | term . OP_FLOOR_DIVIDE factor
+  119     | term . OP_MODULO factor
+  120     | term . OP_AT factor
+
+    OP_MULTIPLY      shift, and go to state 115
+    OP_DIVIDE        shift, and go to state 116
+    OP_FLOOR_DIVIDE  shift, and go to state 117
+    OP_MODULO        shift, and go to state 118
+    OP_AT            shift, and go to state 119
+
+    $default  reduce using rule 114 (sum)
+
+
+State 152
+
+  116 term: term OP_MULTIPLY factor .
+
+    $default  reduce using rule 116 (term)
+
+
+State 153
+
+  117 term: term OP_DIVIDE factor .
+
+    $default  reduce using rule 117 (term)
+
+
+State 154
+
+  118 term: term OP_FLOOR_DIVIDE factor .
+
+    $default  reduce using rule 118 (term)
+
+
+State 155
+
+  119 term: term OP_MODULO factor .
+
+    $default  reduce using rule 119 (term)
+
+
+State 156
+
+  120 term: term OP_AT factor .
+
+    $default  reduce using rule 120 (term)
+
+
+State 157
+
+  126 power: primary OP_POWER factor .
+
+    $default  reduce using rule 126 (power)
+
+
+State 158
+
+  165 arguments: KEY_TRY .
+
+    $default  reduce using rule 165 (arguments)
+
+
+State 159
+
+  129 primary: primary DELIM_LEFT_PAREN DELIM_RIGHT_PAREN .
+
+    $default  reduce using rule 129 (primary)
+
+
+State 160
+
+  130 primary: primary DELIM_LEFT_PAREN arguments . DELIM_RIGHT_PAREN
+
+    DELIM_RIGHT_PAREN  shift, and go to state 189
+
+
+State 161
+
+  139 slice: DELIM_COLON .
+  141      | DELIM_COLON . expression
+  143      | DELIM_COLON . DELIM_COLON
+  145      | DELIM_COLON . expression DELIM_COLON
+  147      | DELIM_COLON . DELIM_COLON expression
+  149      | DELIM_COLON . expression DELIM_COLON expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_COLON         shift, and go to state 190
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 139 (slice)
+
+    expression   go to state 191
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 162
+
+  134 slices: expression .
+  136       | expression . DELIM_COMMA
+  138       | expression . DELIM_COMMA slices
+  140 slice: expression . DELIM_COLON
+  142      | expression . DELIM_COLON expression
+  144      | expression . DELIM_COLON DELIM_COLON
+  146      | expression . DELIM_COLON expression DELIM_COLON
+  148      | expression . DELIM_COLON DELIM_COLON expression
+  150      | expression . DELIM_COLON expression DELIM_COLON expression
+
+    DELIM_COMMA  shift, and go to state 192
+    DELIM_COLON  shift, and go to state 193
+
+    $default  reduce using rule 134 (slices)
+
+
+State 163
+
+  131 primary: primary DELIM_LEFT_BRACKET slices . DELIM_RIGHT_BRACKET
+
+    DELIM_RIGHT_BRACKET  shift, and go to state 194
+
+
+State 164
+
+  133 slices: slice .
+  135       | slice . DELIM_COMMA
+  137       | slice . DELIM_COMMA slices
+
+    DELIM_COMMA  shift, and go to state 195
+
+    $default  reduce using rule 133 (slices)
+
+
+State 165
+
+  151 slice: named_expression .
+
+    $default  reduce using rule 151 (slice)
+
+
+State 166
+
+  128 primary: primary DELIM_DOT NAME .
+
+    $default  reduce using rule 128 (primary)
+
+
+State 167
+
+   43 raise_stmt: KEY_RAISE expression KEY_FROM expression .
+
+    $default  reduce using rule 43 (raise_stmt)
+
+
+State 168
+
+   54 class_arguments: DELIM_LEFT_PAREN DELIM_RIGHT_PAREN .
+
+    $default  reduce using rule 54 (class_arguments)
+
+
+State 169
+
+   55 class_arguments: DELIM_LEFT_PAREN arguments . DELIM_RIGHT_PAREN
+
+    DELIM_RIGHT_PAREN  shift, and go to state 196
+
+
+State 170
+
+   51 block: NEWLINE . INDENT statements DEDENT
+
+    INDENT  shift, and go to state 197
+
+
+State 171
+
+   52 block: simple_stmts .
+
+    $default  reduce using rule 52 (block)
+
+
+State 172
+
+   56 class_def_raw: KEY_CLASS NAME DELIM_COLON block .
+
+    $default  reduce using rule 56 (class_def_raw)
+
+
+State 173
+
+   57 class_def_raw: KEY_CLASS NAME class_arguments DELIM_COLON . block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 198
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 174
+
+   86 for_stmt: KEY_FOR star_targets KEY_IN expressions . DELIM_COLON block
+   87         | KEY_FOR star_targets KEY_IN expressions . DELIM_COLON block else_block
+
+    DELIM_COLON  shift, and go to state 199
+
+
+State 175
+
+   60 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN . DELIM_COLON block
+   62                 | KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN . DELIM_ARROW DELIM_COLON block
+
+    DELIM_COLON  shift, and go to state 200
+    DELIM_ARROW  shift, and go to state 201
+
+
+State 176
+
+   73 param: NAME .
+   74      | NAME . annotation
+
+    DELIM_COLON  shift, and go to state 202
+
+    $default  reduce using rule 73 (param)
+
+    annotation  go to state 203
+
+
+State 177
+
+   59 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params . DELIM_RIGHT_PAREN DELIM_COLON block
+   61                 | KEY_DEF NAME DELIM_LEFT_PAREN params . DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
+
+    DELIM_RIGHT_PAREN  shift, and go to state 204
+
+
+State 178
+
+   63 params: parameters .
+
+    $default  reduce using rule 63 (params)
+
+
+State 179
+
+   64 parameters: param_no_default_plus . DELIM_COMMA param_with_default_plus
+   66           | param_no_default_plus .
+   67           | param_no_default_plus . DELIM_COMMA
+
+    DELIM_COMMA  shift, and go to state 205
+
+    $default  reduce using rule 66 (parameters)
+
+
+State 180
+
+   65 parameters: param_with_default_plus .
+   68           | param_with_default_plus . DELIM_COMMA
+
+    DELIM_COMMA  shift, and go to state 206
+
+    $default  reduce using rule 65 (parameters)
+
+
+State 181
+
+   69 param_no_default_plus: param .
+   70                      | param . DELIM_COMMA param_no_default_plus
+   71 param_with_default_plus: param . default
+   72                        | param . default DELIM_COMMA param_with_default_plus
+
+    DELIM_COMMA   shift, and go to state 207
+    DELIM_ASSIGN  shift, and go to state 208
+
+    DELIM_COMMA  [reduce using rule 69 (param_no_default_plus)]
+    $default     reduce using rule 69 (param_no_default_plus)
+
+    default  go to state 209
+
+
+State 182
+
+   48 comma_separated_name: NAME DELIM_COMMA comma_separated_name .
+
+    $default  reduce using rule 48 (comma_separated_name)
+
+
+State 183
+
+   84 while_stmt: KEY_WHILE named_expression DELIM_COLON block .
+   85           | KEY_WHILE named_expression DELIM_COLON block . else_block
+
+    KEY_ELSE  shift, and go to state 210
+
+    $default  reduce using rule 84 (while_stmt)
+
+    else_block  go to state 211
+
+
+State 184
+
+   50 assert_stmt: KEY_ASSERT expression DELIM_COMMA expression .
+
+    $default  reduce using rule 50 (assert_stmt)
+
+
+State 185
+
+   77 if_stmt: KEY_IF named_expression DELIM_COLON block . elif_stmt
+   78        | KEY_IF named_expression DELIM_COLON block .
+   79        | KEY_IF named_expression DELIM_COLON block . else_block
+
+    KEY_ELSE  shift, and go to state 210
+    KEY_ELIF  shift, and go to state 212
+
+    $default  reduce using rule 78 (if_stmt)
+
+    elif_stmt   go to state 213
+    else_block  go to state 214
+
+
+State 186
+
+   95 star_named_expressions: star_named_expression DELIM_COMMA star_named_expressions .
+
+    $default  reduce using rule 95 (star_named_expressions)
+
+
+State 187
+
+   38 assignment: NAME DELIM_COLON expression DELIM_ASSIGN . annotated_rhs
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    annotated_rhs  go to state 215
+    expressions    go to state 216
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 188
+
+   91 expression: disjunction KEY_IF disjunction KEY_ELSE . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expression   go to state 217
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 189
+
+  130 primary: primary DELIM_LEFT_PAREN arguments DELIM_RIGHT_PAREN .
+
+    $default  reduce using rule 130 (primary)
+
+
+State 190
+
+  143 slice: DELIM_COLON DELIM_COLON .
+  147      | DELIM_COLON DELIM_COLON . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 143 (slice)
+
+    expression   go to state 218
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 191
+
+  141 slice: DELIM_COLON expression .
+  145      | DELIM_COLON expression . DELIM_COLON
+  149      | DELIM_COLON expression . DELIM_COLON expression
+
+    DELIM_COLON  shift, and go to state 219
+
+    $default  reduce using rule 141 (slice)
+
+
+State 192
+
+  136 slices: expression DELIM_COMMA .
+  138       | expression DELIM_COMMA . slices
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    KEY_ASYNC           shift, and go to state 78
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_COLON         shift, and go to state 161
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 136 (slices)
+
+    expression        go to state 162
+    disjunction       go to state 54
+    conjunction       go to state 55
+    inversion         go to state 56
+    comparison        go to state 57
+    bitwise_or        go to state 58
+    bitwise_xor       go to state 59
+    bitwise_and       go to state 60
+    shift_expr        go to state 61
+    sum               go to state 62
+    term              go to state 63
+    factor            go to state 64
+    power             go to state 65
+    primary           go to state 66
+    slices            go to state 220
+    slice             go to state 164
+    atom              go to state 67
+    list              go to state 68
+    named_expression  go to state 165
+
+
+State 193
+
+  140 slice: expression DELIM_COLON .
+  142      | expression DELIM_COLON . expression
+  144      | expression DELIM_COLON . DELIM_COLON
+  146      | expression DELIM_COLON . expression DELIM_COLON
+  148      | expression DELIM_COLON . DELIM_COLON expression
+  150      | expression DELIM_COLON . expression DELIM_COLON expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_COLON         shift, and go to state 221
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 140 (slice)
+
+    expression   go to state 222
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 194
+
+  131 primary: primary DELIM_LEFT_BRACKET slices DELIM_RIGHT_BRACKET .
+
+    $default  reduce using rule 131 (primary)
+
+
+State 195
+
+  135 slices: slice DELIM_COMMA .
+  137       | slice DELIM_COMMA . slices
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    KEY_ASYNC           shift, and go to state 78
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_COLON         shift, and go to state 161
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 135 (slices)
+
+    expression        go to state 162
+    disjunction       go to state 54
+    conjunction       go to state 55
+    inversion         go to state 56
+    comparison        go to state 57
+    bitwise_or        go to state 58
+    bitwise_xor       go to state 59
+    bitwise_and       go to state 60
+    shift_expr        go to state 61
+    sum               go to state 62
+    term              go to state 63
+    factor            go to state 64
+    power             go to state 65
+    primary           go to state 66
+    slices            go to state 223
+    slice             go to state 164
+    atom              go to state 67
+    list              go to state 68
+    named_expression  go to state 165
+
+
+State 196
+
+   55 class_arguments: DELIM_LEFT_PAREN arguments DELIM_RIGHT_PAREN .
+
+    $default  reduce using rule 55 (class_arguments)
+
+
+State 197
+
+   51 block: NEWLINE INDENT . statements DEDENT
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_CLASS           shift, and go to state 7
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_FOR             shift, and go to state 10
+    KEY_DEF             shift, and go to state 11
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_WHILE           shift, and go to state 13
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    KEY_IF              shift, and go to state 17
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    statements        go to state 224
+    statement         go to state 34
+    simple_stmts      go to state 95
+    simple_stmt       go to state 37
+    compound_stmt     go to state 96
+    assignment        go to state 39
+    return_stmt       go to state 40
+    raise_stmt        go to state 41
+    global_stmt       go to state 42
+    nonlocal_stmt     go to state 43
+    assert_stmt       go to state 44
+    class_def         go to state 45
+    class_def_raw     go to state 46
+    function_def      go to state 47
+    function_def_raw  go to state 48
+    if_stmt           go to state 49
+    while_stmt        go to state 50
+    for_stmt          go to state 51
+    expressions       go to state 97
+    expression        go to state 53
+    disjunction       go to state 54
+    conjunction       go to state 55
+    inversion         go to state 56
+    comparison        go to state 57
+    bitwise_or        go to state 58
+    bitwise_xor       go to state 59
+    bitwise_and       go to state 60
+    shift_expr        go to state 61
+    sum               go to state 62
+    term              go to state 63
+    factor            go to state 64
+    power             go to state 65
+    primary           go to state 66
+    atom              go to state 67
+    list              go to state 68
+
+
+State 198
+
+   57 class_def_raw: KEY_CLASS NAME class_arguments DELIM_COLON block .
+
+    $default  reduce using rule 57 (class_def_raw)
+
+
+State 199
+
+   86 for_stmt: KEY_FOR star_targets KEY_IN expressions DELIM_COLON . block
+   87         | KEY_FOR star_targets KEY_IN expressions DELIM_COLON . block else_block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 225
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 200
+
+   60 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON . block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 226
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 201
+
+   62 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW . DELIM_COLON block
+
+    DELIM_COLON  shift, and go to state 227
+
+
+State 202
+
+   75 annotation: DELIM_COLON . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expression   go to state 228
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 203
+
+   74 param: NAME annotation .
+
+    $default  reduce using rule 74 (param)
+
+
+State 204
+
+   59 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN . DELIM_COLON block
+   61                 | KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN . DELIM_ARROW DELIM_COLON block
+
+    DELIM_COLON  shift, and go to state 229
+    DELIM_ARROW  shift, and go to state 230
+
+
+State 205
+
+   64 parameters: param_no_default_plus DELIM_COMMA . param_with_default_plus
+   67           | param_no_default_plus DELIM_COMMA .
+
+    NAME  shift, and go to state 176
+
+    $default  reduce using rule 67 (parameters)
+
+    param_with_default_plus  go to state 231
+    param                    go to state 232
+
+
+State 206
+
+   68 parameters: param_with_default_plus DELIM_COMMA .
+
+    $default  reduce using rule 68 (parameters)
+
+
+State 207
+
+   70 param_no_default_plus: param DELIM_COMMA . param_no_default_plus
+
+    NAME  shift, and go to state 176
+
+    param_no_default_plus  go to state 233
+    param                  go to state 234
+
+
+State 208
+
+   76 default: DELIM_ASSIGN . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    expression   go to state 235
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 209
+
+   71 param_with_default_plus: param default .
+   72                        | param default . DELIM_COMMA param_with_default_plus
+
+    DELIM_COMMA  shift, and go to state 236
+
+    DELIM_COMMA  [reduce using rule 71 (param_with_default_plus)]
+    $default     reduce using rule 71 (param_with_default_plus)
+
+
+State 210
+
+   83 else_block: KEY_ELSE . DELIM_COLON block
+
+    DELIM_COLON  shift, and go to state 237
+
+
+State 211
+
+   85 while_stmt: KEY_WHILE named_expression DELIM_COLON block else_block .
+
+    $default  reduce using rule 85 (while_stmt)
+
+
+State 212
+
+   80 elif_stmt: KEY_ELIF . named_expression DELIM_COLON block elif_stmt
+   81          | KEY_ELIF . named_expression DELIM_COLON block
+   82          | KEY_ELIF . named_expression DELIM_COLON block else_block
+
+    KEY_ASYNC  shift, and go to state 78
+
+    named_expression  go to state 238
+
+
+State 213
+
+   77 if_stmt: KEY_IF named_expression DELIM_COLON block elif_stmt .
+
+    $default  reduce using rule 77 (if_stmt)
+
+
+State 214
+
+   79 if_stmt: KEY_IF named_expression DELIM_COLON block else_block .
+
+    $default  reduce using rule 79 (if_stmt)
+
+
+State 215
+
+   38 assignment: NAME DELIM_COLON expression DELIM_ASSIGN annotated_rhs .
+
+    $default  reduce using rule 38 (assignment)
+
+
+State 216
+
+   39 annotated_rhs: expressions .
+
+    $default  reduce using rule 39 (annotated_rhs)
+
+
+State 217
+
+   91 expression: disjunction KEY_IF disjunction KEY_ELSE expression .
+
+    $default  reduce using rule 91 (expression)
+
+
+State 218
+
+  147 slice: DELIM_COLON DELIM_COLON expression .
+
+    $default  reduce using rule 147 (slice)
+
+
+State 219
+
+  145 slice: DELIM_COLON expression DELIM_COLON .
+  149      | DELIM_COLON expression DELIM_COLON . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 145 (slice)
+
+    expression   go to state 239
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 220
+
+  138 slices: expression DELIM_COMMA slices .
+
+    $default  reduce using rule 138 (slices)
+
+
+State 221
+
+  144 slice: expression DELIM_COLON DELIM_COLON .
+  148      | expression DELIM_COLON DELIM_COLON . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 144 (slice)
+
+    expression   go to state 240
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 222
+
+  142 slice: expression DELIM_COLON expression .
+  146      | expression DELIM_COLON expression . DELIM_COLON
+  150      | expression DELIM_COLON expression . DELIM_COLON expression
+
+    DELIM_COLON  shift, and go to state 241
+
+    $default  reduce using rule 142 (slice)
+
+
+State 223
+
+  137 slices: slice DELIM_COMMA slices .
+
+    $default  reduce using rule 137 (slices)
+
+
+State 224
+
+   51 block: NEWLINE INDENT statements . DEDENT
+
+    DEDENT  shift, and go to state 242
+
+
+State 225
+
+   86 for_stmt: KEY_FOR star_targets KEY_IN expressions DELIM_COLON block .
+   87         | KEY_FOR star_targets KEY_IN expressions DELIM_COLON block . else_block
+
+    KEY_ELSE  shift, and go to state 210
+
+    $default  reduce using rule 86 (for_stmt)
+
+    else_block  go to state 243
+
+
+State 226
+
+   60 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON block .
+
+    $default  reduce using rule 60 (function_def_raw)
+
+
+State 227
+
+   62 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON . block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 244
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 228
+
+   75 annotation: DELIM_COLON expression .
+
+    $default  reduce using rule 75 (annotation)
+
+
+State 229
+
+   59 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_COLON . block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 245
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 230
+
+   61 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_ARROW . DELIM_COLON block
+
+    DELIM_COLON  shift, and go to state 246
+
+
+State 231
+
+   64 parameters: param_no_default_plus DELIM_COMMA param_with_default_plus .
+
+    $default  reduce using rule 64 (parameters)
+
+
+State 232
+
+   71 param_with_default_plus: param . default
+   72                        | param . default DELIM_COMMA param_with_default_plus
+
+    DELIM_ASSIGN  shift, and go to state 208
+
+    default  go to state 209
+
+
+State 233
+
+   70 param_no_default_plus: param DELIM_COMMA param_no_default_plus .
+
+    $default  reduce using rule 70 (param_no_default_plus)
+
+
+State 234
+
+   69 param_no_default_plus: param .
+   70                      | param . DELIM_COMMA param_no_default_plus
+
+    DELIM_COMMA  shift, and go to state 207
+
+    DELIM_COMMA  [reduce using rule 69 (param_no_default_plus)]
+    $default     reduce using rule 69 (param_no_default_plus)
+
+
+State 235
+
+   76 default: DELIM_ASSIGN expression .
+
+    $default  reduce using rule 76 (default)
+
+
+State 236
+
+   72 param_with_default_plus: param default DELIM_COMMA . param_with_default_plus
+
+    NAME  shift, and go to state 176
+
+    param_with_default_plus  go to state 247
+    param                    go to state 232
+
+
+State 237
+
+   83 else_block: KEY_ELSE DELIM_COLON . block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 248
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 238
+
+   80 elif_stmt: KEY_ELIF named_expression . DELIM_COLON block elif_stmt
+   81          | KEY_ELIF named_expression . DELIM_COLON block
+   82          | KEY_ELIF named_expression . DELIM_COLON block else_block
+
+    DELIM_COLON  shift, and go to state 249
+
+
+State 239
+
+  149 slice: DELIM_COLON expression DELIM_COLON expression .
+
+    $default  reduce using rule 149 (slice)
+
+
+State 240
+
+  148 slice: expression DELIM_COLON DELIM_COLON expression .
+
+    $default  reduce using rule 148 (slice)
+
+
+State 241
+
+  146 slice: expression DELIM_COLON expression DELIM_COLON .
+  150      | expression DELIM_COLON expression DELIM_COLON . expression
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_NONE            shift, and go to state 3
+    KEY_TRUE            shift, and go to state 6
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 69
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    $default  reduce using rule 146 (slice)
+
+    expression   go to state 250
+    disjunction  go to state 54
+    conjunction  go to state 55
+    inversion    go to state 56
+    comparison   go to state 57
+    bitwise_or   go to state 58
+    bitwise_xor  go to state 59
+    bitwise_and  go to state 60
+    shift_expr   go to state 61
+    sum          go to state 62
+    term         go to state 63
+    factor       go to state 64
+    power        go to state 65
+    primary      go to state 66
+    atom         go to state 67
+    list         go to state 68
+
+
+State 242
+
+   51 block: NEWLINE INDENT statements DEDENT .
+
+    $default  reduce using rule 51 (block)
+
+
+State 243
+
+   87 for_stmt: KEY_FOR star_targets KEY_IN expressions DELIM_COLON block else_block .
+
+    $default  reduce using rule 87 (for_stmt)
+
+
+State 244
+
+   62 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block .
+
+    $default  reduce using rule 62 (function_def_raw)
+
+
+State 245
+
+   59 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_COLON block .
+
+    $default  reduce using rule 59 (function_def_raw)
+
+
+State 246
+
+   61 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON . block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 251
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 247
+
+   72 param_with_default_plus: param default DELIM_COMMA param_with_default_plus .
+
+    $default  reduce using rule 72 (param_with_default_plus)
+
+
+State 248
+
+   83 else_block: KEY_ELSE DELIM_COLON block .
+
+    $default  reduce using rule 83 (else_block)
+
+
+State 249
+
+   80 elif_stmt: KEY_ELIF named_expression DELIM_COLON . block elif_stmt
+   81          | KEY_ELIF named_expression DELIM_COLON . block
+   82          | KEY_ELIF named_expression DELIM_COLON . block else_block
+
+    KEY_FALSE           shift, and go to state 1
+    KEY_PASS            shift, and go to state 2
+    KEY_NONE            shift, and go to state 3
+    KEY_BREAK           shift, and go to state 4
+    KEY_RAISE           shift, and go to state 5
+    KEY_TRUE            shift, and go to state 6
+    KEY_RETURN          shift, and go to state 8
+    KEY_CONTINUE        shift, and go to state 9
+    KEY_NONLOCAL        shift, and go to state 12
+    KEY_ASSERT          shift, and go to state 14
+    KEY_GLOBAL          shift, and go to state 15
+    KEY_NOT             shift, and go to state 16
+    OP_ADD              shift, and go to state 18
+    OP_SUBTRACT         shift, and go to state 19
+    OP_BITWISE_NOT      shift, and go to state 20
+    DELIM_LEFT_BRACKET  shift, and go to state 21
+    DELIM_ELLIPSIS      shift, and go to state 22
+    NAME                shift, and go to state 23
+    NEWLINE             shift, and go to state 170
+    FLOAT_NUMBER        shift, and go to state 25
+    IMAGINARY_NUMBER    shift, and go to state 26
+    INTEGER             shift, and go to state 27
+
+    simple_stmts   go to state 171
+    simple_stmt    go to state 37
+    assignment     go to state 39
+    return_stmt    go to state 40
+    raise_stmt     go to state 41
+    global_stmt    go to state 42
+    nonlocal_stmt  go to state 43
+    assert_stmt    go to state 44
+    block          go to state 252
+    expressions    go to state 97
+    expression     go to state 53
+    disjunction    go to state 54
+    conjunction    go to state 55
+    inversion      go to state 56
+    comparison     go to state 57
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 59
+    bitwise_and    go to state 60
+    shift_expr     go to state 61
+    sum            go to state 62
+    term           go to state 63
+    factor         go to state 64
+    power          go to state 65
+    primary        go to state 66
+    atom           go to state 67
+    list           go to state 68
+
+
+State 250
+
+  150 slice: expression DELIM_COLON expression DELIM_COLON expression .
+
+    $default  reduce using rule 150 (slice)
+
+
+State 251
+
+   61 function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block .
+
+    $default  reduce using rule 61 (function_def_raw)
+
+
+State 252
+
+   80 elif_stmt: KEY_ELIF named_expression DELIM_COLON block . elif_stmt
+   81          | KEY_ELIF named_expression DELIM_COLON block .
+   82          | KEY_ELIF named_expression DELIM_COLON block . else_block
+
+    KEY_ELSE  shift, and go to state 210
+    KEY_ELIF  shift, and go to state 212
+
+    $default  reduce using rule 81 (elif_stmt)
+
+    elif_stmt   go to state 253
+    else_block  go to state 254
+
+
+State 253
+
+   80 elif_stmt: KEY_ELIF named_expression DELIM_COLON block elif_stmt .
+
+    $default  reduce using rule 80 (elif_stmt)
+
+
+State 254
+
+   82 elif_stmt: KEY_ELIF named_expression DELIM_COLON block else_block .
+
+    $default  reduce using rule 82 (elif_stmt)
