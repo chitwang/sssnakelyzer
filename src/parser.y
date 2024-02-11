@@ -55,343 +55,371 @@ ast_node* root;
 
 %token KEY_FALSE KEY_AWAIT KEY_ELSE KEY_IMPORT KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_RAISE KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_LAMBDA KEY_TRY KEY_AS KEY_DEF KEY_FROM KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_DEL KEY_GLOBAL KEY_NOT KEY_WITH KEY_ASYNC KEY_ELIF KEY_IF KEY_OR KEY_YIELD OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_ASSIGN OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_INIT DUNDER_NAME DUNDER_MAIN ENDMARKER WILDCARD_UNDERSCORE
 
-%type start_symbol file interactive eval statements statement_newline newline_star expressions compound_stmt simple_stmts expression assignment return_stmt raise_stmt del_stmt assert_stmt global_stmt nonlocal_stmt function_def if_stmt class_def for_stmt while_stmt annotated_rhs single_target single_subscript_attribute_target multiple_star_targets augassign star_targets comma_separated_name del_targets dotted_as_name dotted_name dotted_as_names function_def_raw class_def_raw params parameters star_etc class_arguments arguments param_with_default_plus param_no_default_plus block param default named_expression elif_stmt else_block strings disjunction conjunction inversion comparison compare_op_bitwise_or_pair compare_op_bitwise_or_pair_plus bitwise_or eq_bitwise_or gt_bitwise_or in_bitwise_or is_bitwise_or lt_bitwise_or gte_bitwise_or lte_bitwise_or isnot_bitwise_or noteq_bitwise_or notin_bitwise_or bitwise_xor bitwise_and shift_expr sum term factor power primary slices atom slice list 
+%type start_symbol single_input eval_input file_input simple_stmt compound_stmt stmt parameters file_plus func_body_suite test typedarglist tfpdef vfpdef testlist newline_plus small_stmt expr_stmt del_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names dotted_name classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if encoding_decl 
 
 %start start_symbol
 
+%left DELIM_COMMA
+
 %%
 
-start_symbol: file
-    | interactive
-    | eval
-    /* |func_type */
+start_symbol: single_input
+            /* | eval_input */
+            /* | file_input */
+            /* | func_type_input */
 
-newline_star: NEWLINE
-    | NEWLINE newline_star
+single_input: NEWLINE
+            | simple_stmt
+            | compound_stmt NEWLINE
 
-file: ENDMARKER
-    |statements ENDMARKER
+file_input: file_plus ENDMARKER
+          | ENDMARKER
 
-eval: expressions ENDMARKER
-    | expressions newline_star ENDMARKER
+file_plus: NEWLINE file_plus
+         | stmt file_plus
+         | NEWLINE
+         | stmt
 
-interactive: statement_newline
+eval_input: testlist newline_plus ENDMARKER
+          | testlist ENDMARKER
 
-/* func_type: DELIM_LEFT_PAREN type_expressions DELIM_RIGHT_PAREN DELIM_ARROW expression newline_star ENDMARKER
-    | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW newline_star ENDMARKER */
+newline_plus: newline_plus NEWLINE
+            | NEWLINE
 
-statements: statement
-    |statement statements
+funcdef: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON func_body_suite
+       | KEY_DEF NAME parameters DELIM_COLON func_body_suite
 
-statement: compound_stmt  
-    |simple_stmts 
+parameters: DELIM_LEFT_PAREN typedarglist DELIM_RIGHT_PAREN
+          | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN
+
+argument_s : tfpdef DELIM_ASSIGN test
+           | tfpdef
+
+typedarglist : argument_s DELIM_COMMA
+             | argument_s
+             | argument_s DELIM_COMMA typedarglist
     
-statement_newline: compound_stmt NEWLINE 
-    | simple_stmts
-    | NEWLINE 
-    | ENDMARKER     
+tfpdef: NAME DELIM_COLON test
+      | NAME
 
-simple_stmts: simple_stmt NEWLINE
-    | simple_stmt DELIM_SEMICOLON NEWLINE
-    | simple_stmt DELIM_SEMICOLON simple_stmts
+vfpdef: NAME
 
-    
-simple_stmt: assignment
-    /* | type_alias */
-    | expressions 
-    | return_stmt
-    | raise_stmt
-    | KEY_PASS 
-    /* | del_stmt */
-    | assert_stmt
-    | KEY_BREAK 
-    | KEY_CONTINUE 
-    | global_stmt
-    | nonlocal_stmt
+stmt: simple_stmt
+    | compound_stmt
 
-compound_stmt: function_def
-    | if_stmt
-    | class_def
-    /* | with_stmt */
-    | for_stmt
-    /* | try_stmt */
-    | while_stmt
-    
-assignment: NAME DELIM_COLON expression
-    | NAME DELIM_COLON expression DELIM_ASSIGN annotated_rhs 
-    /* | DELIM_LEFT_BRACKET single_target DELIM_RIGHT_PAREN DELIM_COLON expression
-    | DELIM_LEFT_BRACKET single_target DELIM_RIGHT_PAREN DELIM_COLON expression DELIM_ASSIGN annotated_rhs
-    | single_subscript_attribute_target DELIM_COLON expression
-    | single_subscript_attribute_target DELIM_COLON expression DELIM_ASSIGN annotated_rhs */
-    /* | multiple_star_targets star_expressions !'=' [TYPE_COMMENT] 
-    | single_target augassign ~ star_expressions  */
+simple_stmt: small_or_semi NEWLINE
+           /* | small_stmt DELIM_SEMICOLON NEWLINE
+           | small_stmt small_stmt_plus NEWLINE
+           | small_stmt small_stmt_plus DELIM_SEMICOLON NEWLINE */
 
-annotated_rhs: expressions 
+small_or_semi: small_stmt
+             | small_stmt DELIM_SEMICOLON
+             | small_stmt DELIM_SEMICOLON small_or_semi
 
-multiple_star_targets: star_targets DELIM_ASSIGN
-    | star_targets DELIM_ASSIGN multiple_star_targets
+small_stmt_plus: DELIM_SEMICOLON small_stmt small_stmt_plus
+               | DELIM_SEMICOLON small_stmt
+
+small_stmt: expr_stmt 
+          | del_stmt 
+          | pass_stmt 
+          | flow_stmt 
+          | global_stmt 
+          | nonlocal_stmt 
+          | assert_stmt
+        
+expr_stmt: testlist_star_expr annassign
+         | testlist_star_expr augassign
+         | testlist_star_expr augassign testlist
+         | testlist_star_expr
+         
+annassign: DELIM_COLON test
+         | DELIM_COLON test OP_ASSIGN
+         | DELIM_COLON test OP_ASSIGN testlist_star_expr
+
+testlist_star_expr: test_or_star test_or_star_plus 
+                  | test_or_star test_or_star_plus DELIM_COMMA
+                  | test_or_star
+                  | test_or_star DELIM_COMMA
+
+test_or_star: test
+            | star_expr
+            
+test_or_star_plus:  DELIM_COMMA test_or_star
+                 |  DELIM_COMMA test_or_star  test_or_star_plus
 
 augassign: DELIM_ASSIGN_ADD 
-    | DELIM_ASSIGN_SUBTRACT
-    | DELIM_ASSIGN_MULTIPLY
-    | DELIM_ASSIGN_DIVIDE
-    | DELIM_ASSIGN_MODULO
-    | DELIM_ASSIGN_BITWISE_AND
-    | DELIM_ASSIGN_BITWISE_OR 
-    | DELIM_ASSIGN_BITWISE_XOR
-    | DELIM_ASSIGN_LEFT_SHIFT 
-    | DELIM_ASSIGN_RIGHT_SHIFT
-    | DELIM_ASSIGN_POWER
-    | DELIM_ASSIGN_FLOOR_DIVIDE
+         | DELIM_ASSIGN_SUBTRACT 
+         | DELIM_ASSIGN_MULTIPLY 
+         | DELIM_ASSIGN_DIVIDE 
+         | DELIM_ASSIGN_MODULO 
+         | DELIM_ASSIGN_BITWISE_AND
+         | DELIM_ASSIGN_BITWISE_OR
+         | DELIM_ASSIGN_BITWISE_XOR
+         | DELIM_ASSIGN_LEFT_SHIFT
+         | DELIM_ASSIGN_RIGHT_SHIFT
+         | DELIM_ASSIGN_POWER
+         | DELIM_ASSIGN_FLOOR_DIVIDE
 
-return_stmt: KEY_RETURN
-    | KEY_RETURN expressions  
+del_stmt: KEY_DEL exprlist
 
-raise_stmt: KEY_RAISE
-    | KEY_RAISE expression KEY_FROM expression
-    | KEY_RAISE expression
-       
-global_stmt: KEY_GLOBAL comma_separated_name
+pass_stmt: KEY_PASS
 
-nonlocal_stmt: KEY_NONLOCAL comma_separated_name
+flow_stmt: break_stmt 
+         | continue_stmt 
+         | return_stmt 
+         /* | raise_stmt  */
 
-comma_separated_name: NAME
-    | NAME DELIM_COMMA comma_separated_name
+break_stmt: KEY_BREAK
 
-/* del_stmt: KEY_DEL del_targets &(';' | NEWLINE)  */
+continue_stmt: KEY_CONTINUE
 
-assert_stmt: KEY_ASSERT expression
-    | KEY_ASSERT expression DELIM_COMMA expression
+return_stmt: KEY_RETURN testlist_star_expr
+           | KEY_RETURN
 
-dotted_as_names: dotted_as_name
-    | dotted_as_name DELIM_COMMA dotted_as_names
+/* raise_stmt: 'raise' [test ['from' test]] */
 
-dotted_as_name: dotted_name 
-    | dotted_name KEY_AS NAME
+dotted_name: NAME 
+           | NAME DELIM_DOT dotted_name
 
-dotted_name: dotted_name DELIM_DOT NAME 
-    | NAME
-
-block: NEWLINE INDENT statements DEDENT 
-    | simple_stmts
-
-class_def: class_def_raw
-
-class_arguments: DELIM_LEFT_PAREN DELIM_RIGHT_PAREN
-            | DELIM_LEFT_PAREN arguments DELIM_RIGHT_PAREN
-            
-/* class_def_raw: KEY_CLASS NAME [type_params] [DELIM_LEFT_PAREN [arguments] DELIM_RIGHT_PAREN ] DELIM_COLON block  */
-
-class_def_raw: KEY_CLASS NAME DELIM_COLON block
-            | KEY_CLASS NAME class_arguments DELIM_COLON block
-
-function_def: function_def_raw
-
-/* function_def_raw: KEY_DEF NAME [type_params] '(' [params] ')' ['->' expression ] ':' [func_type_comment] block 
-    | ASYNC KEY_DEF NAME [type_params] '(' [params] ')' ['->' expression ] ':' [func_type_comment] block  */
-
-function_def_raw: KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_COLON block
-    | KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON block
-    | KEY_DEF NAME DELIM_LEFT_PAREN params DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block
-    | KEY_DEF NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW DELIM_COLON block   
-    
-params: parameters
-
-/* parameters: slash_no_default param_no_default* param_with_default* [star_etc] 
-    | slash_with_default param_with_default* [star_etc] 
-    | param_no_default+ param_with_default* [star_etc] 
-    | param_with_default+ [star_etc] 
-    | star_etc  */
-
-parameters: param_no_default_plus DELIM_COMMA param_with_default_plus
-    | param_with_default_plus
-    | param_no_default_plus
-    | param_no_default_plus DELIM_COMMA
-    | param_with_default_plus DELIM_COMMA
-    
-/* param_no_default_plus: param_no_default
-    |param_no_default param_no_default_plus
-
-param_with_default_plus: param_with_default
-    |param_with_default param_with_default_plus */
-    
-param_no_default_plus : param
-    | param DELIM_COMMA param_no_default_plus    
-
-param_with_default_plus: param default 
-    | param default DELIM_COMMA param_with_default_plus
-    
-param: NAME
-    | NAME annotation
-
-annotation: DELIM_COLON expression
-
-default: DELIM_ASSIGN expression
-
-if_stmt: KEY_IF named_expression DELIM_COLON block elif_stmt 
-    | KEY_IF named_expression DELIM_COLON block 
-    | KEY_IF named_expression DELIM_COLON block else_block
-
-elif_stmt: KEY_ELIF named_expression DELIM_COLON block elif_stmt 
-    | KEY_ELIF named_expression DELIM_COLON block 
-    | KEY_ELIF named_expression DELIM_COLON block else_block 
-
-else_block: KEY_ELSE DELIM_COLON block 
-
-while_stmt: KEY_WHILE named_expression DELIM_COLON block 
-    | KEY_WHILE named_expression DELIM_COLON block else_block
-
-for_stmt: KEY_FOR star_targets KEY_IN expressions DELIM_COLON block
-    | KEY_FOR star_targets KEY_IN expressions DELIM_COLON block else_block
-
-expressions: expression DELIM_COMMA expressions
-    | expression 
-    | expression DELIM_COMMA
-
-expression: disjunction KEY_IF disjunction KEY_ELSE expression 
-    | disjunction
-    
-star_named_expressions: star_named_expression
-    | star_named_expression DELIM_COMMA
-    | star_named_expression DELIM_COMMA star_named_expressions
-
-star_named_expression: named_expression
-
-/* assignment_expression: NAME ':=' ~ expression  */
-
-/* named_expression: assignment_expression
-    | expression !':=' */
-
-disjunction: conjunction KEY_OR disjunction
-    | conjunction
-
-conjunction: inversion KEY_AND conjunction 
-    | inversion
-
-inversion: KEY_NOT inversion 
-    | comparison
-
-comparison: bitwise_or compare_op_bitwise_or_pair_plus 
-    | bitwise_or
-
-compare_op_bitwise_or_pair_plus : compare_op_bitwise_or_pair compare_op_bitwise_or_pair_plus
-
-compare_op_bitwise_or_pair: eq_bitwise_or
-    | noteq_bitwise_or
-    | lte_bitwise_or
-    | lt_bitwise_or
-    | gte_bitwise_or
-    | gt_bitwise_or
-    | notin_bitwise_or
-    | in_bitwise_or
-    | isnot_bitwise_or
-    | is_bitwise_or
-
-eq_bitwise_or: OP_EQUAL bitwise_or
+global_stmt: KEY_GLOBAL names
  
-noteq_bitwise_or: OP_NOT_EQUAL bitwise_or 
-lte_bitwise_or: OP_LESS_THAN_EQUAL bitwise_or 
-lt_bitwise_or: OP_LESS_THAN bitwise_or 
-gte_bitwise_or: OP_GREATER_THAN_EQUAL bitwise_or 
-gt_bitwise_or: OP_GREATER_THAN bitwise_or 
-notin_bitwise_or: KEY_NOT KEY_IN bitwise_or 
-in_bitwise_or: KEY_IN bitwise_or 
-isnot_bitwise_or: KEY_IS KEY_NOT bitwise_or 
-is_bitwise_or: KEY_IS bitwise_or 
+names: NAME
+     | NAME DELIM_COMMA names
 
-bitwise_or: bitwise_or OP_BITWISE_OR bitwise_xor 
-    | bitwise_xor
+nonlocal_stmt: KEY_NONLOCAL names
 
-bitwise_xor: bitwise_xor OP_BITWISE_XOR bitwise_and 
-    | bitwise_and
+assert_stmt: KEY_ASSERT test DELIM_COMMA test
+           | KEY_ASSERT test
 
-bitwise_and: bitwise_and OP_BITWISE_AND shift_expr 
-    | shift_expr
+compound_stmt: if_stmt 
+             | while_stmt 
+             | for_stmt 
+             | funcdef 
+             | classdef
+ 
+if_stmt: KEY_IF namedexpr_test DELIM_COLON suite
+       | KEY_IF namedexpr_test DELIM_COLON suite elif_plus
+       | KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite
+       | KEY_IF namedexpr_test DELIM_COLON suite elif_plus KEY_ELSE DELIM_COLON suite
 
-shift_expr: shift_expr OP_LEFT_SHIFT sum 
-    | shift_expr OP_RIGHT_SHIFT sum 
-    | sum
+elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite
+         | KEY_ELIF namedexpr_test DELIM_COLON suite elif_plus
 
-sum: sum OP_ADD term 
-    | sum OP_SUBTRACT term 
-    | term
+while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite
+          |  KEY_WHILE namedexpr_test DELIM_COLON suite
 
-term: term OP_MULTIPLY factor 
-    | term OP_DIVIDE factor 
-    | term OP_FLOOR_DIVIDE factor 
-    | term OP_MODULO factor 
-    | term OP_AT factor 
-    | factor
+for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite
+        | KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite
 
-factor: OP_ADD factor 
-    | OP_SUBTRACT factor 
-    | OP_BITWISE_NOT factor 
-    | power
+/* try_stmt: ('try' DELIM_COLON suite
+           ((except_clause DELIM_COLON suite)+
+            [KEY_ELSE DELIM_COLON suite]
+            ['finally' DELIM_COLON suite] |
+           'finally' DELIM_COLON suite)) */
 
-power: primary OP_POWER factor 
-    | primary
 
-primary: primary DELIM_DOT NAME 
-    | primary DELIM_LEFT_PAREN DELIM_RIGHT_PAREN 
-    | primary DELIM_LEFT_PAREN arguments DELIM_RIGHT_PAREN 
-    | primary DELIM_LEFT_BRACKET slices DELIM_RIGHT_BRACKET
-    | atom
+/* except_clause: 'except' [test ['as' NAME]] */
 
-slices: slice
-    | expression
-    | slice DELIM_COMMA
-    | expression DELIM_COMMA
-    | slice DELIM_COMMA slices
-    | expression DELIM_COMMA slices
-    /* slice !','  */    
+stmt_plus : stmt
+          | stmt stmt_plus
+        
+suite: simple_stmt 
+     | NEWLINE INDENT stmt_plus DEDENT
 
-slice: DELIM_COLON
-    | expression DELIM_COLON
-    | DELIM_COLON expression
-    | expression DELIM_COLON expression
-    | DELIM_COLON DELIM_COLON
-    | expression DELIM_COLON DELIM_COLON
-    | DELIM_COLON expression DELIM_COLON
-    | expression DELIM_COLON expression DELIM_COLON
-    | DELIM_COLON DELIM_COLON expression
-    | expression DELIM_COLON DELIM_COLON expression
-    | DELIM_COLON expression DELIM_COLON expression
-    | expression DELIM_COLON expression DELIM_COLON expression
-    | named_expression 
+namedexpr_test: test
+              | test OP_ASSIGN test
+    
+test: or_test 
+    | or_test KEY_IF or_test KEY_ELSE test
 
-atom: NAME
-    | KEY_TRUE 
-    | KEY_FALSE 
-    | KEY_NONE 
-    | strings
-    | FLOAT_NUMBER
-    | IMAGINARY_NUMBER
-    | INTEGER
-    | list
-    | DELIM_ELLIPSIS
+test_nocond: or_test
 
-string: STRING_LITERAL 
-strings: string strings 
+or_test: and_test
+       | and_test KEY_OR or_test
 
-list: DELIM_LEFT_BRACKET star_named_expressions DELIM_RIGHT_BRACKET
+and_test: not_test
+        | not_test KEY_AND and_test
+
+not_test: KEY_NOT not_test
+        | comparison
+        
+comparison: expr
+          | expr comp_op comparison
+
+comp_op: OP_LESS_THAN
+       | OP_GREATER_THAN
+       | OP_EQUAL
+       | OP_GREATER_THAN_EQUAL
+       | OP_LESS_THAN_EQUAL
+       | OP_NOT_EQUAL
+       | KEY_IN
+       | KEY_NOT KEY_IN
+       | KEY_IS
+       | KEY_IS KEY_NOT          
+
+star_expr: OP_MULTIPLY expr
+
+expr: xor_expr
+    | xor_expr OP_BITWISE_OR expr
+
+xor_expr: and_expr
+        | and_expr OP_BITWISE_XOR xor_expr
+
+and_expr: shift_expr
+        | shift_expr OP_BITWISE_AND and_expr
+        
+shift_expr: arith_expr
+          | arith_expr OP_LEFT_SHIFT shift_expr
+          | arith_expr OP_RIGHT_SHIFT shift_expr
+
+arith_expr: term
+          | term OP_ADD arith_expr
+          | term OP_SUBTRACT arith_expr
+
+term: factor
+    | factor OP_MULTIPLY term
+    | factor OP_AT term
+    | factor OP_DIVIDE term
+    | factor OP_MODULO term
+    | factor OP_FLOOR_DIVIDE term
+
+factor: OP_BITWISE_NOT factor
+      | OP_ADD factor
+      | OP_SUBTRACT factor
+      | power
+
+power: atom_expr 
+     | atom_expr OP_POWER factor
+    
+atom_expr: atom
+         | atom trailer_plus
+
+string_plus : string_plus STRING_LITERAL
+            | STRING_LITERAL
+
+atom: DELIM_LEFT_BRACKET testlist_comp DELIM_RIGHT_BRACKET
     | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET
+    /* | DELIM_LEFT_CURLY dictorsetmaker DELIM_RIGHT_CURLY */
+    | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY
+    | NAME 
+    | number
+    | string_plus 
+    | DELIM_ELLIPSIS
+    | KEY_NONE 
+    | KEY_TRUE 
+    | KEY_FALSE
+    
+number: INTEGER
+      | FLOAT_NUMBER
+      | IMAGINARY_NUMBER
+      
+testlist_comp: named_or_star comp_for
+             | named_star_plus
 
-star_targets: KEY_AWAIT
+named_or_star: namedexpr_test
+             | star_expr
 
-named_expression: KEY_ASYNC
+named_star_plus: named_or_star
+               | named_or_star DELIM_COMMA
+               | named_or_star DELIM_COMMA named_star_plus
 
-arguments: KEY_TRY
+trailer: DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN
+       | DELIM_LEFT_PAREN  DELIM_RIGHT_PAREN
+       | DELIM_LEFT_BRACKET subscriptlist DELIM_RIGHT_BRACKET
+       | DELIM_DOT NAME
 
-/* arguments: args &')'
-    | args DELIM_COMMA &')' 
+trailer_plus: trailer_plus trailer
+            | trailer
 
-args: ','.(starred_expression | ( assignment_expression | expression !':=') !'=')+ */
+subscriptlist: subscript
+             | subscript DELIM_COMMA subscriptlist
+             | subscript DELIM_COMMA
+
+subscript: test
+         | DELIM_COLON
+         | DELIM_COLON sliceop
+         | DELIM_COLON test
+         | DELIM_COLON test sliceop
+         | test DELIM_COLON
+         | test DELIM_COLON sliceop
+         | test DELIM_COLON test
+         | test DELIM_COLON test sliceop
+
+sliceop: DELIM_COLON
+       | DELIM_COLON test
+
+common_expr : expr
+            | star_expr
+
+exprlist: common_expr 
+        | common_expr DELIM_COMMA exprlist
+        | common_expr DELIM_COMMA
+
+testlist: test 
+        | test DELIM_COMMA testlist
+        | test DELIM_COMMA
+
+/* dictorsetmaker: test DELIM_COLON test comp_for
+              | test DELIM_COLON test test_test_plus
+              | test DELIM_COLON test test_test_plus DELIM_COMMA
+              | test_or_star comp_for
+              | test_or_star_plus
+              | test_or_star comp_for
+              | test_or_star_plus DELIM_COMMA */
+
+test_test_plus: test DELIM_COLON test
+              | test DELIM_COLON test DELIM_COMMA test_test_plus
+
+classdef: KEY_CLASS NAME DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN DELIM_COLON suite
+        | KEY_CLASS NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON suite
+        | KEY_CLASS NAME DELIM_COLON suite
+
+arglist: argument 
+       | argument DELIM_COMMA arglist
+       | argument DELIM_COMMA
+
+argument: test comp_for 
+        | test  
+        | test OP_ASSIGN test 
+        | test DELIM_ASSIGN test 
+        | OP_POWER test
+        | OP_MULTIPLY test 
+
+comp_iter: comp_for 
+         | comp_if
+        
+sync_comp_for: KEY_FOR exprlist KEY_IN or_test comp_iter
+             | KEY_FOR exprlist KEY_IN or_test
+
+comp_for: sync_comp_for
+
+comp_if: KEY_IF test_nocond comp_iter
+       | KEY_IF test_nocond
+
+// not used in grammar, but may appear in "node" passed from Parser to Compiler
+encoding_decl: NAME
+
+func_body_suite: simple_stmt 
+               |  NEWLINE INDENT stmt_plus DEDENT
+
+/* func_type_input: func_type ENDMARKER
+               | func_type newline_plus ENDMARKER
+
+func_type: DELIM_LEFT_PAREN typelist DELIM_RIGHT_PAREN DELIM_ARROW test
+         |  DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_ARROW test
+
+//  typelist is a modified typedargslist (see above)
+
+typelist: test (',' test)* [',' ['*' [test] (',' test)* [',' '**' test] | '**' test]]
+        | '*' [test] (',' test)* [',' '**' test]
+        | OP_POWER test */
 
 %%
 
 
 int main() {
     yyparse();
+    return 0;
 }
 
 void yyerror (char const *s) {
