@@ -1,127 +1,26 @@
-parser.y:58.279-289: warning: symbol ‘arguments_s’ is used, but is not defined as a token and has no rules [-Wother]
-   58 | ..._or_semi arguments_s argument_s star_expr test_or_star test_or_sta...
-      |             ^~~~~~~~~~~
-parser.y: warning: 10 nonterminals useless in grammar [-Wother]
-parser.y: warning: 18 rules useless in grammar [-Wother]
-parser.y:58.279-289: warning: nonterminal useless in grammar: arguments_s [-Wother]
-   58 | ..._or_semi arguments_s argument_s star_expr test_or_star test_or_sta...
-      |             ^~~~~~~~~~~
-parser.y:76.1-10: warning: nonterminal useless in grammar: file_input [-Wother]
-   76 | file_input: file_plus ENDMARKER
+parser.y: warning: 8 nonterminals useless in grammar [-Wother]
+parser.y: warning: 16 rules useless in grammar [-Wother]
+parser.y:75.1-10: warning: nonterminal useless in grammar: file_input [-Wother]
+   75 | file_input: file_plus ENDMARKER
       | ^~~~~~~~~~
-parser.y:79.1-9: warning: nonterminal useless in grammar: file_plus [-Wother]
-   79 | file_plus: NEWLINE file_plus
+parser.y:78.1-9: warning: nonterminal useless in grammar: file_plus [-Wother]
+   78 | file_plus: NEWLINE file_plus
       | ^~~~~~~~~
-parser.y:84.1-10: warning: nonterminal useless in grammar: eval_input [-Wother]
-   84 | eval_input: testlist newline_plus ENDMARKER
+parser.y:83.1-10: warning: nonterminal useless in grammar: eval_input [-Wother]
+   83 | eval_input: testlist newline_plus ENDMARKER
       | ^~~~~~~~~~
-parser.y:87.1-12: warning: nonterminal useless in grammar: newline_plus [-Wother]
-   87 | newline_plus: newline_plus NEWLINE
+parser.y:86.1-12: warning: nonterminal useless in grammar: newline_plus [-Wother]
+   86 | newline_plus: newline_plus NEWLINE
       | ^~~~~~~~~~~~
-parser.y:109.1-6: warning: nonterminal useless in grammar: vfpdef [-Wother]
-  109 | vfpdef: NAME
+parser.y:105.1-6: warning: nonterminal useless in grammar: vfpdef [-Wother]
+  105 | vfpdef: NAME
       | ^~~~~~
-parser.y:123.1-15: warning: nonterminal useless in grammar: small_stmt_plus [-Wother]
-  123 | small_stmt_plus: DELIM_SEMICOLON small_stmt small_stmt_plus
+parser.y:116.1-15: warning: nonterminal useless in grammar: small_stmt_plus [-Wother]
+  116 | small_stmt_plus: DELIM_SEMICOLON small_stmt small_stmt_plus
       | ^~~~~~~~~~~~~~~
-parser.y:185.1-11: warning: nonterminal useless in grammar: dotted_name [-Wother]
-  185 | dotted_name: NAME 
+parser.y:178.1-11: warning: nonterminal useless in grammar: dotted_name [-Wother]
+  178 | dotted_name: NAME 
       | ^~~~~~~~~~~
-parser.y:374.1-14: warning: nonterminal useless in grammar: test_test_plus [-Wother]
-  374 | test_test_plus: test DELIM_COLON test
-      | ^~~~~~~~~~~~~~
-parser.y:404.1-13: warning: nonterminal useless in grammar: encoding_decl [-Wother]
-  404 | encoding_decl: NAME
+parser.y:397.1-13: warning: nonterminal useless in grammar: encoding_decl [-Wother]
+  397 | encoding_decl: NAME
       | ^~~~~~~~~~~~~
-parser.y: warning: 2 shift/reduce conflicts [-Wconflicts-sr]
-parser.y: warning: shift/reduce conflict on token DELIM_COMMA [-Wcounterexamples]
-  First example: KEY_FOR DELIM_LEFT_BRACKET named_or_star • DELIM_COMMA named_star_plus DELIM_RIGHT_BRACKET KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite NEWLINE $end
-  Shift derivation
-    $accept
-    ↳ 0: start_symbol                                                                                                                                                                                                                                                                     $end
-         ↳ 1: single_input
-              ↳ 4: compound_stmt                                                                                                                                                                                                                                                  NEWLINE
-                   ↳ 73: for_stmt
-                         ↳ 84: KEY_FOR exprlist                                                                                                                                                                      KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite
-                                       ↳ 184: common_expr
-                                              ↳ 182: expr
-                                                     ↳ 114: xor_expr
-                                                            ↳ 116: and_expr
-                                                                   ↳ 118: shift_expr
-                                                                          ↳ 120: arith_expr
-                                                                                 ↳ 123: term
-                                                                                        ↳ 126: factor
-                                                                                               ↳ 135: power
-                                                                                                      ↳ 136: atom
-                                                                                                             ↳ 142: DELIM_LEFT_BRACKET testlist_comp                                             DELIM_RIGHT_BRACKET
-                                                                                                                                       ↳ 156: named_star_plus
-                                                                                                                                              ↳ 161: named_or_star • DELIM_COMMA named_star_plus
-  Second example: KEY_FOR DELIM_LEFT_BRACKET named_or_star • DELIM_COMMA DELIM_RIGHT_BRACKET KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite NEWLINE $end
-  Reduce derivation
-    $accept
-    ↳ 0: start_symbol                                                                                                                                                                                                                                                            $end
-         ↳ 1: single_input
-              ↳ 4: compound_stmt                                                                                                                                                                                                                                         NEWLINE
-                   ↳ 73: for_stmt
-                         ↳ 84: KEY_FOR exprlist                                                                                                                                                             KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite
-                                       ↳ 184: common_expr
-                                              ↳ 182: expr
-                                                     ↳ 114: xor_expr
-                                                            ↳ 116: and_expr
-                                                                   ↳ 118: shift_expr
-                                                                          ↳ 120: arith_expr
-                                                                                 ↳ 123: term
-                                                                                        ↳ 126: factor
-                                                                                               ↳ 135: power
-                                                                                                      ↳ 136: atom_expr
-                                                                                                             ↳ 138: atom
-                                                                                                                    ↳ 142: DELIM_LEFT_BRACKET testlist_comp                             DELIM_RIGHT_BRACKET
-                                                                                                                                              ↳ 157: named_star_plus        DELIM_COMMA
-                                                                                                                                                     ↳ 160: named_or_star •
-parser.y: warning: shift/reduce conflict on token DELIM_COMMA [-Wcounterexamples]
-time limit exceeded: 6.000000
-  First example: KEY_FOR DELIM_LEFT_BRACKET named_or_star DELIM_COMMA named_or_star • DELIM_COMMA named_star_plus DELIM_RIGHT_BRACKET KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite NEWLINE $end
-  Shift derivation
-    $accept
-    ↳ 0: start_symbol                                                                                                                                                                                                                                                                                                      $end
-         ↳ 1: single_input
-              ↳ 4: compound_stmt                                                                                                                                                                                                                                                                                   NEWLINE
-                   ↳ 73: for_stmt
-                         ↳ 84: KEY_FOR exprlist                                                                                                                                                                                                       KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite
-                                       ↳ 184: common_expr
-                                              ↳ 182: expr
-                                                     ↳ 114: xor_expr
-                                                            ↳ 116: and_expr
-                                                                   ↳ 118: shift_expr
-                                                                          ↳ 120: arith_expr
-                                                                                 ↳ 123: term
-                                                                                        ↳ 126: factor
-                                                                                               ↳ 135: power
-                                                                                                      ↳ 136: atom_expr
-                                                                                                             ↳ 138: atom
-                                                                                                                    ↳ 142: DELIM_LEFT_BRACKET named_star_plus                                                                     DELIM_RIGHT_BRACKET
-                                                                                                                                              ↳ 161: named_or_star DELIM_COMMA named_star_plus
-                                                                                                                                                                               ↳ 161: named_or_star • DELIM_COMMA named_star_plus
-  Second example: KEY_FOR DELIM_LEFT_BRACKET named_or_star DELIM_COMMA named_or_star • DELIM_COMMA DELIM_RIGHT_BRACKET KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite NEWLINE $end
-  Reduce derivation
-    $accept
-    ↳ 0: start_symbol                                                                                                                                                                                                                                                                                             $end
-         ↳ 1: single_input
-              ↳ 4: compound_stmt                                                                                                                                                                                                                                                                          NEWLINE
-                   ↳ 73: for_stmt
-                         ↳ 84: KEY_FOR exprlist                                                                                                                                                                                              KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite
-                                       ↳ 184: common_expr
-                                              ↳ 182: expr
-                                                     ↳ 114: xor_expr
-                                                            ↳ 116: and_expr
-                                                                   ↳ 118: shift_expr
-                                                                          ↳ 120: arith_expr
-                                                                                 ↳ 123: term
-                                                                                        ↳ 126: factor
-                                                                                               ↳ 135: power
-                                                                                                      ↳ 136: atom_expr
-                                                                                                             ↳ 138: atom
-                                                                                                                    ↳ 142: DELIM_LEFT_BRACKET testlist_comp                                                              DELIM_RIGHT_BRACKET
-                                                                                                                                              ↳ 157: named_star_plus                                         DELIM_COMMA
-                                                                                                                                                     ↳ 161: named_or_star DELIM_COMMA named_star_plus
-                                                                                                                                                                                      ↳ 160: named_or_star •
