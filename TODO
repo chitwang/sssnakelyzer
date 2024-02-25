@@ -8,11 +8,6 @@ TEST SHORTSTRINGCHAR IN LEXER
 
 
 f-string
-
-unput ki testing
-
-yield
-
 type comment, (slash default, star etc from parameters)
 star expression
 parameter complete krna bacha h 
@@ -35,10 +30,8 @@ arguments ki bakchodi
 
 NEW TODO :
 
-raise statement ?
+raise statement?
 dictionary
-variable types
-dunders
 review correctness
 we are expecting a:int = 5, and not a:int followed by a = 5
 
