@@ -11,8 +11,8 @@ def binarySearch(array: list[int], x: int, low: int, high: int) -> int:
 
 
 def main():
-  array = [3, 4, 5, 6, 7, 8, 9]
-  result = binarySearch(array, 4, 0, len(array) - 1)
+  array: list[int] = [3, 4, 5, 6, 7, 8, 9]
+  result: int = binarySearch(array, 4, 0, len(array) - 1)
 
   if result != -1:
     print("Element is present at index:")

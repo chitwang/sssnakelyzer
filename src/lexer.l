@@ -154,6 +154,36 @@ COMMENT                         #[^\n]*
     
 }
 
+"int" {
+    yylval.strval = strdup(yytext);
+    return TYPE_INT;
+}
+
+"float" {
+    yylval.strval = strdup(yytext);
+    return TYPE_FLOAT;
+}
+
+"str" {
+    yylval.strval = strdup(yytext);
+    return TYPE_STRING;
+}
+
+"bool" {
+    yylval.strval = strdup(yytext);
+    return TYPE_BOOL;
+}
+
+"list" {
+    yylval.strval = strdup(yytext);
+    return TYPE_LIST;
+}
+
+"dict" {
+    yylval.strval = strdup(yytext);
+    return TYPE_DICT;
+}
+
 "__init__" {
     yylval.strval = strdup(yytext);
     return DUNDER_INIT;
