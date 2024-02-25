@@ -1,0 +1,261 @@
+parser.y:97.15-21: warning: type clash on default action: <intval> != <strval> [-Wother]
+   97 |             | NEWLINE
+      |               ^~~~~~~
+parser.y:99.10-77: warning: type clash on default action: <intval> != <strval> [-Wother]
+   99 | funcdef: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON func_bo...
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:100.10-60: warning: type clash on default action: <intval> != <strval> [-Wother]
+  100 |        | KEY_DEF NAME parameters DELIM_COLON func_body_suite
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:103.13-59: warning: type clash on default action: <intval> != <strval> [-Wother]
+  103 | parameters: DELIM_LEFT_PAREN typedarglist DELIM_RIGHT_PAREN
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:104.13-46: warning: type clash on default action: <intval> != <strval> [-Wother]
+  104 |           | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:113.9-29: warning: type clash on default action: <intval> != <strval> [-Wother]
+  113 | tfpdef: NAME DELIM_COLON test
+      |         ^~~~~~~~~~~~~~~~~~~~~
+parser.y:114.9-12: warning: type clash on default action: <intval> != <strval> [-Wother]
+  114 |       | NAME
+      |         ^~~~
+parser.y:138.12-39: warning: type clash on default action: <intval> != <> [-Wother]
+  138 | expr_stmt: testlist_star_expr annassign
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:139.12-48: warning: type clash on default action: <intval> != <> [-Wother]
+  139 |          | testlist_star_expr augassign testlist
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:140.12-29: warning: type clash on default action: <intval> != <> [-Wother]
+  140 |          | testlist_star_expr
+      |            ^~~~~~~~~~~~~~~~~~
+parser.y:141.12-55: warning: type clash on default action: <intval> != <> [-Wother]
+  141 |          | testlist_star_expr testlist_star_assign_plus
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:143.28-58: warning: type clash on default action: <intval> != <strval> [-Wother]
+  143 | testlist_star_assign_plus: DELIM_ASSIGN testlist_star_expr
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:144.28-84: warning: type clash on default action: <intval> != <strval> [-Wother]
+  144 |                          | DELIM_ASSIGN testlist_star_expr testlist_s...
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:158.21-44: warning: type clash on default action: <intval> != <strval> [-Wother]
+  158 | test_or_star_plus:  DELIM_COMMA test_or_star
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:159.21-63: warning: type clash on default action: <intval> != <strval> [-Wother]
+  159 |                  |  DELIM_COMMA test_or_star  test_or_star_plus
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:176.12-19: warning: type clash on default action: <intval> != <strval> [-Wother]
+  176 | pass_stmt: KEY_PASS
+      |            ^~~~~~~~
+parser.y:183.13-21: warning: type clash on default action: <intval> != <strval> [-Wother]
+  183 | break_stmt: KEY_BREAK
+      |             ^~~~~~~~~
+parser.y:185.16-27: warning: type clash on default action: <intval> != <strval> [-Wother]
+  185 | continue_stmt: KEY_CONTINUE
+      |                ^~~~~~~~~~~~
+parser.y:187.14-42: warning: type clash on default action: <intval> != <strval> [-Wother]
+  187 | return_stmt: KEY_RETURN testlist_star_expr
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:188.14-23: warning: type clash on default action: <intval> != <strval> [-Wother]
+  188 |            | KEY_RETURN
+      |              ^~~~~~~~~~
+parser.y:195.14-29: warning: type clash on default action: <intval> != <strval> [-Wother]
+  195 | global_stmt: KEY_GLOBAL names
+      |              ^~~~~~~~~~~~~~~~
+parser.y:197.8-11: warning: type clash on default action: <intval> != <strval> [-Wother]
+  197 | names: NAME
+      |        ^~~~
+parser.y:198.8-29: warning: type clash on default action: <intval> != <strval> [-Wother]
+  198 |      | NAME DELIM_COMMA names
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+parser.y:200.16-33: warning: type clash on default action: <intval> != <strval> [-Wother]
+  200 | nonlocal_stmt: KEY_NONLOCAL names
+      |                ^~~~~~~~~~~~~~~~~~
+parser.y:202.14-45: warning: type clash on default action: <intval> != <strval> [-Wother]
+  202 | assert_stmt: KEY_ASSERT test DELIM_COMMA test
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:203.14-28: warning: type clash on default action: <intval> != <strval> [-Wother]
+  203 |            | KEY_ASSERT test
+      |              ^~~~~~~~~~~~~~~
+parser.y:211.10-48: warning: type clash on default action: <intval> != <strval> [-Wother]
+  211 | if_stmt: KEY_IF namedexpr_test DELIM_COLON suite
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:212.10-58: warning: type clash on default action: <intval> != <strval> [-Wother]
+  212 |        | KEY_IF namedexpr_test DELIM_COLON suite elif_plus
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:213.10-75: warning: type clash on default action: <intval> != <strval> [-Wother]
+  213 |        | KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON...
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:214.10-85: warning: type clash on default action: <intval> != <strval> [-Wother]
+  214 |        | KEY_IF namedexpr_test DELIM_COLON suite elif_plus KEY_ELSE D...
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:216.12-52: warning: type clash on default action: <intval> != <strval> [-Wother]
+  216 | elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:217.12-62: warning: type clash on default action: <intval> != <strval> [-Wother]
+  217 |          | KEY_ELIF namedexpr_test DELIM_COLON suite elif_plus
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:219.13-81: warning: type clash on default action: <intval> != <strval> [-Wother]
+  219 | while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite KEY_ELSE DELIM...
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:220.14-55: warning: type clash on default action: <intval> != <strval> [-Wother]
+  220 |           |  KEY_WHILE namedexpr_test DELIM_COLON suite
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:222.11-87: warning: type clash on default action: <intval> != <strval> [-Wother]
+  222 | for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE...
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:223.11-60: warning: type clash on default action: <intval> != <strval> [-Wother]
+  223 |         | KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:254.11-26: warning: type clash on default action: <intval> != <strval> [-Wother]
+  254 | not_test: KEY_NOT not_test
+      |           ^~~~~~~~~~~~~~~~
+parser.y:260.10-21: warning: type clash on default action: <intval> != <strval> [-Wother]
+  260 | comp_op: OP_LESS_THAN
+      |          ^~~~~~~~~~~~
+parser.y:261.10-24: warning: type clash on default action: <intval> != <strval> [-Wother]
+  261 |        | OP_GREATER_THAN
+      |          ^~~~~~~~~~~~~~~
+parser.y:262.10-17: warning: type clash on default action: <intval> != <strval> [-Wother]
+  262 |        | OP_EQUAL
+      |          ^~~~~~~~
+parser.y:263.10-30: warning: type clash on default action: <intval> != <strval> [-Wother]
+  263 |        | OP_GREATER_THAN_EQUAL
+      |          ^~~~~~~~~~~~~~~~~~~~~
+parser.y:264.10-27: warning: type clash on default action: <intval> != <strval> [-Wother]
+  264 |        | OP_LESS_THAN_EQUAL
+      |          ^~~~~~~~~~~~~~~~~~
+parser.y:265.10-21: warning: type clash on default action: <intval> != <strval> [-Wother]
+  265 |        | OP_NOT_EQUAL
+      |          ^~~~~~~~~~~~
+parser.y:266.10-15: warning: type clash on default action: <intval> != <strval> [-Wother]
+  266 |        | KEY_IN
+      |          ^~~~~~
+parser.y:267.10-23: warning: type clash on default action: <intval> != <strval> [-Wother]
+  267 |        | KEY_NOT KEY_IN
+      |          ^~~~~~~~~~~~~~
+parser.y:268.10-15: warning: type clash on default action: <intval> != <strval> [-Wother]
+  268 |        | KEY_IS
+      |          ^~~~~~
+parser.y:269.10-23: warning: type clash on default action: <intval> != <strval> [-Wother]
+  269 |        | KEY_IS KEY_NOT          
+      |          ^~~~~~~~~~~~~~
+parser.y:271.12-27: warning: type clash on default action: <intval> != <strval> [-Wother]
+  271 | star_expr: OP_MULTIPLY expr
+      |            ^~~~~~~~~~~~~~~~
+parser.y:297.9-29: warning: type clash on default action: <intval> != <strval> [-Wother]
+  297 | factor: OP_BITWISE_NOT factor
+      |         ^~~~~~~~~~~~~~~~~~~~~
+parser.y:298.9-21: warning: type clash on default action: <intval> != <strval> [-Wother]
+  298 |       | OP_ADD factor
+      |         ^~~~~~~~~~~~~
+parser.y:299.9-26: warning: type clash on default action: <intval> != <strval> [-Wother]
+  299 |       | OP_SUBTRACT factor
+      |         ^~~~~~~~~~~~~~~~~~
+parser.y:311.7-54: warning: type clash on default action: <intval> != <strval> [-Wother]
+  311 | atom: DELIM_LEFT_PAREN testlist_comp DELIM_RIGHT_PAREN
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:312.7-40: warning: type clash on default action: <intval> != <strval> [-Wother]
+  312 |     | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:313.7-58: warning: type clash on default action: <intval> != <strval> [-Wother]
+  313 |     | DELIM_LEFT_BRACKET testlist_comp DELIM_RIGHT_BRACKET
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:314.7-44: warning: type clash on default action: <intval> != <strval> [-Wother]
+  314 |     | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:315.7-55: warning: type clash on default action: <intval> != <strval> [-Wother]
+  315 |     | DELIM_LEFT_CURLY dictorsetmaker DELIM_RIGHT_CURLY
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:316.7-40: warning: type clash on default action: <intval> != <strval> [-Wother]
+  316 |     | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:319.7-17: warning: type clash on default action: <intval> != <> [-Wother]
+  319 |     | string_plus 
+      |       ^~~~~~~~~~~
+parser.y:320.7-20: warning: type clash on default action: <intval> != <strval> [-Wother]
+  320 |     | DELIM_ELLIPSIS
+      |       ^~~~~~~~~~~~~~
+parser.y:321.7-14: warning: type clash on default action: <intval> != <strval> [-Wother]
+  321 |     | KEY_NONE 
+      |       ^~~~~~~~
+parser.y:322.7-14: warning: type clash on default action: <intval> != <strval> [-Wother]
+  322 |     | KEY_TRUE 
+      |       ^~~~~~~~
+parser.y:323.7-15: warning: type clash on default action: <intval> != <strval> [-Wother]
+  323 |     | KEY_FALSE
+      |       ^~~~~~~~~
+parser.y:327.9-20: warning: type clash on default action: <intval> != <strval> [-Wother]
+  327 |       | FLOAT_NUMBER
+      |         ^~~~~~~~~~~~
+parser.y:328.9-24: warning: type clash on default action: <intval> != <strval> [-Wother]
+  328 |       | IMAGINARY_NUMBER
+      |         ^~~~~~~~~~~~~~~~
+parser.y:340.10-51: warning: type clash on default action: <intval> != <strval> [-Wother]
+  340 | trailer: DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:341.10-44: warning: type clash on default action: <intval> != <strval> [-Wother]
+  341 |        | DELIM_LEFT_PAREN  DELIM_RIGHT_PAREN
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:342.10-61: warning: type clash on default action: <intval> != <strval> [-Wother]
+  342 |        | DELIM_LEFT_BRACKET subscriptlist DELIM_RIGHT_BRACKET
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:343.10-23: warning: type clash on default action: <intval> != <strval> [-Wother]
+  343 |        | DELIM_DOT NAME
+      |          ^~~~~~~~~~~~~~
+parser.y:348.16-24: warning: type clash on default action: <intval> != <> [-Wother]
+  348 | subscriptlist: subscript
+      |                ^~~~~~~~~
+parser.y:349.16-50: warning: type clash on default action: <intval> != <> [-Wother]
+  349 |              | subscript DELIM_COMMA subscriptlist
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:350.16-36: warning: type clash on default action: <intval> != <> [-Wother]
+  350 |              | subscript DELIM_COMMA
+      |                ^~~~~~~~~~~~~~~~~~~~~
+parser.y:362.10-20: warning: type clash on default action: <intval> != <strval> [-Wother]
+  362 | sliceop: DELIM_COLON
+      |          ^~~~~~~~~~~
+parser.y:363.10-25: warning: type clash on default action: <intval> != <strval> [-Wother]
+  363 |        | DELIM_COLON test
+      |          ^~~~~~~~~~~~~~~~
+parser.y:386.11-85: warning: type clash on default action: <intval> != <strval> [-Wother]
+  386 | classdef: KEY_CLASS NAME DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN D...
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:387.11-77: warning: type clash on default action: <intval> != <strval> [-Wother]
+  387 |         | KEY_CLASS NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COL...
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:388.11-42: warning: type clash on default action: <intval> != <strval> [-Wother]
+  388 |         | KEY_CLASS NAME DELIM_COLON suite
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:397.11-23: warning: type clash on default action: <intval> != <strval> [-Wother]
+  397 |         | OP_POWER test
+      |           ^~~~~~~~~~~~~
+parser.y:398.11-26: warning: type clash on default action: <intval> != <strval> [-Wother]
+  398 |         | OP_MULTIPLY test 
+      |           ^~~~~~~~~~~~~~~~
+parser.y:403.16-56: warning: type clash on default action: <intval> != <strval> [-Wother]
+  403 | sync_comp_for: KEY_FOR exprlist KEY_IN or_test comp_iter
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:404.16-46: warning: type clash on default action: <intval> != <strval> [-Wother]
+  404 |              | KEY_FOR exprlist KEY_IN or_test
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:408.10-37: warning: type clash on default action: <intval> != <strval> [-Wother]
+  408 | comp_if: KEY_IF test_nocond comp_iter
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser.y:409.10-27: warning: type clash on default action: <intval> != <strval> [-Wother]
+  409 |        | KEY_IF test_nocond
+      |          ^~~~~~~~~~~~~~~~~~
+parser.y:430.8-16: warning: type clash on default action: <intval> != <strval> [-Wother]
+  430 |      | TYPE_BOOL
+      |        ^~~~~~~~~
+parser.y:431.8-16: warning: type clash on default action: <intval> != <strval> [-Wother]
+  431 |      | TYPE_DICT
+      |        ^~~~~~~~~
+parser.y:432.8-17: warning: type clash on default action: <intval> != <strval> [-Wother]
+  432 |      | TYPE_FLOAT
+      |        ^~~~~~~~~~
+parser.y:433.8-16: warning: type clash on default action: <intval> != <> [-Wother]
+  433 |      | type_list
+      |        ^~~~~~~~~
+parser.y:434.8-18: warning: type clash on default action: <intval> != <strval> [-Wother]
+  434 |      | TYPE_STRING
+      |        ^~~~~~~~~~~

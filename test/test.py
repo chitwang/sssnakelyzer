@@ -1,10 +1,10 @@
-# a = 4
-# b = 5
-# c = 6
-# print("a" * 5)
-
-a:int
-# b = a+5
-self:int = 6
-print(self)
-# print(b)
+a:int = 5
+if a==5:
+  pass
+  b = 6
+else:
+  c = 4
+  if c==4:
+    if True:
+      pass
+  d = 4

@@ -53,8 +53,8 @@ SHORT_STRING_CHAR               [^\\'\n\"]
 LONG_STRING_ITEM                {LONG_STRING_CHAR}|{STRING_ESCAPE_SEQ}
 STRING_PREFIX                   ("r"|"u"|"R"|"U"|"f"|"F"|"fr"|"Fr"|"fR"|"FR"|"rf"|"rF"|"Rf"|"RF")
 SHORT_STRING_ITEM               {SHORT_STRING_CHAR}|{STRING_ESCAPE_SEQ}
-SHORT_STRING                    ([\"]['][\"]{SHORT_STRING_ITEM}*[\"]['][\"])|(['][\"][']{SHORT_STRING_ITEM}*['][\"]['])
-LONG_STRING                     ([\"]['][']['][\"]{LONG_STRING_ITEM}*[\"]['][']['][\"])|(['][\"][\"][\"][']{LONG_STRING_ITEM}*['][\"][\"][\"]['])
+SHORT_STRING                    ([']{SHORT_STRING_ITEM}*['])|([\"]{SHORT_STRING_ITEM}*[\"])
+LONG_STRING                     ([']['][']{LONG_STRING_ITEM}*['][']['])|([\"][\"][\"]{LONG_STRING_ITEM}*[\"][\"][\"])
 STRING_LITERAL                  {STRING_PREFIX}?({SHORT_STRING}|{LONG_STRING})
 
 ESCAPE_SEQUENCE                 \\(?:'|"|a|b|f|n|r|t|v)
@@ -70,12 +70,13 @@ COMMENT                         #[^\n]*
 }
 
 ^[\t ]*{NEWLINE} {
+    // cout << "Blank line " << yylineno << endl;
     yylval.strval = strdup(yytext);
     return NEWLINE;
-    
 }
 
 {NEWLINE}/[^ \t\n] {
+    // cout << "No whitespace after new line " << yylineno << " and the lexeme is " << yytext << endl;
     if(newline_flag)
     {
         char *copy_string = strdup(yytext);
@@ -96,7 +97,7 @@ COMMENT                         #[^\n]*
                 unput(copy_string[i]);
             free(copy_string);
             indentation_checking.pop();
-            // printf("DEDENT %d\n", yylineno);
+            // cout << "1. DEDENT " << yylineno << endl;;
             return DEDENT;
         }
         newline_flag = true;
@@ -105,14 +106,15 @@ COMMENT                         #[^\n]*
 }
 
 {NEWLINE} { 
+    // cout << "NEWLINE " << yylineno << endl;
     spaceCount = 0;
     yylval.strval = strdup(yytext);
     // printf("normal newline %d\n", yylineno);
     return NEWLINE;
 }
 
-
 ^[\t ]* {
+    // cout << "Entering case 3 " << yylineno << endl;
     if(indentation_checking.empty()) {
         indentation_checking.push(0);
     }
@@ -124,7 +126,9 @@ COMMENT                         #[^\n]*
         indentation_flag = false;
     }
     else if(total > indentation_checking.top()) {
+        // // cout << indentation_checking.top() << endl;
         if(!indentation_flag) {
+            // cout << "PUSHED " << total << " on line " << yylineno << endl;
             indentation_checking.push(total);
             return INDENT;
         }
@@ -136,22 +140,49 @@ COMMENT                         #[^\n]*
     else {
         while(indentation_checking.top() != 0 && total < indentation_checking.top()) {
             char *copy_string = strdup(yytext);
-            for (int i = yyleng - 1; i >= 0; --i )
+            for (int i = yyleng - 1; i >= 0; --i)
                 unput(copy_string[i]);
+                yy_set_bol(1);
             free(copy_string);
+            // stack <int> temp;
+            // while(!indentation_checking.empty()) {
+            //     temp.push(indentation_checking.top());
+            //     // cout << "TOP " << indentation_checking.top() << endl;
+            //     indentation_checking.pop();
+            // }
+            // while(!temp.empty()) {
+            //     indentation_checking.push(temp.top());
+            //     temp.pop();
+            // }
+            // cout << indentation_checking.top() << " " << yylineno << endl;
             indentation_checking.pop();
             indentation_flag = true;
+            // cout << "3. DEDENT " << yylineno << endl;;
             return DEDENT;
         }
     }
 }
 
+<<EOF>> {
+    while(indentation_checking.top() != 0) {
+        char *copy_string = strdup(yytext);
+        for (int i = yyleng - 1; i >= 0; --i)
+            unput(copy_string[i]);
+            yy_set_bol(1);
+        free(copy_string);
+        indentation_checking.pop();
+        indentation_flag = true;
+        return DEDENT;
+    }
+    return 0;
+}
+
 {WHITESPACE_PURANA} {
-    
+    // cout << "WHITESPACE PURANA\n";
 }
 
 {COMMENT} {
-    
+    // cout << "COMMENT\n";
 }
 
 "int" {
@@ -184,17 +215,12 @@ COMMENT                         #[^\n]*
     return TYPE_DICT;
 }
 
-"__init__" {
-    yylval.strval = strdup(yytext);
-    return DUNDER_INIT;
-}
-
 "__name__" {
     yylval.strval = strdup(yytext);
     return DUNDER_NAME;    
 }
 
-"__main__" {
+"\"__main__\"" {
     yylval.strval = strdup(yytext);
     return DUNDER_MAIN;
 }
@@ -634,9 +660,4 @@ COMMENT                         #[^\n]*
     return NAME;
 }
 
-<<EOF>> {
-    yylval.strval = strdup(yytext);
-    return ENDMARKER;
-}
-    
 %%

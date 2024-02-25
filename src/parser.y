@@ -53,9 +53,9 @@ ast_node* root;
     int intval;
 }
 
-%token KEY_FALSE KEY_ELSE KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_RAISE KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_LAMBDA KEY_TRY KEY_AS KEY_DEF KEY_FROM KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_DEL KEY_GLOBAL KEY_NOT KEY_WITH  KEY_ELIF KEY_IF KEY_OR KEY_YIELD OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_ASSIGN OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_INIT DUNDER_NAME DUNDER_MAIN ENDMARKER TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST TYPE_DICT WILDCARD_UNDERSCORE
+%token<strval> KEY_FALSE KEY_ELSE KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_RAISE KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_LAMBDA KEY_TRY KEY_AS KEY_DEF KEY_FROM KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_DEL KEY_GLOBAL KEY_NOT KEY_WITH  KEY_ELIF KEY_IF KEY_OR KEY_YIELD OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_ASSIGN OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_INIT DUNDER_NAME DUNDER_MAIN ENDMARKER TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST TYPE_DICT WILDCARD_UNDERSCORE KEY_ASYNC KEY_AWAIT KEY_IMPORT
 
-%type start_symbol single_input simple_stmt compound_stmt stmt parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictorsetmaker types decl_stmt
+%type<intval> start_symbol simple_stmt compound_stmt stmt parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictorsetmaker types testlist_star_assign_plus newline_plus file_input file_plus dunder_stmt_main
 
 %start start_symbol
 
@@ -63,28 +63,38 @@ ast_node* root;
 
 %%
 
-start_symbol: single_input
+start_symbol: file_input
+            /* | single_input */
             /* | eval_input */
-            /* | file_input */
             /* | func_type_input */
 
-single_input: NEWLINE
+/* single_input: newline_plus
             | simple_stmt
-            | compound_stmt NEWLINE
+            | compound_stmt newline_plus */
+
+file_input: file_plus
+          | newline_plus file_plus
+
+file_plus: stmt file_plus
+         | stmt
 
 /* file_input: file_plus ENDMARKER
           | ENDMARKER
 
-file_plus: NEWLINE file_plus
-         | stmt file_plus
-         | NEWLINE
-         | stmt */
+file_plus: file_plus_line
+         | newline_plus
 
+file_plus_line: NEWLINE stmt file_plus_line
+              | NEWLINE file_plus_line
+              | stmt file_plus_line
+              | stmt NEWLINE file_plus_line
+              | stmt */
+               
 /* eval_input: testlist newline_plus ENDMARKER
           | testlist ENDMARKER */
 
-/* newline_plus: newline_plus NEWLINE
-            | NEWLINE */
+newline_plus: newline_plus NEWLINE
+            | NEWLINE
 
 funcdef: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON func_body_suite
        | KEY_DEF NAME parameters DELIM_COLON func_body_suite
@@ -108,7 +118,7 @@ tfpdef: NAME DELIM_COLON test
 stmt: simple_stmt
     | compound_stmt
 
-simple_stmt: small_or_semi NEWLINE
+simple_stmt: small_or_semi newline_plus
 
 small_or_semi: small_stmt
              | small_stmt DELIM_SEMICOLON
@@ -124,18 +134,18 @@ small_stmt: expr_stmt
           | global_stmt 
           | nonlocal_stmt 
           | assert_stmt
-          | decl_stmt
-
-decl_stmt: NAME DELIM_COLON types
         
 expr_stmt: testlist_star_expr annassign
-         | testlist_star_expr augassign
          | testlist_star_expr augassign testlist
          | testlist_star_expr
-         
+         | testlist_star_expr testlist_star_assign_plus
+
+testlist_star_assign_plus: DELIM_ASSIGN testlist_star_expr
+                         | DELIM_ASSIGN testlist_star_expr testlist_star_assign_plus
+
 annassign: DELIM_COLON test
-         | DELIM_COLON test OP_ASSIGN
-         | DELIM_COLON test OP_ASSIGN testlist_star_expr
+         | DELIM_COLON test DELIM_ASSIGN
+         | DELIM_COLON test DELIM_ASSIGN testlist_star_expr
 
 testlist_star_expr: test_or_star test_or_star_plus 
                   | test_or_star test_or_star_plus DELIM_COMMA
@@ -197,7 +207,10 @@ compound_stmt: if_stmt
              | for_stmt 
              | funcdef 
              | classdef
+             | dunder_stmt_main
  
+dunder_stmt_main: KEY_IF DUNDER_NAME OP_EQUAL DUNDER_MAIN DELIM_COLON suite
+
 if_stmt: KEY_IF namedexpr_test DELIM_COLON suite
        | KEY_IF namedexpr_test DELIM_COLON suite elif_plus
        | KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite
@@ -225,10 +238,10 @@ stmt_plus : stmt
           | stmt stmt_plus
         
 suite: simple_stmt 
-     | NEWLINE INDENT stmt_plus DEDENT
+     | newline_plus INDENT stmt_plus DEDENT
 
 namedexpr_test: test
-              | test OP_ASSIGN test
+              | test DELIM_ASSIGN test
     
 test: or_test 
     | or_test KEY_IF or_test KEY_ELSE test
@@ -298,19 +311,22 @@ atom_expr: atom
 string_plus : string_plus STRING_LITERAL
             | STRING_LITERAL
 
-atom: DELIM_LEFT_BRACKET testlist_comp DELIM_RIGHT_BRACKET
+atom: DELIM_LEFT_PAREN testlist_comp DELIM_RIGHT_PAREN
+    | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN
+    | DELIM_LEFT_BRACKET testlist_comp DELIM_RIGHT_BRACKET
     | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET
     | DELIM_LEFT_CURLY dictorsetmaker DELIM_RIGHT_CURLY
     | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY
-    | NAME 
+    | NAME {cout << $1 << endl;}
     | number
     | string_plus 
     | DELIM_ELLIPSIS
     | KEY_NONE 
     | KEY_TRUE 
     | KEY_FALSE
+    | types
     
-number: INTEGER
+number: INTEGER {cout << $1 << endl;}
       | FLOAT_NUMBER
       | IMAGINARY_NUMBER
       
@@ -380,7 +396,6 @@ arglist: argument
 
 argument: test comp_for 
         | test  
-        | test OP_ASSIGN test 
         | test DELIM_ASSIGN test 
         | OP_POWER test
         | OP_MULTIPLY test 
@@ -400,7 +415,7 @@ comp_if: KEY_IF test_nocond comp_iter
 /* encoding_decl: NAME */
 
 func_body_suite: simple_stmt 
-               |  NEWLINE INDENT stmt_plus DEDENT
+               |  newline_plus INDENT stmt_plus DEDENT
 
 /* func_type_input: func_type ENDMARKER
                | func_type newline_plus ENDMARKER
@@ -414,12 +429,14 @@ typelist: test (',' test)* [',' ['*' [test] (',' test)* [',' '**' test] | '**' t
         | '*' [test] (',' test)* [',' '**' test]
         | OP_POWER test */
         
-types: TYPE_INT
+types: TYPE_INT {cout << $1 << endl;}
      | TYPE_BOOL
      | TYPE_DICT
      | TYPE_FLOAT
-     | TYPE_LIST
+     | type_list
      | TYPE_STRING
+
+type_list: TYPE_LIST DELIM_LEFT_BRACKET types DELIM_RIGHT_BRACKET
 
 %%
 

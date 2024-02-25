@@ -40,3 +40,9 @@ dictionary
 variable types
 dunders
 review correctness
+we are expecting a:int = 5, and not a:int followed by a = 5
+
+"__init__" {
+    yylval.strval = strdup(yytext);
+    return DUNDER_INIT;
+}

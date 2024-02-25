@@ -7,9 +7,10 @@ def compute_min() -> float:
   for i in range(len(data)):
     if not min_value:
       min_value = data[i]
+      a:int = 4
     elif data[i] < min_value:
       min_value = data[i]
-  return min_value
+  return min_value 
 
 
 def compute_avg() -> float:

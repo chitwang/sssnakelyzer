@@ -1,4 +1,4 @@
-cd src
-bison -$1 parser.y 2> test.txt
+cd ../src
+bison -$1 parser.y &> test.txt
 
 rm *.tab.*
