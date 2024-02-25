@@ -77,8 +77,7 @@ COMMENT                         #[^\n]*
 
 {NEWLINE}/[^ \t\n] {
     // cout << "No whitespace after new line " << yylineno << " and the lexeme is " << yytext << endl;
-    if(newline_flag)
-    {
+    if(newline_flag) {
         char *copy_string = strdup(yytext);
         for (int i = yyleng - 1; i >= 0; --i )
             unput(copy_string[i]);
@@ -88,10 +87,8 @@ COMMENT                         #[^\n]*
         //printf("newline_next_is_empty %d\n", yylineno);
         return NEWLINE;
     }
-    else
-    {
-        while(!indentation_checking.empty() && indentation_checking.top() > 0)
-        {
+    else {
+        while(!indentation_checking.empty() && indentation_checking.top() > 0) {
             char *copy_string = strdup(yytext);
             for (int i = yyleng - 1; i >= 0; --i )
                 unput(copy_string[i]);
