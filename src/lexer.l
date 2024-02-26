@@ -61,7 +61,7 @@ ESCAPE_SEQUENCE                 \\(?:'|"|a|b|f|n|r|t|v)
 
 NAME                            [a-zA-Z_][a-zA-Z0-9_]*
 
-COMMENT                         #[^\n]*
+COMMENT                         [\t ]*#[^\n]*
 
 %% 
 
@@ -70,7 +70,7 @@ COMMENT                         #[^\n]*
 }
 
 ^[\t ]*{NEWLINE} {
-    // cout << "Blank line " << yylineno << endl;
+    cout << "Blank line " << yylineno << endl;
     yylval.strval = strdup(yytext);
    // cout << "Blank line " << yylineno << endl;
    // cout << indentation_checking.top() << endl;
@@ -86,7 +86,7 @@ COMMENT                         #[^\n]*
         free(copy_string);
         newline_flag = false;
         yylval.strval = strdup(yytext);
-        //printf("newline_next_is_empty %d\n", yylineno);
+        printf("newline_next_is_empty %d\n", yylineno);
         return NEWLINE;
     }
     else {
@@ -108,7 +108,7 @@ COMMENT                         #[^\n]*
     // cout << "NEWLINE " << yylineno << endl;
     spaceCount = 0;
     yylval.strval = strdup(yytext);
-    // printf("normal newline %d\n", yylineno);
+     printf("normal newline %d\n", yylineno);
     return NEWLINE;
 }
 
