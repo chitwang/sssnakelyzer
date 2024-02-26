@@ -46,10 +46,7 @@ void insert_node() {
         nodes.push_back(node_attr[i]);
         adj.push_back(vector<int>());
     }
-    // for(auto s: node_attr) cout << s << "\t";
-    // cout << endl;
     for(int i = 0; i < node_numbers.size(); i++) {
-        // cout << node_numbers[i] << endl;
         adj[node_count + node_attr.size() - 1].push_back(node_numbers[i]);
     }
 }
@@ -63,7 +60,7 @@ ast_node* root;
 
 %define parse.error verbose
 
-%union{
+%union {
     char* strval;
     int intval;
 }
@@ -78,107 +75,107 @@ ast_node* root;
 
 %%
 
-start_symbol: file_input {node_attr = {"start_symbol"};  node_numbers = {$1};insert_node();$$ = node_count+0; node_count += 1;} 
+start_symbol: file_input {node_attr = {"start_symbol"};  node_numbers = {$1};insert_node();$$ = node_count; node_count += 1;}
 
-file_input: file_plus {node_attr = {"file_input"};  node_numbers = {$1}; insert_node(); $$ = node_count+0; node_count += 1;} 
-          | newline_plus file_plus {node_attr = {"file_input"}; node_numbers = {$1, $2}; insert_node();  $$ = node_count; node_count += 1;} 
+file_input: file_plus {node_attr = {"file_input"};  node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;} 
+          | newline_plus file_plus {node_attr = {"file_input"}; node_numbers = {$2}; insert_node();  $$ = node_count; node_count += 1;} 
 
-file_plus: stmt file_plus {node_attr = {"file_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count+0; node_count += 1;} 
-         | stmt {node_attr = {"file_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count+0; node_count += 1;} 
+file_plus: stmt file_plus {node_attr = {"file_plus"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;} 
+         | stmt {node_attr = {"file_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;} 
 
-newline_plus: newline_plus NEWLINE {node_attr = {"NEWLINE", "newline_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1, node_count += 2;}
-            | NEWLINE {node_attr = {"NEWLINE", "newline_plus"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1, node_count += 2;}
+newline_plus: newline_plus NEWLINE {}
+            | NEWLINE {}
 
-funcdef: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON func_body_suite {node_attr = {"KEY_DEF", string("NAME ( ") + strdup($2) + " )", "DELIM_ARROW", "DELIM_COLON", "funcdef"}; node_numbers = {node_count, node_count+1, $3, node_count+2, $5, node_count+3, $7}; insert_node(); $$ = node_count+4; node_count += 5;} 
-       | KEY_DEF NAME parameters DELIM_COLON func_body_suite {node_attr = {"KEY_DEF", string("NAME ( ") + strdup($2) + " )", "DELIM_COLON", "funcdef"}; node_numbers = {node_count, node_count+1, $3, node_count+2, $5}; insert_node(); $$ = node_count+3; node_count += 4;} 
+funcdef: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON func_body_suite {node_attr = {"def", string("NAME ( ") + strdup($2) + " )", "->", ":", "funcdef"}; node_numbers = {node_count, node_count+1, $3, node_count+2, $5, node_count+3, $7}; insert_node(); $$ = node_count+4; node_count += 5;} 
+       | KEY_DEF NAME parameters DELIM_COLON func_body_suite {node_attr = {"def", string("NAME ( ") + strdup($2) + " )", ":", "funcdef"}; node_numbers = {node_count, node_count+1, $3, node_count+2, $5}; insert_node(); $$ = node_count+3; node_count += 4;} 
 
-parameters: DELIM_LEFT_PAREN typedarglist DELIM_RIGHT_PAREN {node_attr = {"DELIM_LEFT_PAREN", "DELIM_RIGHT_PAREN", "parameters"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2, node_count += 3;}
-          | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"DELIM_LEFT_PAREN", "DELIM_RIGHT_PAREN","parameters"}; node_numbers = {node_count+0,node_count+1}; insert_node(); $$ = node_count+2; node_count += 3;}
+parameters: DELIM_LEFT_PAREN typedarglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "parameters"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2, node_count += 3;}
+          | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")","parameters"}; node_numbers = {node_count+0,node_count+1}; insert_node(); $$ = node_count+2; node_count += 3;}
 
-argument_s : tfpdef DELIM_ASSIGN test {node_attr = {"DELIM_ASSIGN", "argument_s"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+argument_s : tfpdef DELIM_ASSIGN test {node_attr = {"=", "argument_s"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
            | tfpdef {node_attr = {"argument_s"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
-typedarglist : argument_s DELIM_COMMA { node_attr = {"DELIM_COMMA", "typedarglist"}, node_numbers = {$1, node_count}; insert_node();$$ = node_count + 1; node_count += 2;}
+typedarglist : argument_s DELIM_COMMA { node_attr = {",", "typedarglist"}, node_numbers = {$1, node_count}; insert_node();$$ = node_count + 1; node_count += 2;}
              | argument_s {node_attr = {"typedarglist"}; node_numbers = {$1}; insert_node(); $$ = node_count;  node_count += 1;}
-             | argument_s DELIM_COMMA typedarglist {node_attr = {"DELIM_COMMA", "typedarglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    
-tfpdef: NAME DELIM_COLON test {node_attr = {string("NAME ( ") + strdup($1) + " )", "DELIM_COLON", "tpdef"}; node_numbers = {node_count, node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;}
+             | argument_s DELIM_COMMA typedarglist {node_attr = {",", "typedarglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+
+tfpdef: NAME DELIM_COLON test {node_attr = {string("NAME ( ") + strdup($1) + " )", ":", "tpdef"}; node_numbers = {node_count, node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;}
       | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "tpdef"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-stmt: simple_stmt {node_attr = {"stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
-    | compound_stmt {node_attr = {"stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
+stmt: simple_stmt {node_attr = {"stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+    | compound_stmt {node_attr = {"stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
-simple_stmt: small_or_semi newline_plus {node_attr = {"simple_stmt"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
+simple_stmt: small_or_semi newline_plus {node_attr = {"simple_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
-small_or_semi: small_stmt {node_attr = {"small_or_semi"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
-             | small_stmt DELIM_SEMICOLON {node_attr = {"DELIM_SEMICOLON", "small_or_semi"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-             | small_stmt DELIM_SEMICOLON small_or_semi {node_attr = {"DELIM_SEMICOLON", "small_or_semi"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+small_or_semi: small_stmt {node_attr = {"small_or_semi"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+             | small_stmt DELIM_SEMICOLON {node_attr = {";", "small_or_semi"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+             | small_stmt DELIM_SEMICOLON small_or_semi {node_attr = {";", "small_or_semi"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-small_stmt: expr_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
-          | pass_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
-          | flow_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
-          | global_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
-          | nonlocal_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
-          | assert_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
+small_stmt: expr_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+          | pass_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+          | flow_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+          | global_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+          | nonlocal_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+          | assert_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
         
 expr_stmt: testlist_star_expr annassign {node_attr = {"expr_stmt"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
          | testlist_star_expr augassign testlist {node_attr = {"expr_stmt"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count; node_count += 1;}
          | testlist_star_expr {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
          | testlist_star_expr testlist_star_assign_plus {node_attr = {"expr_stmt"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
 
-testlist_star_assign_plus: DELIM_ASSIGN testlist_star_expr {node_attr = {"DELIM_ASSIGN", "testlist_star_assign_plus"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count+1; node_count += 2;}
-                         | DELIM_ASSIGN testlist_star_expr testlist_star_assign_plus {node_attr = {"DELIM_ASSIGN", "testlist_star_assign_plus"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count+1; node_count += 2;}
+testlist_star_assign_plus: DELIM_ASSIGN testlist_star_expr {node_attr = {"=", "testlist_star_assign_plus"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count+1; node_count += 2;}
+                         | DELIM_ASSIGN testlist_star_expr testlist_star_assign_plus {node_attr = {"=", "testlist_star_assign_plus"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count+1; node_count += 2;}
 
-annassign: DELIM_COLON test {node_attr = {"DELIM_COLON", "annassign"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_COLON test DELIM_ASSIGN {node_attr = {"DELIM_COLON", "DELIM_ASSIGN", "annassign"}; node_numbers = {node_count, $2, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-         | DELIM_COLON test DELIM_ASSIGN testlist_star_expr {node_attr = {"DELIM_COLON", "DELIM_ASSIGN", "annassign"}; node_numbers = {node_count, $2, node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+annassign: DELIM_COLON test {node_attr = {":", "annassign"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_COLON test DELIM_ASSIGN {node_attr = {":", "=", "annassign"}; node_numbers = {node_count, $2, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+         | DELIM_COLON test DELIM_ASSIGN testlist_star_expr {node_attr = {":", "=", "annassign"}; node_numbers = {node_count, $2, node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
 testlist_star_expr: test_or_star test_or_star_plus {node_attr = {"testlist_star_expr"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
-                  | test_or_star test_or_star_plus DELIM_COMMA { node_attr = {"DELIM_COMMA", "testlist_star_expr"}; node_numbers = {$1, $2, node_count + 0}; insert_node(); $$ = node_count + 1; node_count += 2;}
+                  | test_or_star test_or_star_plus DELIM_COMMA { node_attr = {",", "testlist_star_expr"}; node_numbers = {$1, $2, node_count + 0}; insert_node(); $$ = node_count + 1; node_count += 2;}
                   | test_or_star {node_attr = {"testlist_star_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count + 0; node_count += 1;}
-                  | test_or_star DELIM_COMMA {node_attr = {"DELIM_COMMA", "testlist_star_expr"}; node_numbers = {$1, node_count + 0}; insert_node(); $$ = node_count + 1; node_count += 2;}
+                  | test_or_star DELIM_COMMA {node_attr = {",", "testlist_star_expr"}; node_numbers = {$1, node_count + 0}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 test_or_star: test {node_attr = {"test_or_star"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
             | star_expr {node_attr = {"test_or_star"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
             
-test_or_star_plus:  DELIM_COMMA test_or_star {node_attr = {"DELIM_COMMA", "test_or_star_plus"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-                 |  DELIM_COMMA test_or_star  test_or_star_plus {node_attr = {"DELIM_COMMA", "test_or_star_plus"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+test_or_star_plus:  DELIM_COMMA test_or_star {node_attr = {",", "test_or_star_plus"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+                 |  DELIM_COMMA test_or_star  test_or_star_plus {node_attr = {",", "test_or_star_plus"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-augassign: DELIM_ASSIGN_ADD {node_attr = {"DELIM_ASSIGN_ADD", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_SUBTRACT {node_attr = {"DELIM_ASSIGN_SUBTRACT", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_MULTIPLY { node_attr = {"DELIM_ASSIGN_MULTIPLY", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_DIVIDE {node_attr = {"DELIM_ASSIGN_DIVIDE", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_MODULO {node_attr = {"DELIM_ASSIGN_MODULO", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_BITWISE_AND {node_attr = {"DELIM_ASSIGN_BITWISE_AND", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_BITWISE_OR {node_attr = {"DELIM_ASSIGN_BITWISE_OR", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_BITWISE_XOR {node_attr = {"DELIM_ASSIGN_BITWISE_XOR", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_LEFT_SHIFT {node_attr = {"DELIM_ASSIGN_LEFT_SHIFT", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_RIGHT_SHIFT {node_attr = {"DELIM_ASSIGN_RIGHT_SHIFT", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_POWER {node_attr = {"DELIM_ASSIGN_POWER", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_ASSIGN_FLOOR_DIVIDE {node_attr = {"DELIM_ASSIGN_FLOOR_DIVIDE", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+augassign: DELIM_ASSIGN_ADD {node_attr = {"+=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_SUBTRACT {node_attr = {"-=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_MULTIPLY { node_attr = {"*=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_DIVIDE {node_attr = {"/=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_MODULO {node_attr = {"%=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_BITWISE_AND {node_attr = {"&=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_BITWISE_OR {node_attr = {"|=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_BITWISE_XOR {node_attr = {"^=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_LEFT_SHIFT {node_attr = {"<<=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_RIGHT_SHIFT {node_attr = {">>=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_POWER {node_attr = {"**=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_ASSIGN_FLOOR_DIVIDE {node_attr = {"//=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-pass_stmt: KEY_PASS {node_attr = {"KEY_PASS", "pass_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+pass_stmt: KEY_PASS {node_attr = {"pass", "pass_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 flow_stmt: break_stmt {node_attr = {"flow_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
          | continue_stmt {node_attr = {"flow_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
          | return_stmt {node_attr = {"flow_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
-break_stmt: KEY_BREAK {node_attr = {"KEY_BREAK", "break_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+break_stmt: KEY_BREAK {node_attr = {"break", "break_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-continue_stmt: KEY_CONTINUE {node_attr = {"KEY_CONTINUE", "continue_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+continue_stmt: KEY_CONTINUE {node_attr = {"continue", "continue_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-return_stmt: KEY_RETURN testlist_star_expr {node_attr = {"KEY_RETURN", "return_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-           | KEY_RETURN {node_attr = {"KEY_RETURN", "return_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+return_stmt: KEY_RETURN testlist_star_expr {node_attr = {"return", "return_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+           | KEY_RETURN {node_attr = {"return", "return_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-global_stmt: KEY_GLOBAL names {node_attr = {"KEY_GLOBAL", "global_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+global_stmt: KEY_GLOBAL names {node_attr = {"global", "global_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
  
 names: NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "names"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-     | NAME DELIM_COMMA names {node_attr = {"NAME", "DELIM_COMMA", "names"}; node_numbers = {node_count+0,node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;}
+     | NAME DELIM_COMMA names {node_attr = {"NAME", ",", "names"}; node_numbers = {node_count+0,node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
-nonlocal_stmt: KEY_NONLOCAL names {node_attr = {"KEY_NONLOCAL", "nonlocal_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+nonlocal_stmt: KEY_NONLOCAL names {node_attr = {"nonlocal", "nonlocal_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-assert_stmt: KEY_ASSERT test DELIM_COMMA test {node_attr = {"KEY_ASSERT", "DELIM_COMMA", "assert_stmt"}; node_numbers = {node_count+0, $2,node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
-           | KEY_ASSERT test {node_attr = {"KEY_ASSERT", "assert_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+assert_stmt: KEY_ASSERT test DELIM_COMMA test {node_attr = {"assert", ",", "assert_stmt"}; node_numbers = {node_count+0, $2,node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+           | KEY_ASSERT test {node_attr = {"assert", "assert_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 compound_stmt: if_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
              | while_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
@@ -188,104 +185,104 @@ compound_stmt: if_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; inse
              | dunder_stmt_main {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
              | try_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
  
-dunder_stmt_main: KEY_IF DUNDER_NAME OP_EQUAL DUNDER_MAIN DELIM_COLON suite { node_attr = {"KEY_IF", "DUNDER_NAME", "OP_EQUAL", "DUNDER_MAIN", "DELIM_COLON", "dunder_stmt_main"}; node_numbers = {node_count, node_count+1, node_count+2, node_count+3, node_count+4, $6}; insert_node(); $$ = node_count+5; node_count += 6;}
+dunder_stmt_main: KEY_IF DUNDER_NAME OP_EQUAL DUNDER_MAIN DELIM_COLON suite { node_attr = {"if", "__name__", "==", "__main__", ":", "dunder_stmt_main"}; node_numbers = {node_count, node_count+1, node_count+2, node_count+3, node_count+4, $6}; insert_node(); $$ = node_count+5; node_count += 6;}
     
 
-if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"KEY_IF","DELIM_COLON","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | KEY_IF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"KEY_IF","DELIM_COLON","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"KEY_IF","DELIM_COLON","KEY_ELSE","DELIM_COLON","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2,node_count + 3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
-       | KEY_IF namedexpr_test DELIM_COLON suite elif_plus KEY_ELSE DELIM_COLON suite {node_attr = {"KEY_IF","DELIM_COLON","KEY_ELSE","DELIM_COLON","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5, node_count+2, node_count + 3, $8}; insert_node(); $$ = node_count + 4; node_count += 5;}
+if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+       | KEY_IF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"if",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
+       | KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"if",":","else",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2,node_count + 3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
+       | KEY_IF namedexpr_test DELIM_COLON suite elif_plus KEY_ELSE DELIM_COLON suite {node_attr = {"if",":","else",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5, node_count+2, node_count + 3, $8}; insert_node(); $$ = node_count + 4; node_count += 5;}
 
-elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite {node_attr = {"KEY_ELIF","DELIM_COLON","elif_plus"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
-         | KEY_ELIF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"KEY_ELIF","DELIM_COLON","elif_plus"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
+elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite {node_attr = {"elif",":","elif_plus"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+         | KEY_ELIF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"elif",":","elif_plus"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
-while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"KEY_WHILE","DELIM_COLON","KEY_ELSE","DELIM_COLON","while_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
-          |  KEY_WHILE namedexpr_test DELIM_COLON suite {node_attr = {"KEY_WHILE","DELIM_COLON","while_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"while",":","else",":","while_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
+          |  KEY_WHILE namedexpr_test DELIM_COLON suite {node_attr = {"while",":","while_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
-for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"KEY_FOR","KEY_IN", "DELIM_COLON","KEY_ELSE","DELIM_COLON","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6, node_count+3, node_count+4, $9}; insert_node(); $$ = node_count + 5; node_count += 6;}
+for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"for","in", ":","else",":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6, node_count+3, node_count+4, $9}; insert_node(); $$ = node_count + 5; node_count += 6;}
         | KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite {
-            node_attr = {"KEY_FOR","KEY_IN", "DELIM_COLON","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6}; insert_node(); $$ = node_count + 3; node_count += 4;
+            node_attr = {"for","in", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6}; insert_node(); $$ = node_count + 3; node_count += 4;
         }
 
-try_stmt: KEY_TRY DELIM_COLON suite except_plus {node_attr = {"KEY_TRY","DELIM_COLON","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
-        | KEY_TRY DELIM_COLON suite except_plus KEY_ELSE DELIM_COLON suite {node_attr = {"KEY_TRY","DELIM_COLON","KEY_ELSE","DELIM_COLON","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
-        | KEY_TRY DELIM_COLON suite except_plus KEY_FINALLY DELIM_COLON suite {node_attr = {"KEY_TRY","DELIM_COLON","KEY_FINALLY","DELIM_COLON","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
-        | KEY_TRY DELIM_COLON suite except_plus KEY_ELSE DELIM_COLON suite KEY_FINALLY DELIM_COLON suite { node_attr = {"KEY_TRY","DELIM_COLON","KEY_ELSE","DELIM_COLON","KEY_FINALLY","DELIM_COLON","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7, node_count+4, node_count+5, $10}; insert_node(); $$ = node_count + 6; node_count += 7;}
-        | KEY_TRY DELIM_COLON suite KEY_FINALLY DELIM_COLON suite {node_attr = {"KEY_TRY","DELIM_COLON","KEY_FINALLY","DELIM_COLON","try_stmt"}; node_numbers = {node_count, node_count+1, $3, node_count+2, node_count+3, $6}; insert_node(); $$ = node_count + 4; node_count += 5;}
+try_stmt: KEY_TRY DELIM_COLON suite except_plus {node_attr = {"try",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+        | KEY_TRY DELIM_COLON suite except_plus KEY_ELSE DELIM_COLON suite {node_attr = {"try",":","else",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
+        | KEY_TRY DELIM_COLON suite except_plus KEY_FINALLY DELIM_COLON suite {node_attr = {"try",":","finally",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
+        | KEY_TRY DELIM_COLON suite except_plus KEY_ELSE DELIM_COLON suite KEY_FINALLY DELIM_COLON suite { node_attr = {"try",":","else",":","finally",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7, node_count+4, node_count+5, $10}; insert_node(); $$ = node_count + 6; node_count += 7;}
+        | KEY_TRY DELIM_COLON suite KEY_FINALLY DELIM_COLON suite {node_attr = {"try",":","finally",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, node_count+2, node_count+3, $6}; insert_node(); $$ = node_count + 4; node_count += 5;}
 
-except_plus: KEY_EXCEPT DELIM_COLON suite {node_attr = {"KEY_EXCEPT","DELIM_COLON","except_plus"}; node_numbers = {node_count, node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;}
-           | KEY_EXCEPT DELIM_COLON suite except_plus {node_attr = {"KEY_EXCEPT","DELIM_COLON","except_plus"}; node_numbers = {node_count, node_count + 1, $3, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+except_plus: KEY_EXCEPT DELIM_COLON suite {node_attr = {"except",":","except_plus"}; node_numbers = {node_count, node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;}
+           | KEY_EXCEPT DELIM_COLON suite except_plus {node_attr = {"except",":","except_plus"}; node_numbers = {node_count, node_count + 1, $3, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
 stmt_plus : stmt {node_attr = {"stmt_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
           | stmt stmt_plus {node_attr = {"stmt_plus"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
         
 suite: simple_stmt {node_attr = {"suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-     | newline_plus INDENT stmt_plus DEDENT {node_attr = {"INDENT", "DEDENT", "suite"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 0; node_count += 1;}
+     | newline_plus INDENT stmt_plus DEDENT {node_attr = {"suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
 
 namedexpr_test: test {node_attr = {"namedexpr_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-              | test DELIM_ASSIGN test {node_attr = {"DELIM_ASSIGN", "namedexpr_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+              | test DELIM_ASSIGN test {node_attr = {"=", "namedexpr_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
     
 test: or_test {node_attr = {"test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-    | or_test KEY_IF or_test KEY_ELSE test {node_attr = {"KEY_IF", "KEY_ELSE", "test"}; node_numbers = {$1, node_count, $3, node_count + 1, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
+    | or_test KEY_IF or_test KEY_ELSE test {node_attr = {"if", "else", "test"}; node_numbers = {$1, node_count, $3, node_count + 1, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
 test_nocond: or_test {node_attr = {"test_nocond"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
 or_test: and_test {node_attr = {"or_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-       | and_test KEY_OR or_test {node_attr = {"KEY_OR", "or_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | and_test KEY_OR or_test {node_attr = {"or", "or_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 and_test: not_test {node_attr = {"and_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | not_test KEY_AND and_test {node_attr = {"KEY_AND", "and_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | not_test KEY_AND and_test {node_attr = {"and", "and_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-not_test: KEY_NOT not_test {node_attr = {"KEY_NOT", "not_test"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count += 1; node_count += 2;}
+not_test: KEY_NOT not_test {node_attr = {"not", "not_test"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
         | comparison {node_attr = {"not_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
         
 comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
           | expr comp_op comparison {node_attr = {"comparison"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count + 0; node_count += 1;}
 
-comp_op: OP_LESS_THAN {node_attr = {"OP_LESS_THAN", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_GREATER_THAN {node_attr = {"OP_GREATER_THAN", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_EQUAL {node_attr = {"OP_EQUAL", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_GREATER_THAN_EQUAL {node_attr = {"OP_GREATER_THAN_EQUAL", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_LESS_THAN_EQUAL {node_attr = {"OP_LESS_THAN_EQUAL", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_NOT_EQUAL {node_attr = {"OP_NOT_EQUAL", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | KEY_IN {node_attr = {"KEY_IN", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | KEY_NOT KEY_IN {node_attr = {"KEY_NOT", "KEY_IN", "comp_op"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | KEY_IS {node_attr = {"KEY_IS", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | KEY_IS KEY_NOT {node_attr = {"KEY_IS", "KEY_NOT", "comp_op"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+comp_op: OP_LESS_THAN {node_attr = {"<", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_GREATER_THAN {node_attr = {">", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_EQUAL {node_attr = {"==", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_GREATER_THAN_EQUAL {node_attr = {">=", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_LESS_THAN_EQUAL {node_attr = {"<=", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_NOT_EQUAL {node_attr = {"!=", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | KEY_IN {node_attr = {"in", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | KEY_NOT KEY_IN {node_attr = {"not", "in", "comp_op"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+       | KEY_IS {node_attr = {"is", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | KEY_IS KEY_NOT {node_attr = {"is", "not", "comp_op"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
-star_expr: OP_MULTIPLY expr {node_attr = {"OP_MULTIPLY", "star_expr"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+star_expr: OP_MULTIPLY expr {node_attr = {"*", "star_expr"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 expr: xor_expr {node_attr = {"expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-    | xor_expr OP_BITWISE_OR expr {node_attr = {"OP_BITWISE_OR", "expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | xor_expr OP_BITWISE_OR expr {node_attr = {"|", "expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 xor_expr: and_expr {node_attr = {"xor_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | and_expr OP_BITWISE_XOR xor_expr {node_attr = {"OP_BITWISE_XOR", "xor_expr"}; node_numbers = {$1, node_count + 0, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | and_expr OP_BITWISE_XOR xor_expr {node_attr = {"^", "xor_expr"}; node_numbers = {$1, node_count + 0, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 and_expr: shift_expr {node_attr = {"and_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | shift_expr OP_BITWISE_AND and_expr {node_attr = {"OP_BITWISE_AND", "and_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | shift_expr OP_BITWISE_AND and_expr {node_attr = {"&", "and_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
         
 shift_expr: arith_expr {node_attr = {"shift_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-          | arith_expr OP_LEFT_SHIFT shift_expr {node_attr = {"OP_LEFT_SHIFT", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-          | arith_expr OP_RIGHT_SHIFT shift_expr {node_attr = {"OP_RIGHT_SHIFT", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+          | arith_expr OP_LEFT_SHIFT shift_expr {node_attr = {"<<", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+          | arith_expr OP_RIGHT_SHIFT shift_expr {node_attr = {">>", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 arith_expr: term {node_attr = {"arith_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-          | term OP_ADD arith_expr {node_attr = {"OP_ADD", "arith_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-          | term OP_SUBTRACT arith_expr {node_attr = {"OP_SUBTRACT", "arith_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+          | term OP_ADD arith_expr {node_attr = {"+", "arith_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+          | term OP_SUBTRACT arith_expr {node_attr = {"-", "arith_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 term: factor {node_attr = {"term"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-    | factor OP_MULTIPLY term {node_attr = {"OP_MULTIPLY", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | factor OP_AT term {node_attr = {"OP_AT", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | factor OP_DIVIDE term {node_attr = {"OP_DIVIDE", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | factor OP_MODULO term {node_attr = {"OP_MODULO", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | factor OP_FLOOR_DIVIDE term {node_attr = {"OP_FLOOR_DIVIDE", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | factor OP_MULTIPLY term {node_attr = {"*", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | factor OP_AT term {node_attr = {"@", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | factor OP_DIVIDE term {node_attr = {"/", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | factor OP_MODULO term {node_attr = {"%", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | factor OP_FLOOR_DIVIDE term {node_attr = {"//", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-factor: OP_BITWISE_NOT factor {node_attr = {"OP_BITWISE_NOT", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-      | OP_ADD factor {node_attr = {"OP_ADD", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-      | OP_SUBTRACT factor {node_attr = {"OP_SUBTRACT", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+      | OP_ADD factor {node_attr = {"+", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+      | OP_SUBTRACT factor {node_attr = {"-", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
       | power {node_attr = {"factor"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
 power: atom_expr {node_attr = {"power"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-     | atom_expr OP_POWER factor {node_attr = {"OP_POWER", "power"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+     | atom_expr OP_POWER factor {node_attr = {"**", "power"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
     
 atom_expr: atom {node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
          | atom trailer_plus {node_attr = {"atom_expr"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
@@ -293,19 +290,19 @@ atom_expr: atom {node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); 
 string_plus : string_plus STRING_LITERAL {node_attr = {"STRING_LITERAL", "string_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
             | STRING_LITERAL {node_attr = {"STRING_LITERAL", "string_plus"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-atom: DELIM_LEFT_PAREN testlist_comp DELIM_RIGHT_PAREN {node_attr = {"DELIM_LEFT_PAREN", "DELIM_RIGHT_PAREN", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"DELIM_LEFT_PAREN", "DELIM_RIGHT_PAREN", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_BRACKET testlist_comp DELIM_RIGHT_BRACKET {node_attr = {"DELIM_LEFT_BRACKET", "DELIM_RIGHT_BRACKET", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"DELIM_LEFT_BRACKET", "DELIM_RIGHT_BRACKET", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_CURLY dictorsetmaker DELIM_RIGHT_CURLY {node_attr = {"DELIM_LEFT_CURLY", "DELIM_RIGHT_CURLY", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY {node_attr = {"DELIM_LEFT_CURLY", "DELIM_RIGHT_CURLY", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+atom: DELIM_LEFT_PAREN testlist_comp DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+    | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+    | DELIM_LEFT_BRACKET testlist_comp DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+    | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+    | DELIM_LEFT_CURLY dictorsetmaker DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+    | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
     | number {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
     | string_plus {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-    | DELIM_ELLIPSIS {node_attr = {"DELIM_ELLIPSIS", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | KEY_NONE {node_attr = {"KEY_NONE", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | KEY_TRUE {node_attr = {"KEY_TRUE", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | KEY_FALSE {node_attr = {"KEY_FALSE", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | DELIM_ELLIPSIS {node_attr = {"...", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | KEY_NONE {node_attr = {"None", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | KEY_TRUE {node_attr = {"True", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | KEY_FALSE {node_attr = {"False", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
     | types {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
     
 number: INTEGER {node_attr = {strdup($1), "number"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -319,98 +316,98 @@ named_or_star: namedexpr_test {node_attr = {"named_or_star"}; node_numbers = {$1
              | star_expr {node_attr = {"named_or_star"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
 named_star_plus: named_or_star {node_attr = {"named_star_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-               | named_or_star DELIM_COMMA {node_attr = {"DELIM_COMMA", "named_star_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-               | named_or_star DELIM_COMMA named_star_plus {node_attr = {"DELIM_COMMA", "named_star_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+               | named_or_star DELIM_COMMA {node_attr = {",", "named_star_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+               | named_or_star DELIM_COMMA named_star_plus {node_attr = {",", "named_star_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-trailer: DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"DELIM_LEFT_PAREN", "DELIM_RIGHT_PAREN", "trailer"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"DELIM_LEFT_PAREN", "DELIM_RIGHT_PAREN", "trailer"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | DELIM_LEFT_BRACKET subscriptlist DELIM_RIGHT_BRACKET {node_attr = {"DELIM_LEFT_BRACKET", "DELIM_RIGHT_BRACKET", "trailer"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | DELIM_DOT NAME {node_attr = {"DELIM_DOT", string("NAME ( ") + strdup($2) + " )", "trailer"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+trailer: DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailer"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+       | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailer"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+       | DELIM_LEFT_BRACKET subscriptlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailer"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+       | DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailer"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
 trailer_plus: trailer_plus trailer {node_attr = {"trailer_plus"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
             | trailer {node_attr = {"trailer_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
 subscriptlist: subscript {node_attr = {"subscriptlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-             | subscript DELIM_COMMA subscriptlist {node_attr = {"DELIM_COMMA", "subscriptlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-             | subscript DELIM_COMMA {node_attr = {"DELIM_COMMA", "subscriptlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+             | subscript DELIM_COMMA subscriptlist {node_attr = {",", "subscriptlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+             | subscript DELIM_COMMA {node_attr = {",", "subscriptlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 subscript: test {node_attr = {"subscript"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-         | DELIM_COLON {node_attr = {"DELIM_COLON", "subscript"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_COLON sliceop {node_attr = {"DELIM_COLON", "subscript"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_COLON test {node_attr = {"DELIM_COLON", "subscript"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | DELIM_COLON test sliceop {node_attr = {"DELIM_COLON", "subscript"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | test DELIM_COLON {node_attr = {"DELIM_COLON", "subscript"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | test DELIM_COLON sliceop {node_attr = {"DELIM_COLON", "subscript"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | test DELIM_COLON test {node_attr = {"DELIM_COLON", "subscript"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-         | test DELIM_COLON test sliceop {node_attr = {"DELIM_COLON", "subscript"}; node_numbers = {$1, node_count, $3, $4}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_COLON {node_attr = {":", "subscript"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_COLON sliceop {node_attr = {":", "subscript"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_COLON test {node_attr = {":", "subscript"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | DELIM_COLON test sliceop {node_attr = {":", "subscript"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | test DELIM_COLON {node_attr = {":", "subscript"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | test DELIM_COLON sliceop {node_attr = {":", "subscript"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | test DELIM_COLON test {node_attr = {":", "subscript"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | test DELIM_COLON test sliceop {node_attr = {":", "subscript"}; node_numbers = {$1, node_count, $3, $4}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-sliceop: DELIM_COLON {node_attr = {"DELIM_COLON", "sliceop"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | DELIM_COLON test {node_attr = {"DELIM_COLON", "sliceop"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+sliceop: DELIM_COLON {node_attr = {":", "sliceop"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | DELIM_COLON test {node_attr = {":", "sliceop"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 common_expr : expr {node_attr = {"common_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
             | star_expr {node_attr = {"common_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
 exprlist: common_expr {node_attr = {"exprlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | common_expr DELIM_COMMA exprlist {node_attr = {"DELIM_COMMA", "exprlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        | common_expr DELIM_COMMA {node_attr = {"DELIM_COMMA", "exprlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | common_expr DELIM_COMMA exprlist {node_attr = {",", "exprlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | common_expr DELIM_COMMA {node_attr = {",", "exprlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | test DELIM_COMMA testlist {node_attr = {"DELIM_COMMA", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        | test DELIM_COMMA {node_attr = {"DELIM_COMMA", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-dictorsetmaker: test DELIM_COLON test comp_for {node_attr = {"DELIM_COLON", "dictorsetmaker"}; node_numbers = {$1, node_count, $3, $4}; insert_node(); $$ = node_count + 1; node_count += 2;}
+dictorsetmaker: test DELIM_COLON test comp_for {node_attr = {":", "dictorsetmaker"}; node_numbers = {$1, node_count, $3, $4}; insert_node(); $$ = node_count + 1; node_count += 2;}
               | test_test_plus {node_attr = {"dictorsetmaker"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
               | test_or_star comp_for {node_attr = {"dictorsetmaker"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
               | test_or_star test_or_star_plus {node_attr = {"dictorsetmaker"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
-              | test_or_star test_or_star_plus DELIM_COMMA {node_attr = {"DELIM_COMMA", "dictorsetmaker"}; node_numbers = {$1, $2, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+              | test_or_star test_or_star_plus DELIM_COMMA {node_attr = {",", "dictorsetmaker"}; node_numbers = {$1, $2, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-test_test_plus: test DELIM_COLON test {node_attr = {"DELIM_COLON", "test_test_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-              | test DELIM_COLON test DELIM_COMMA {node_attr = {"DELIM_COLON", "DELIM_COMMA", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-              | test DELIM_COLON test DELIM_COMMA test_test_plus {node_attr = {"DELIM_COLON", "DELIM_COMMA", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
+test_test_plus: test DELIM_COLON test {node_attr = {":", "test_test_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+              | test DELIM_COLON test DELIM_COMMA {node_attr = {":", ",", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+              | test DELIM_COLON test DELIM_COMMA test_test_plus {node_attr = {":", ",", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
-classdef: KEY_CLASS NAME DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"KEY_CLASS", string("NAME ( ") + strdup($2) + " )", "DELIM_LEFT_PAREN", "DELIM_RIGHT_PAREN", "DELIM_COLON", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, $4, node_count + 3, node_count + 4, $7}; insert_node(); $$ = node_count + 5; node_count += 6;}
-        | KEY_CLASS NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"KEY_CLASS", string("NAME ( ") + strdup($2) + " )", "DELIM_LEFT_PAREN", "DELIM_RIGHT_PAREN", "DELIM_COLON", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, node_count + 3, node_count + 4, $6}; insert_node(); $$ = node_count + 5; node_count += 6;}
-        | KEY_CLASS NAME DELIM_COLON suite {node_attr = {"KEY_CLASS", string("NAME ( ") + strdup($2) + " )", "DELIM_COLON", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, $4}; insert_node(); $$ = node_count + 3; node_count += 4;}
+classdef: KEY_CLASS NAME DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"class", string("NAME ( ") + strdup($2) + " )", "(", ")", ":", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, $4, node_count + 3, node_count + 4, $7}; insert_node(); $$ = node_count + 5; node_count += 6;}
+        | KEY_CLASS NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"class", string("NAME ( ") + strdup($2) + " )", "(", ")", ":", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, node_count + 3, node_count + 4, $6}; insert_node(); $$ = node_count + 5; node_count += 6;}
+        | KEY_CLASS NAME DELIM_COLON suite {node_attr = {"class", string("NAME ( ") + strdup($2) + " )", ":", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, $4}; insert_node(); $$ = node_count + 3; node_count += 4;}
 
 arglist: argument {node_attr = {"arglist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-       | argument DELIM_COMMA arglist {node_attr = {"DELIM_COMMA", "arglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | argument DELIM_COMMA {node_attr = {"DELIM_COMMA", "arglist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | argument DELIM_COMMA arglist {node_attr = {",", "arglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | argument DELIM_COMMA {node_attr = {",", "arglist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-argument: test comp_for {node_attr = {"argument"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
+argument: test comp_for {node_attr = {"argument"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
         | test {node_attr = {"argument"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | test DELIM_ASSIGN test {node_attr = {"DELIM_ASSIGN", "argument"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        | OP_POWER test {node_attr = {"OP_POWER", "argument"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        | OP_MULTIPLY test  {node_attr = {"OP_MULTIPLY", "argument"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | test DELIM_ASSIGN test {node_attr = {"=", "argument"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | OP_POWER test {node_attr = {"**", "argument"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+        | OP_MULTIPLY test  {node_attr = {"*", "argument"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 comp_iter: comp_for {node_attr = {"comp_iter"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
          | comp_if {node_attr = {"comp_iter"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
         
-sync_comp_for: KEY_FOR exprlist KEY_IN or_test comp_iter {node_attr = {"KEY_FOR", "KEY_IN", "sync_comp_for"}; node_numbers = {node_count, $2, node_count + 1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
-             | KEY_FOR exprlist KEY_IN or_test { node_attr = {"KEY_FOR", "KEY_IN", "sync_comp_for"}; node_numbers = {node_count, $2, node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+sync_comp_for: KEY_FOR exprlist KEY_IN or_test comp_iter {node_attr = {"for", "in", "sync_comp_for"}; node_numbers = {node_count, $2, node_count + 1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
+             | KEY_FOR exprlist KEY_IN or_test { node_attr = {"for", "in", "sync_comp_for"}; node_numbers = {node_count, $2, node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
              
 comp_for: sync_comp_for {node_attr = {"comp_for"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
-comp_if: KEY_IF test_nocond comp_iter {node_attr = {"KEY_IF", "comp_if"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | KEY_IF test_nocond {node_attr = {"KEY_IF", "comp_if"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+comp_if: KEY_IF test_nocond comp_iter {node_attr = {"if", "comp_if"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | KEY_IF test_nocond {node_attr = {"if", "comp_if"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 func_body_suite: simple_stmt {node_attr = {"func_body_suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-               |  newline_plus INDENT stmt_plus DEDENT {node_attr = {"INDENT","DEDENT", "func_body_suite"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 0; node_count += 1;}
+               |  newline_plus INDENT stmt_plus DEDENT {node_attr = {"func_body_suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
         
-types: TYPE_INT {node_attr = {"TYPE_INT", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-     | TYPE_BOOL {node_attr = {"TYPE_BOOL", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-     | TYPE_DICT {node_attr = {"TYPE_DICT", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-     | TYPE_FLOAT {node_attr = {"TYPE_FLOAT", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+types: TYPE_INT {node_attr = {"int", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+     | TYPE_BOOL {node_attr = {"bool", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+     | TYPE_DICT {node_attr = {"dict", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+     | TYPE_FLOAT {node_attr = {"float", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
      | type_list {node_attr = {"types"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-     | TYPE_STRING {node_attr = {"TYPE_STRING", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+     | TYPE_STRING {node_attr = {"str", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-type_list: TYPE_LIST DELIM_LEFT_BRACKET types DELIM_RIGHT_BRACKET {node_attr = {"TYPE_LIST", "DELIM_LEFT_BRACKET", "DELIM_RIGHT_BRACKET", "type_list"}; node_numbers = {node_count, node_count + 1, $3, node_count + 2}; insert_node(); $$ = node_count + 3; node_count += 4;}
+type_list: TYPE_LIST DELIM_LEFT_BRACKET types DELIM_RIGHT_BRACKET {node_attr = {"list", "[", "]", "type_list"}; node_numbers = {node_count, node_count + 1, $3, node_count + 2}; insert_node(); $$ = node_count + 3; node_count += 4;}
 
 %%
 
 
 int main(int argc, char* argv[]) {
     /* int yydebug = 0; */
-    /* int help_flag = 0;
+    int help_flag = 0;
     string input_file = "";
     string output_file = "ast.dot";
     for(int i = 1 ; i < argc; i++) {
@@ -455,9 +452,9 @@ int main(int argc, char* argv[]) {
         cout << "--help \t\t\t\t: Instruction regarding usage instructions and options" << endl;
         cout << "--verbose \t\t\t: Prints the complete stack trace of the parser execution" << endl;
         return 0;
-    }*/
-    string input_file = "../test/testcases/public1.py";
-    string output_file = "ast.dot";
+    }
+    /* string input_file = "../test/testcases/public1.py";
+    string output_file = "ast.dot"; */
 
     if(input_file != "") {
         freopen(input_file.c_str(), "r", stdin);
@@ -471,9 +468,9 @@ int main(int argc, char* argv[]) {
         for(auto b: a) {
             if(b >= adj.size()) cout << b << endl;
         }
-    }
-     */
-	/* for(int i=0;i<nodes.size();i++) {
+    }*/
+
+	for(int i=0;i<nodes.size();i++) {
 		for(int j=0; j<adj[i].size();j++) {
 			int k = adj[i][j];
 			while(adj[k].size() == 1){
@@ -482,7 +479,7 @@ int main(int argc, char* argv[]) {
             }
 			adj[i][j] = k;
 		}
-	} */
+	}
 
     for (int i = 0; i < nodes.size(); i++) {
 		if(valid[i])
@@ -496,7 +493,6 @@ int main(int argc, char* argv[]) {
         }
     }
     dotFile << "}" << endl;
-
     return 0;
 }
 
