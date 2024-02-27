@@ -218,6 +218,7 @@ stmt_plus : stmt {node_attr = {"stmt_plus"}; node_numbers = {$1}; insert_node();
         
 suite: simple_stmt {node_attr = {"suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
      | newline_plus INDENT stmt_plus DEDENT {node_attr = {"suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
+     | newline_plus INDENT stmt_plus DEDENT newline_plus{node_attr = {"suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
 
 namedexpr_test: test {node_attr = {"namedexpr_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
               | test DELIM_ASSIGN test {node_attr = {"=", "namedexpr_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -392,6 +393,7 @@ comp_if: KEY_IF test_nocond comp_iter {node_attr = {"if", "comp_if"}; node_numbe
 
 func_body_suite: simple_stmt {node_attr = {"func_body_suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
                |  newline_plus INDENT stmt_plus DEDENT {node_attr = {"func_body_suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
+               |  newline_plus INDENT stmt_plus DEDENT newline_plus {node_attr = {"func_body_suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
         
 types: TYPE_INT {node_attr = {"int", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
      | TYPE_BOOL {node_attr = {"bool", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}

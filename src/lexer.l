@@ -72,10 +72,12 @@ COMMENT                         #[^\n]*
 ^[\t ]*{NEWLINE} {
     // cout << "Blank line " << yylineno << endl;
     yylval.strval = strdup(yytext);
+   // cout << "Blank line " << yylineno << endl;
+   // cout << indentation_checking.top() << endl;
     return NEWLINE;
 }
 
-{NEWLINE}/[^ \t\n] {
+{NEWLINE}/[^ \t\n\r] {
     // cout << "No whitespace after new line " << yylineno << " and the lexeme is " << yytext << endl;
     if(newline_flag) {
         char *copy_string = strdup(yytext);
@@ -94,7 +96,7 @@ COMMENT                         #[^\n]*
                 unput(copy_string[i]);
             free(copy_string);
             indentation_checking.pop();
-            // cout << "1. DEDENT " << yylineno << endl;;
+           // cout << "1. DEDENT " << yylineno << endl;;
             return DEDENT;
         }
         newline_flag = true;
@@ -154,7 +156,7 @@ COMMENT                         #[^\n]*
             // cout << indentation_checking.top() << " " << yylineno << endl;
             indentation_checking.pop();
             indentation_flag = true;
-            // cout << "3. DEDENT " << yylineno << endl;;
+            //cout << "3. DEDENT " << yylineno << endl;;
             return DEDENT;
         }
     }
