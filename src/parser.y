@@ -46,6 +46,7 @@ void insert_node() {
         nodes.push_back(node_attr[i]);
         adj.push_back(vector<int>());
     }
+   
     for(int i = 0; i < node_numbers.size(); i++) {
         adj[node_count + node_attr.size() - 1].push_back(node_numbers[i]);
     }
@@ -83,8 +84,8 @@ file_input: file_plus {node_attr = {"file_input"};  node_numbers = {$1}; insert_
 file_plus: stmt file_plus {node_attr = {"file_plus"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;} 
          | stmt {node_attr = {"file_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;} 
 
-newline_plus: newline_plus NEWLINE {}
-            | NEWLINE {}
+newline_plus: newline_plus NEWLINE {cout << " INSIDE ctd NEWLINE" << endl;}
+            | NEWLINE {cout << " INSIDE NEWLINE" << endl;}
 
 funcdef: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON func_body_suite {node_attr = {"def", string("NAME ( ") + strdup($2) + " )", "->", ":", "funcdef"}; node_numbers = {node_count, node_count+1, $3, node_count+2, $5, node_count+3, $7}; insert_node(); $$ = node_count+4; node_count += 5;} 
        | KEY_DEF NAME parameters DELIM_COLON func_body_suite {node_attr = {"def", string("NAME ( ") + strdup($2) + " )", ":", "funcdef"}; node_numbers = {node_count, node_count+1, $3, node_count+2, $5}; insert_node(); $$ = node_count+3; node_count += 4;} 
@@ -105,9 +106,9 @@ tfpdef: NAME DELIM_COLON test {node_attr = {string("NAME ( ") + strdup($1) + " )
 stmt: simple_stmt {node_attr = {"stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
     | compound_stmt {node_attr = {"stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
-simple_stmt: small_or_semi newline_plus {node_attr = {"simple_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+simple_stmt: small_or_semi newline_plus {cout << "INSIDE SIMPLESTMT " << endl; node_attr = {"simple_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
-small_or_semi: small_stmt {node_attr = {"small_or_semi"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+small_or_semi: small_stmt {node_attr = {"small_or_semi"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;cout << "INSIDE SMALL OR SEMI" << endl;}
              | small_stmt DELIM_SEMICOLON {node_attr = {";", "small_or_semi"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
              | small_stmt DELIM_SEMICOLON small_or_semi {node_attr = {";", "small_or_semi"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 

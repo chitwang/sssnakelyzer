@@ -163,7 +163,7 @@ COMMENT                         #[^\n]*
 }
 
 <<EOF>> {
-    while(indentation_checking.top() != 0) {
+    while(!indentation_checking.empty() && indentation_checking.top() != 0) {
         char *copy_string = strdup(yytext);
         for (int i = yyleng - 1; i >= 0; --i)
             unput(copy_string[i]);
