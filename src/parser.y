@@ -54,10 +54,19 @@ void insert_node() {
         nodes.push_back(node_attr[i]);
         adj.push_back(vector<int>());
     }
-    debug_insert();
+    // debug_insert();
     for(int i = 0; i < node_numbers.size(); i++) {
         adj[node_count + node_attr.size() - 1].push_back(node_numbers[i]);
     }
+}
+
+bool isop(string s)
+{
+    return s == "+" || s == "-" || s == "*" || s == "**" || s == "/" ||
+           s == "//" || s == "%" || s == "@" || s == "<<" || s == ">>" ||
+           s == "&" || s == "|" || s == "^" || s == "~" || s == ":=" ||
+           s == "<" || s == ">" || s == "<=" || s == ">=" || s == "==" || 
+           s == "!=";
 }
 
 extern int yylex(void);
@@ -480,6 +489,19 @@ int main(int argc, char* argv[]) {
             if(b >= adj.size()) cout << b << endl;
         }
     }*/
+    map<int,int> mp;
+    set<int> op_set;
+    for(int i=0;i<nodes.size();i++)
+    {
+        for(auto it:adj[i])
+        {
+            if(isop(nodes[it]))
+            {
+                mp[i] = it;
+                op_set.insert(it);
+            }
+        }
+    }
 
 	for(int i=0;i<nodes.size();i++) {
 		for(int j=0; j<adj[i].size();j++) {
@@ -493,16 +515,28 @@ int main(int argc, char* argv[]) {
 	}
 
     for (int i = 0; i < nodes.size(); i++) {
-		if(valid[i])
-        	dotFile << "  " << i << " [label=\"" << nodes[i] << "\"];" << endl;
+		if(valid[i] && op_set.find(i) == op_set.end()){
+            string tmp = nodes[i];
+            if(mp.find(i) != mp.end())
+            {
+                tmp = nodes[mp[i]];
+            }
+        	dotFile << "  " << i << " [label=\"" << tmp << "\"];" << endl;
+        }
     }
 
     for (int i = 0; i < adj.size(); i++) {
+        int not_cnt = -1;
+        if(mp.find(i) != mp.end()){
+            not_cnt = mp[i];
+        }
         for (int j = 0; j < adj[i].size(); j++) {
-			if(valid[i])
+			if(valid[i] && adj[i][j] != not_cnt){
             	dotFile << "  " << i << " -> " << adj[i][j] << ";" << endl;
+            }
         }
     }
+
     dotFile << "}" << endl;
     return 0;
 }
