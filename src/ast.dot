@@ -71,7 +71,7 @@ digraph G {
   419 [label="]"];
   420 [label="trailer"];
   422 [label="atom_expr"];
-  432 [label="comparison"];
+  432 [label=">"];
   438 [label="NAME ( temp )"];
   456 [label="int"];
   473 [label="NAME ( array )"];
@@ -307,7 +307,6 @@ digraph G {
   422 -> 389;
   422 -> 420;
   432 -> 378;
-  432 -> 387;
   432 -> 422;
   495 -> 493;
   495 -> 475;

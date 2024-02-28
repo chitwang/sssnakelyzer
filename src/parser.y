@@ -489,6 +489,17 @@ int main(int argc, char* argv[]) {
             if(b >= adj.size()) cout << b << endl;
         }
     }*/
+    for(int i=0;i<nodes.size();i++) {
+		for(int j=0; j<adj[i].size();j++) {
+			int k = adj[i][j];
+			while(adj[k].size() == 1){
+                valid[k] = false;
+                k = adj[k][0];
+            }
+			adj[i][j] = k;
+		}
+	}
+    
     map<int,int> mp;
     set<int> op_set;
     for(int i=0;i<nodes.size();i++)
@@ -503,16 +514,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-	for(int i=0;i<nodes.size();i++) {
-		for(int j=0; j<adj[i].size();j++) {
-			int k = adj[i][j];
-			while(adj[k].size() == 1){
-                valid[k] = false;
-                k = adj[k][0];
-            }
-			adj[i][j] = k;
-		}
-	}
+	
 
     for (int i = 0; i < nodes.size(); i++) {
 		if(valid[i] && op_set.find(i) == op_set.end()){
