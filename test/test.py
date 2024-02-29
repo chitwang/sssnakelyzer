@@ -19,3 +19,5 @@ asd
    asdf """
 
 print(b)
+
+a = 4 if true else 5
