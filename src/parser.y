@@ -489,6 +489,7 @@ int main(int argc, char* argv[]) {
             if(b >= adj.size()) cout << b << endl;
         }
     }*/
+    
     for(int i=0;i<nodes.size();i++) {
 		for(int j=0; j<adj[i].size();j++) {
 			int k = adj[i][j];

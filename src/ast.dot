@@ -1,6 +1,6 @@
 digraph G {
   ordering="out"
-  0 [label="int"];
+  0 [label="int" color="red" fontcolor="blue"];
   2 [label="list"];
   3 [label="["];
   4 [label="]"];
