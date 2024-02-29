@@ -11,36 +11,6 @@ int node_count = 0;
 vector<string> node_attr;
 vector<int> node_numbers;
 
-typedef struct ast_node {
-    char* type;
-    char* value;
-    struct ast_node* left;
-    struct ast_node* right;
-} ast_node;
-
-ast_node* new_node(char* type, char* value, ast_node* left, ast_node* right) {
-    ast_node* node = (ast_node*)malloc(sizeof(ast_node));
-    node->type =  type;
-    node->value = value;
-    node->left = left;
-    node->right = right;
-    return node;
-}
-
-void print_ast(ast_node* node, FILE* fp) {
-    if (node != NULL) {
-        fprintf(fp, "\t\"%p\" [label=\"%s\"];\n", node, node->type);
-        if (node->left != NULL) {
-            fprintf(fp, "\t\"%p\" -> \"%p\";\n", node, node->left);
-            print_ast(node->left, fp);
-        }
-        if (node->right != NULL) {
-            fprintf(fp, "\t\"%p\" -> \"%p\";\n", node, node->right);
-            print_ast(node->right, fp);
-        }
-    }
-}
-
 void debug_insert() {
     for(auto s: node_attr) cout << s << "\t";
     cout << endl;
@@ -60,19 +30,34 @@ void insert_node() {
     }
 }
 
-bool isop(string s)
-{
-    return s == "+" || s == "-" || s == "*" || s == "**" || s == "/" ||
+bool isop(string s) {
+    return (s == "+" || s == "-" || s == "*" || s == "**" || s == "/" ||
            s == "//" || s == "%" || s == "@" || s == "<<" || s == ">>" ||
            s == "&" || s == "|" || s == "^" || s == "~" || s == ":=" ||
            s == "<" || s == ">" || s == "<=" || s == ">=" || s == "==" || 
-           s == "!=";
+           s == "!=" || s=="=");
+}
+
+bool isdelim(string s) {
+    return (s == "(" || s == ")" || s == "[" || s == "]" || s == "{" ||
+            s == "}" || s == "," || s == ":" || s == "." || s == ";" ||
+            s == "->" || s == "+=" || s == "-=" || s == "*=" || s == "/=" ||
+            s == "//=" || s == "%=" || s == "&=" || s == "|=" || s == "<<=" ||
+            s == ">>=" || s == "^=" || s == "**=" || s == "...");
+}
+
+bool iskeyword(string s) {
+    return (s == "False" || s == "await" || s == "else" || s == "import" ||
+            s == "pass" || s == "None" || s == "break" || s == "except" ||
+            s == "in" || s == "raise" || s == "True" || s == "class" || s == "finally" ||
+            s == "is" || s == "return" || s == "and" || s == "continue" || s == "for" ||
+            s == "as" || s == "try" || s == "def" || s == "from" || s == "nonlocal" ||
+            s == "while" || s == "assert" || s == "del" || s == "global" || s == "not" ||
+            s == "with" || s == "async" || s == "elif" || s == "if" || s == "or" || s == "yield");
 }
 
 extern int yylex(void);
 void yyerror(const char*);
-
-ast_node* root;
 
 %}
 
@@ -85,7 +70,7 @@ ast_node* root;
 
 %token<strval> KEY_FALSE KEY_ELSE KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_RAISE KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_LAMBDA KEY_TRY KEY_AS KEY_DEF KEY_FROM KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_DEL KEY_GLOBAL KEY_NOT KEY_WITH  KEY_ELIF KEY_IF KEY_OR KEY_YIELD OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_ASSIGN OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_INIT DUNDER_NAME DUNDER_MAIN ENDMARKER TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST TYPE_DICT WILDCARD_UNDERSCORE KEY_ASYNC KEY_AWAIT KEY_IMPORT
 
-%type<intval> start_symbol simple_stmt compound_stmt stmt parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictorsetmaker types testlist_star_assign_plus newline_plus file_input file_plus dunder_stmt_main try_stmt except_plus string_plus annassign testlist_star_expr augassign test_nocond subscript type_list
+%type<intval> start_symbol simple_stmt compound_stmt stmt parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictorsetmaker types newline_plus file_input file_plus program_start try_stmt except_plus string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration
 
 %start start_symbol
 
@@ -136,17 +121,23 @@ small_stmt: expr_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_n
           | nonlocal_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
           | assert_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
         
-expr_stmt: testlist_star_expr annassign {node_attr = {"expr_stmt"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
-         | testlist_star_expr augassign testlist {node_attr = {"expr_stmt"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count; node_count += 1;}
-         | testlist_star_expr {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-         | testlist_star_expr testlist_star_assign_plus {node_attr = {"expr_stmt"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
+expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+         | type_declaration DELIM_ASSIGN testlist_star_expr {node_attr = {"=", "expr_stmt"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+         | testlist_star_expr augassign testlist {node_attr = {"expr_stmt"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count; node_count += 1;}        
+         | testlist_assign_plus {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+         
+type_declaration: testlist_star_expr DELIM_COLON test {node_attr = {":", "type_declaration"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-testlist_star_assign_plus: DELIM_ASSIGN testlist_star_expr {node_attr = {"=", "testlist_star_assign_plus"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count+1; node_count += 2;}
-                         | DELIM_ASSIGN testlist_star_expr testlist_star_assign_plus {node_attr = {"=", "testlist_star_assign_plus"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count+1; node_count += 2;}
+testlist_assign_plus: testlist_star_expr DELIM_ASSIGN testlist_assign_plus {node_attr = {"=", "testlist_assign_plus"}; node_numbers = {$1, node_count, $3};insert_node();$$ = node_count+1;node_count += 2;} 
+                    | testlist_star_expr {node_attr = {"testlist_assign_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}   
+         /* | testlist_star_expr testlist_star_assign_plus {node_attr = {"expr_stmt"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;} */
 
-annassign: DELIM_COLON test {node_attr = {":", "annassign"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
+/* testlist_star_assign_plus: DELIM_ASSIGN testlist_star_expr {node_attr = {"=", "testlist_star_assign_plus"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count+1; node_count += 2;}
+                         | DELIM_ASSIGN testlist_star_expr testlist_star_assign_plus {node_attr = {"=", "testlist_star_assign_plus"}; node_numbers = {node_count, $2, $3}; insert_node(); $$ = node_count+1; node_count += 2;} */
+
+/* annassign: DELIM_COLON test {node_attr = {":", "annassign"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
          | DELIM_COLON test DELIM_ASSIGN {node_attr = {":", "=", "annassign"}; node_numbers = {node_count, $2, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-         | DELIM_COLON test DELIM_ASSIGN testlist_star_expr {node_attr = {":", "=", "annassign"}; node_numbers = {node_count, $2, node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+         | DELIM_COLON test DELIM_ASSIGN testlist_star_expr {node_attr = {":", "=", "annassign"}; node_numbers = {node_count, $2, node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;} */
 
 testlist_star_expr: test_or_star test_or_star_plus {node_attr = {"testlist_star_expr"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
                   | test_or_star test_or_star_plus DELIM_COMMA { node_attr = {",", "testlist_star_expr"}; node_numbers = {$1, $2, node_count + 0}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -200,11 +191,14 @@ compound_stmt: if_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; inse
              | for_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
              | funcdef {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
              | classdef {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-             | dunder_stmt_main {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+             | program_start {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
              | try_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
  
-dunder_stmt_main: KEY_IF DUNDER_NAME OP_EQUAL DUNDER_MAIN DELIM_COLON suite { node_attr = {"if", "__name__", "==", "__main__", ":", "dunder_stmt_main"}; node_numbers = {node_count, node_count+1, node_count+2, node_count+3, node_count+4, $6}; insert_node(); $$ = node_count+5; node_count += 6;}
-    
+program_start: KEY_IF DUNDER_NAME OP_EQUAL DUNDER_MAIN DELIM_COLON suite {node_attr = {"if", "__name__", "==", "__main__", ":", "program_start"}; node_numbers = {node_count, node_count + 1, node_count + 2, node_count + 3, node_count + 4, $6}; insert_node(); $$ = node_count + 5; node_count += 6;}
+
+/* if_name: KEY_IF DUNDER_NAME {node_attr = {"if", "__name__", "if_name"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+
+main: DUNDER_MAIN DELIM_COLON suite {node_attr = {"__main__", ":", "main"}; node_numbers = {node_count, node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;} */
 
 if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
        | KEY_IF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"if",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
@@ -430,6 +424,10 @@ int main(int argc, char* argv[]) {
     int help_flag = 0;
     string input_file = "";
     string output_file = "ast.dot";
+    string op_color = "red";
+    string delim_color = "green";
+    string key_color = "blue";
+
     for(int i = 1 ; i < argc; i++) {
         string s = argv[i];
         if(s == "--help") {
@@ -440,41 +438,50 @@ int main(int argc, char* argv[]) {
             yydebug = 1;
             continue;
         }
-        string flag = s;
         if(s.length() <= 7) {
-            cerr << "Wrong usage of flags" << endl;
-            return 0;
+            cerr << "Wrong flag!! See ./run.sh --help for usage details" << endl;
+            exit(1);
         }
-        flag = flag.substr(0, 8);
-        if(flag == "--input=") {
-            input_file = s.substr(8, s.length());
-            continue;
+        if(s.substr(0, 8) == "--input=") {
+            input_file = s.substr(8);
+        } 
+        else if(s.substr(0, 9) == "--output=") {
+            output_file = s.substr(9);
         }
-        flag = s;
-        if(s.length() <= 8) {
-            cerr << "Wrong usage of flags" << endl;
-            return 0;
+        else if(s.substr(0, 10) == "--colorop=") {
+            op_color = s.substr(10);
         }
-        flag = flag.substr(0, 9);
-        if(flag == "--output=") {
-            output_file = s.substr(9, s.length());
-            continue;
+        else if(s.substr(0, 11) == "--colorkey=") {
+            key_color = s.substr(11);
+        } 
+        else if(s.substr(0, 13) == "--colordelim=") {
+            delim_color = s.substr(13);
         }
-        cerr << "Wrong flag" << endl;
-        return 0;
+        else {
+            cerr << "Wrong flag!! See ./run.sh --help for usage details" << endl;
+            exit(1);
+        }
+    }
+
+    if(input_file.empty()) {
+        cout << "Input file not specified!" << endl;
+        cout << endl;
+        help_flag = 1;
     }
 
     if(help_flag) {
-        cout << "Usage: ./parser --input=<input_file_path> --output=<output_file_path> [options]" << endl;
+        cout << "Usage: ./parser --input=<input_file_path> [options]" << endl;
         cout << "The following options can be used" << endl;
-        cout << "--input=<input_file_path> \t: Input file specification (default is command line)" << endl;
+        cout << endl;
         cout << "--output=<output_file_path> \t: Output file specification (default is ast.dot)" << endl;
+        cout << "--colorop=<color> \t\t: Color for operators in the AST" << endl;
+        cout << "--colordelim=<color> \t\t: Color for delimiters in the AST" << endl;
+        cout << "--colorkey=<color> \t\t: Color for keywords in the AST" << endl;
         cout << "--help \t\t\t\t: Instruction regarding usage instructions and options" << endl;
         cout << "--verbose \t\t\t: Prints the complete stack trace of the parser execution" << endl;
+        cout << endl;
         return 0;
     }
-    /* string input_file = "../test/testcases/public1.py";
-    string output_file = "ast.dot"; */
 
     if(input_file != "") {
         freopen(input_file.c_str(), "r", stdin);
@@ -492,8 +499,9 @@ int main(int argc, char* argv[]) {
     
     for(int i=0;i<nodes.size();i++) {
 		for(int j=0; j<adj[i].size();j++) {
+            if(nodes[j] == "program_start") continue;
 			int k = adj[i][j];
-			while(adj[k].size() == 1){
+			while(adj[k].size() == 1) {
                 valid[k] = false;
                 k = adj[k][0];
             }
@@ -503,38 +511,46 @@ int main(int argc, char* argv[]) {
     
     map<int,int> mp;
     set<int> op_set;
-    for(int i=0;i<nodes.size();i++)
-    {
-        for(auto it:adj[i])
-        {
-            if(isop(nodes[it]))
-            {
+    for(int i=0;i<nodes.size();i++) {
+        if(nodes[i] == "program_start") continue;
+        for(auto it:adj[i]) {
+            if(isop(nodes[it])) {
                 mp[i] = it;
                 op_set.insert(it);
             }
         }
     }
 
-	
-
     for (int i = 0; i < nodes.size(); i++) {
-		if(valid[i] && op_set.find(i) == op_set.end()){
+		if(valid[i] && op_set.find(i) == op_set.end()) {
             string tmp = nodes[i];
-            if(mp.find(i) != mp.end())
-            {
+            if(mp.find(i) != mp.end()) {
                 tmp = nodes[mp[i]];
             }
-        	dotFile << "  " << i << " [label=\"" << tmp << "\"];" << endl;
+            string col;
+            if(isop(tmp)) {
+                col = op_color;
+            }
+            else if(isdelim(tmp)) {
+                col = delim_color;
+            }
+            else if(iskeyword(tmp)){
+                col = key_color;
+            }
+            else {
+                col = "black";
+            }
+        	dotFile << "  " << i << " [label=\"" << tmp << "\" color=\"" << col << "\" fontcolor=\"" << col << "\"];" << endl;
         }
     }
 
     for (int i = 0; i < adj.size(); i++) {
         int not_cnt = -1;
-        if(mp.find(i) != mp.end()){
+        if(mp.find(i) != mp.end()) {
             not_cnt = mp[i];
         }
         for (int j = 0; j < adj[i].size(); j++) {
-			if(valid[i] && adj[i][j] != not_cnt){
+			if(valid[i] && adj[i][j] != not_cnt) {
             	dotFile << "  " << i << " -> " << adj[i][j] << ";" << endl;
             }
         }
