@@ -1,41 +1,10 @@
-Reserved classes of Identifiers
-__*__
-__*
-*
+TODO:
+    complex number
+    review correctness
+    Long string literal? 
 
-
-TEST SHORTSTRINGCHAR IN LEXER
-
-
-f-string
-type comment, (slash default, star etc from parameters)
-star expression
-parameter complete krna bacha h 
-with statement, try, match, except
-check for signed numbers : "+" sign?
-literal_pattern and literal_expr are the same 
-capture_pattern -> pattern_capture_target : replace it to make direct ?
-wildcard pattern ?
-type alias
-complex number
-func_type
-assignment ke 4 rule commented
-star target to KEY_AWAIT is temp 
-named_expression ki bakchodi 
-arguments ki bakchodi 
-
-
-
-
-
-NEW TODO :
-
-raise statement?
-dictionary
-review correctness
-we are expecting a:int = 5, and not a:int followed by a = 5
-
-"__init__" {
-    yylval.strval = strdup(yytext);
-    return DUNDER_INIT;
-}
+Extra:
+    dictionary
+    f-string
+    try..catch..finally
+    multi dimensional list

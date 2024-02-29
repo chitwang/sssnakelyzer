@@ -32,10 +32,10 @@ void insert_node() {
 
 bool isop(string s) {
     return (s == "+" || s == "-" || s == "*" || s == "**" || s == "/" ||
-           s == "//" || s == "%" || s == "@" || s == "<<" || s == ">>" ||
-           s == "&" || s == "|" || s == "^" || s == "~" || s == ":=" ||
-           s == "<" || s == ">" || s == "<=" || s == ">=" || s == "==" || 
-           s == "!=" || s=="=");
+            s == "//" || s == "%" || s == "@" || s == "<<" || s == ">>" ||
+            s == "&" || s == "|" || s == "^" || s == "~" || s == ":=" ||
+            s == "<" || s == ">" || s == "<=" || s == ">=" || s == "==" || 
+            s == "!=" || s=="=");
 }
 
 bool isdelim(string s) {
@@ -56,6 +56,20 @@ bool iskeyword(string s) {
             s == "with" || s == "async" || s == "elif" || s == "if" || s == "or" || s == "yield");
 }
 
+void print_help() {
+    cout << "Usage: ./run.sh --input=<input_file_path> [options]" << endl;
+    cout << "The following options can be used" << endl;
+    cout << endl;
+    cout << "--output=<output_file_path> \t: Output file specification (default is ast.dot)" << endl;
+    cout << "--colorop=<color> \t\t: Color for operator nodes in the AST" << endl;
+    cout << "--colordelim=<color> \t\t: Color for delimiter nodes in the AST" << endl;
+    cout << "--colorkey=<color> \t\t: Color for keyword nodes in the AST" << endl;
+    cout << "--help \t\t\t\t: Instruction regarding usage instructions and options" << endl;
+    cout << "--verbose \t\t\t: Prints the complete stack trace of the parser execution" << endl;
+    cout << endl;
+    exit(1);
+}
+
 extern int yylex(void);
 void yyerror(const char*);
 
@@ -68,9 +82,9 @@ void yyerror(const char*);
     int intval;
 }
 
-%token<strval> KEY_FALSE KEY_ELSE KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_RAISE KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_LAMBDA KEY_TRY KEY_AS KEY_DEF KEY_FROM KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_DEL KEY_GLOBAL KEY_NOT KEY_WITH  KEY_ELIF KEY_IF KEY_OR KEY_YIELD OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_ASSIGN OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_INIT DUNDER_NAME DUNDER_MAIN ENDMARKER TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST TYPE_DICT WILDCARD_UNDERSCORE KEY_ASYNC KEY_AWAIT KEY_IMPORT
+%token<strval> KEY_FALSE KEY_ELSE KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_TRY KEY_DEF KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST TYPE_DICT
 
-%type<intval> start_symbol simple_stmt compound_stmt stmt parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictorsetmaker types newline_plus file_input file_plus program_start try_stmt except_plus string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration
+%type<intval> start_symbol simple_stmt compound_stmt stmt parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictorsetmaker types newline_plus file_input file_plus program_start try_stmt except_plus string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration type_dict
 
 %start start_symbol
 
@@ -409,12 +423,14 @@ func_body_suite: simple_stmt {node_attr = {"func_body_suite"}; node_numbers = {$
         
 types: TYPE_INT {node_attr = {"int", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
      | TYPE_BOOL {node_attr = {"bool", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-     | TYPE_DICT {node_attr = {"dict", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+     | type_dict {node_attr = {"types"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
      | TYPE_FLOAT {node_attr = {"float", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
      | type_list {node_attr = {"types"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
      | TYPE_STRING {node_attr = {"str", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 type_list: TYPE_LIST DELIM_LEFT_BRACKET types DELIM_RIGHT_BRACKET {node_attr = {"list", "[", "]", "type_list"}; node_numbers = {node_count, node_count + 1, $3, node_count + 2}; insert_node(); $$ = node_count + 3; node_count += 4;}
+
+type_dict: TYPE_DICT DELIM_LEFT_BRACKET types DELIM_COMMA types DELIM_RIGHT_BRACKET {node_attr = {"dict", "[", ",", "]", "type_dict"}; node_numbers = {node_count, node_count + 1, $3, node_count + 2, $5, node_count + 3}; insert_node(); $$ = node_count + 4; node_count += 5;}
 
 %%
 
@@ -439,8 +455,9 @@ int main(int argc, char* argv[]) {
             continue;
         }
         if(s.length() <= 7) {
-            cerr << "Wrong flag!! See ./run.sh --help for usage details" << endl;
-            exit(1);
+            cerr << "Wrong flag used!!" << endl;
+            cout << endl;
+            print_help();
         }
         if(s.substr(0, 8) == "--input=") {
             input_file = s.substr(8);
@@ -458,8 +475,9 @@ int main(int argc, char* argv[]) {
             delim_color = s.substr(13);
         }
         else {
-            cerr << "Wrong flag!! See ./run.sh --help for usage details" << endl;
-            exit(1);
+            cerr << "Wrong flag used!!" << endl;
+            cout << endl;
+            print_help();
         }
     }
 
@@ -470,23 +488,15 @@ int main(int argc, char* argv[]) {
     }
 
     if(help_flag) {
-        cout << "Usage: ./parser --input=<input_file_path> [options]" << endl;
-        cout << "The following options can be used" << endl;
-        cout << endl;
-        cout << "--output=<output_file_path> \t: Output file specification (default is ast.dot)" << endl;
-        cout << "--colorop=<color> \t\t: Color for operators in the AST" << endl;
-        cout << "--colordelim=<color> \t\t: Color for delimiters in the AST" << endl;
-        cout << "--colorkey=<color> \t\t: Color for keywords in the AST" << endl;
-        cout << "--help \t\t\t\t: Instruction regarding usage instructions and options" << endl;
-        cout << "--verbose \t\t\t: Prints the complete stack trace of the parser execution" << endl;
-        cout << endl;
-        return 0;
+        print_help();
     }
 
     if(input_file != "") {
         freopen(input_file.c_str(), "r", stdin);
     } 
+
     yyparse();
+    
     ofstream dotFile(output_file.c_str());
     dotFile << "digraph G {\n  ordering=\"out\"" << endl;
 	vector<bool> valid(nodes.size(),true);

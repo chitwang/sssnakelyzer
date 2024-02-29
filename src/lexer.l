@@ -48,7 +48,7 @@ IMAGINARY_NUMBER                ({FLOAT_NUMBER}|{DIGIT_PART})("J"|"j")
 
 NEWLINE                         "\n"|"\r"|"\r\n"
 
-STRING_ESCAPE_SEQ               \\[.]
+STRING_ESCAPE_SEQ               \\(?:'|\"|a|b|f|n|r|t|v)
 LONG_STRING_CHAR                [^\\] 
 SHORT_STRING_CHAR               [^\\'\n\"]
 LONG_STRING_ITEM                {LONG_STRING_CHAR}|{STRING_ESCAPE_SEQ}
@@ -57,8 +57,6 @@ SHORT_STRING_ITEM               {SHORT_STRING_CHAR}|{STRING_ESCAPE_SEQ}
 SHORT_STRING                    ([']{SHORT_STRING_ITEM}*['])|([\"]{SHORT_STRING_ITEM}*[\"])
 LONG_STRING                     ([']['][']{LONG_STRING_ITEM}*['][']['])|([\"][\"][\"]{LONG_STRING_ITEM}*[\"][\"][\"])
 STRING_LITERAL                  {STRING_PREFIX}?({SHORT_STRING}|{LONG_STRING})
-
-ESCAPE_SEQUENCE                 \\(?:'|"|a|b|f|n|r|t|v)
 
 NAME                            [a-zA-Z_][a-zA-Z0-9_]*
 
@@ -228,7 +226,7 @@ COMMENT                         [\t ]*#[^\n]*
     return DUNDER_NAME;    
 }
 
-"\"__main__\"" {
+"\"__main__\""|'__main__' {
     yylval.strval = strdup(yytext);
     return DUNDER_MAIN;
 }
@@ -258,19 +256,10 @@ COMMENT                         [\t ]*#[^\n]*
     return KEY_FALSE;
 }
 
-"await" {
-    yylval.strval = strdup(yytext);
-    return KEY_AWAIT;
-}
 
 "else" {
     yylval.strval = strdup(yytext);
     return KEY_ELSE;
-}
-
-"import" {
-    yylval.strval = strdup(yytext);
-    return KEY_IMPORT;
 }
 
 "pass" {
@@ -296,11 +285,6 @@ COMMENT                         [\t ]*#[^\n]*
 "in" {
     yylval.strval = strdup(yytext);
     return KEY_IN;
-}
-
-"raise" {
-    yylval.strval = strdup(yytext);
-    return KEY_RAISE;
 }
 
 "True" {
@@ -343,29 +327,16 @@ COMMENT                         [\t ]*#[^\n]*
     return KEY_FOR;
 }
 
-"lambda" {
-    yylval.strval = strdup(yytext);
-    return KEY_LAMBDA;
-}
-
 "try" {
     yylval.strval = strdup(yytext);
     return KEY_TRY;
 }
 
-"as" {
-    yylval.strval = strdup(yytext);
-    return KEY_AS;
-}
+
 
 "def" {
     yylval.strval = strdup(yytext);
     return KEY_DEF;
-}
-
-"from" {
-    yylval.strval = strdup(yytext);
-    return KEY_FROM;
 }
 
 "nonlocal" {
@@ -383,11 +354,6 @@ COMMENT                         [\t ]*#[^\n]*
     return KEY_ASSERT;
 }
 
-"del" {
-    yylval.strval = strdup(yytext);
-    return KEY_DEL;
-}
-
 "global" {
     yylval.strval = strdup(yytext);
     return KEY_GLOBAL;
@@ -398,15 +364,6 @@ COMMENT                         [\t ]*#[^\n]*
     return KEY_NOT;
 }
 
-"with" {
-    yylval.strval = strdup(yytext);
-    return KEY_WITH;
-}
-
-"async" {
-    yylval.strval = strdup(yytext);
-    return KEY_ASYNC;
-}
 
 "elif" {
     yylval.strval = strdup(yytext);
@@ -421,11 +378,6 @@ COMMENT                         [\t ]*#[^\n]*
 "or" {
     yylval.strval = strdup(yytext);
     return KEY_OR;
-}
-
-"yield" {
-    yylval.strval = strdup(yytext);
-    return KEY_YIELD;
 }
 
 "+" {
@@ -498,10 +450,6 @@ COMMENT                         [\t ]*#[^\n]*
     return OP_BITWISE_NOT;
 }
 
-":=" {
-    yylval.strval = strdup(yytext);
-    return OP_ASSIGN;
-}
 
 "<" {
     yylval.strval = strdup(yytext);
@@ -664,10 +612,6 @@ COMMENT                         [\t ]*#[^\n]*
     return DELIM_ELLIPSIS;
 }
 
-"_" {
-    yylval.strval = strdup(yytext);
-    return WILDCARD_UNDERSCORE;
-}
 
 {NAME} {
     yylval.strval = strdup(yytext);
