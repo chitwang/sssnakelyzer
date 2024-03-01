@@ -35,15 +35,15 @@ bool isop(string s) {
             s == "//" || s == "%" || s == "@" || s == "<<" || s == ">>" ||
             s == "&" || s == "|" || s == "^" || s == "~" || s == ":=" ||
             s == "<" || s == ">" || s == "<=" || s == ">=" || s == "==" || 
-            s == "!=" || s=="=");
+            s == "!=" || s == "+=" || s == "-=" || s == "*=" || s == "/=" ||
+            s == "//=" || s == "%=" || s == "&=" || s == "|=" || s == "<<=" ||
+            s == ">>=" || s == "^=" || s == "**=" ||  s == "=");
 }
 
 bool isdelim(string s) {
     return (s == "(" || s == ")" || s == "[" || s == "]" || s == "{" ||
             s == "}" || s == "," || s == ":" || s == "." || s == ";" ||
-            s == "->" || s == "+=" || s == "-=" || s == "*=" || s == "/=" ||
-            s == "//=" || s == "%=" || s == "&=" || s == "|=" || s == "<<=" ||
-            s == ">>=" || s == "^=" || s == "**=" || s == "...");
+            s == "->" || s == "...");
 }
 
 bool iskeyword(string s) {
@@ -84,7 +84,7 @@ void yyerror(const char*);
 
 %token<strval> KEY_FALSE KEY_ELSE KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_TRY KEY_DEF KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST TYPE_DICT
 
-%type<intval> start_symbol simple_stmt compound_stmt stmt parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictorsetmaker types newline_plus file_input file_plus program_start try_stmt except_plus string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration type_dict
+%type<intval> start_symbol simple_stmt compound_stmt stmt parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt small_or_semi argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictmaker types newline_plus file_input file_plus program_start try_stmt except_plus string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration type_dict
 
 %start start_symbol
 
@@ -321,7 +321,7 @@ atom: DELIM_LEFT_PAREN testlist_comp DELIM_RIGHT_PAREN {node_attr = {"(", ")", "
     | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_BRACKET testlist_comp DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_CURLY dictorsetmaker DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+    | DELIM_LEFT_CURLY dictmaker DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
     | number {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
@@ -382,11 +382,11 @@ testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$
         | test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
         | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-dictorsetmaker: test DELIM_COLON test comp_for {node_attr = {":", "dictorsetmaker"}; node_numbers = {$1, node_count, $3, $4}; insert_node(); $$ = node_count + 1; node_count += 2;}
-              | test_test_plus {node_attr = {"dictorsetmaker"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-              | test_or_star comp_for {node_attr = {"dictorsetmaker"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
-              | test_or_star test_or_star_plus {node_attr = {"dictorsetmaker"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
-              | test_or_star test_or_star_plus DELIM_COMMA {node_attr = {",", "dictorsetmaker"}; node_numbers = {$1, $2, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+dictmaker: test DELIM_COLON test comp_for {node_attr = {":", "dictmaker"}; node_numbers = {$1, node_count, $3, $4}; insert_node(); $$ = node_count + 1; node_count += 2;}
+              | test_test_plus {node_attr = {"dictmaker"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+              | test_or_star comp_for {node_attr = {"dictmaker"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
+              | test_or_star test_or_star_plus {node_attr = {"dictmaker"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
+              | test_or_star test_or_star_plus DELIM_COMMA {node_attr = {",", "dictmaker"}; node_numbers = {$1, $2, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 test_test_plus: test DELIM_COLON test {node_attr = {":", "test_test_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
               | test DELIM_COLON test DELIM_COMMA {node_attr = {":", ",", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
@@ -571,5 +571,5 @@ int main(int argc, char* argv[]) {
 }
 
 void yyerror (char const *s) {
-    fprintf (stderr, "%s\n", s);
+    fprintf (stderr, "%s\nOn line %d\n", s, yylineno);
 }

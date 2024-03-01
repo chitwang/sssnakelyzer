@@ -68,6 +68,10 @@ COMMENT                         [\t ]*#[^\n]*
     
 }
 
+{COMMENT} {
+    // cout << "COMMENT\n";
+}
+
 ^[\t ]*{NEWLINE} {
     if(implicit_line_join.empty()){
     // cout << "Blank line " << yylineno << endl;
@@ -79,7 +83,7 @@ COMMENT                         [\t ]*#[^\n]*
     }
 }
 
-{NEWLINE}/[^ \t\n\r] {
+{NEWLINE}/[^ \t\n\r#] {
     if(implicit_line_join.empty()) {
         // cout << "No whitespace after new line " << yylineno << " and the lexeme is " << yytext << endl;
         if(newline_flag) {
@@ -169,6 +173,10 @@ COMMENT                         [\t ]*#[^\n]*
     }
 }
 
+{WHITESPACE_PURANA} {
+    // cout << "WHITESPACE PURANA\n";
+}
+
 <<EOF>> {
     while(!indentation_checking.empty() && indentation_checking.top() != 0) {
         char *copy_string = strdup(yytext);
@@ -181,14 +189,6 @@ COMMENT                         [\t ]*#[^\n]*
         return DEDENT;
     }
     return 0;
-}
-
-{WHITESPACE_PURANA} {
-    // cout << "WHITESPACE PURANA\n";
-}
-
-{COMMENT} {
-    // cout << "COMMENT\n";
 }
 
 "int" {
