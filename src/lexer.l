@@ -54,7 +54,7 @@ SHORT_STRING_CHAR               [^\\'\n\"]
 LONG_STRING_ITEM                {LONG_STRING_CHAR}|{STRING_ESCAPE_SEQ}
 STRING_PREFIX                   ("r"|"u"|"R"|"U"|"f"|"F"|"fr"|"Fr"|"fR"|"FR"|"rf"|"rF"|"Rf"|"RF")
 SHORT_STRING_ITEM               {SHORT_STRING_CHAR}|{STRING_ESCAPE_SEQ}
-SHORT_STRING                    ([']{SHORT_STRING_ITEM}*['])|([\"]{SHORT_STRING_ITEM}*[\"])
+SHORT_STRING                    ([']({SHORT_STRING_ITEM}|[\"])*['])|([\"]({SHORT_STRING_ITEM}|['])*[\"])
 LONG_STRING                     ([']['][']{LONG_STRING_ITEM}*['][']['])|([\"][\"][\"]{LONG_STRING_ITEM}*[\"][\"][\"])
 STRING_LITERAL                  {STRING_PREFIX}?({SHORT_STRING}|{LONG_STRING})
 
@@ -72,16 +72,6 @@ COMMENT                         [\t ]*#[^\n]*
     // cout << "COMMENT\n";
 }
 
-^[\t ]*{NEWLINE} {
-    if(implicit_line_join.empty()){
-    // cout << "Blank line " << yylineno << endl;
-        yylval.strval = strdup(yytext);
-    // cout << "Blank line " << yylineno << endl;
-    // cout << indentation_checking.top() << endl;
-        
-        return NEWLINE;
-    }
-}
 
 {NEWLINE}/[^ \t\n\r#] {
     if(implicit_line_join.empty()) {
@@ -120,6 +110,21 @@ COMMENT                         [\t ]*#[^\n]*
         return NEWLINE;
     }
 }
+
+^[\t ]*{NEWLINE} {
+    if(implicit_line_join.empty()){
+        // cout << "Blank line " << yylineno << endl;
+        yylval.strval = strdup(yytext);
+        string copy_string = strdup(yytext);
+        unput(copy_string.back());
+        // cout << "Blank line " << yylineno << endl;
+        // cout << indentation_checking.top() << endl;
+        
+        // return NEWLINE;
+    }
+}
+
+
 
 ^[\t ]* {
     if(implicit_line_join.empty()){
@@ -336,6 +341,7 @@ COMMENT                         [\t ]*#[^\n]*
 
 "def" {
     yylval.strval = strdup(yytext);
+    // cout<<"def "<<yylineno<<endl;
     return KEY_DEF;
 }
 

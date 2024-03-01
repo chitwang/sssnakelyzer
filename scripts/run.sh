@@ -1,4 +1,3 @@
-#! /bin/bash
 
 output_file="ast.dot"
 

@@ -96,6 +96,7 @@ start_symbol: file_input {node_attr = {"start_symbol"};  node_numbers = {$1};ins
 
 file_input: file_plus {node_attr = {"file_input"};  node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;} 
           | newline_plus file_plus {node_attr = {"file_input"}; node_numbers = {$2}; insert_node();  $$ = node_count; node_count += 1;} 
+          | newline_plus {node_attr = {"file_input"}; node_numbers = {}; insert_node();  $$ = node_count; node_count += 1;}
 
 file_plus: stmt file_plus {node_attr = {"file_plus"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;} 
          | stmt {node_attr = {"file_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;} 
