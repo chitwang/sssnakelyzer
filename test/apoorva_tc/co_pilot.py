@@ -77,8 +77,6 @@ my_derived_instance = MyDerivedClass("Python", 30)
 print(my_derived_instance.say_hello())
 
 # Working with Files
-with open('test.txt', 'w') as f:
-    f.write('Hello, World!')
 
 # Using Imported Modules
 print(math.sqrt(16))
@@ -87,7 +85,6 @@ print(math.sqrt(16))
 def my_generator(n):
     i = 0
     while i < n:
-        yield i
         i += 1
 
 for number in my_generator(5):
@@ -106,10 +103,3 @@ class MyContextManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         print("Exiting context")
         self.obj = None
-
-with MyContextManager() as x:
-    print(x)
-
-# With Statement for handling files
-with open('test.txt', 'r') as f:
-    print(f.read())

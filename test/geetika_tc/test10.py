@@ -10,4 +10,5 @@ class ShiftReduceParser:
 
   def _init(self, name: str):
     self.srname: str = name_
+    dance = 10
 
