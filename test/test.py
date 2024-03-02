@@ -37,4 +37,7 @@
 # a = '''str"iong'''
 # a = 'str'ing'
 # a = "str"ing"
-print(a)
+# print(a)
+def pow(base, exponent=2):
+    return base ** exponent
+
