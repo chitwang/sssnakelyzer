@@ -8,9 +8,8 @@
     bool indentation_flag = false;
     bool newline_flag = true;
     stack<char> implicit_line_join;
-    //bool initial_line_ident = true;
 	string text_block;
-    stack<int> indentation_checking;  // make it extern variable
+    stack<int> indentation_checking;
     int spaceCount = 0;
     void err (const char* s) {
         if(s == NULL) {
@@ -23,7 +22,7 @@
 
 
 EXPLICIT_LINE_JOINING           \\(?:\r\n?|\n)
-WHITESPACE_PURANA               [ \t\r\f\n]|\r\n
+WHITESPACE                      [ \t\r\f\n]|\r\n
 
 DIGIT                           [0-9]
 NON_ZERO_DIGIT                  [1-9]
@@ -62,20 +61,15 @@ NAME                            [a-zA-Z_][a-zA-Z0-9_]*
 
 COMMENT                         [\t ]*#[^\n]*
 
+
 %% 
 
-{EXPLICIT_LINE_JOINING} {
-    
-}
+{EXPLICIT_LINE_JOINING} {}
 
-{COMMENT} {
-    // cout << "COMMENT\n";
-}
-
+{COMMENT} {}
 
 {NEWLINE}/[^ \t\n\r#] {
     if(implicit_line_join.empty()) {
-        // cout << "No whitespace after new line " << yylineno << " and the lexeme is " << yytext << endl;
         if(newline_flag) {
             char *copy_string = strdup(yytext);
             for (int i = yyleng - 1; i >= 0; --i )
@@ -83,7 +77,6 @@ COMMENT                         [\t ]*#[^\n]*
             free(copy_string);
             newline_flag = false;
             yylval.strval = strdup(yytext);
-            // printf("newline_next_is_empty %d\n", yylineno);
             return NEWLINE;
         }
         else {
@@ -93,7 +86,6 @@ COMMENT                         [\t ]*#[^\n]*
                     unput(copy_string[i]);
                 free(copy_string);
                 indentation_checking.pop();
-            // cout << "1. DEDENT " << yylineno << endl;;
                 return DEDENT;
             }
             newline_flag = true;
@@ -102,33 +94,23 @@ COMMENT                         [\t ]*#[^\n]*
 }
 
 {NEWLINE} {
-    if(implicit_line_join.empty() ){ 
-    // cout << "NEWLINE " << yylineno << endl;
+    if(implicit_line_join.empty() ) { 
         spaceCount = 0;
         yylval.strval = strdup(yytext);
-        //  printf("normal newline %d\n", yylineno);
         return NEWLINE;
     }
 }
 
 ^[\t ]*{NEWLINE} {
-    if(implicit_line_join.empty()){
-        // cout << "Blank line " << yylineno << endl;
+    if(implicit_line_join.empty()) {
         yylval.strval = strdup(yytext);
         string copy_string = strdup(yytext);
         unput(copy_string.back());
-        // cout << "Blank line " << yylineno << endl;
-        // cout << indentation_checking.top() << endl;
-        
-        // return NEWLINE;
     }
 }
 
-
-
 ^[\t ]* {
-    if(implicit_line_join.empty()){
-    // cout << "Entering case 3 " << yylineno << endl;
+    if(implicit_line_join.empty()) {
         if(indentation_checking.empty()) {
             indentation_checking.push(0);
         }
@@ -140,14 +122,11 @@ COMMENT                         [\t ]*#[^\n]*
             indentation_flag = false;
         }
         else if(total > indentation_checking.top()) {
-            // // cout << indentation_checking.top() << endl;
             if(!indentation_flag) {
-                // cout << "PUSHED " << total << " on line " << yylineno << endl;
                 indentation_checking.push(total);
                 return INDENT;
             }
             else {
-                // printf("Indentation Error \n");
                 exit(0);
             }
         }
@@ -156,38 +135,24 @@ COMMENT                         [\t ]*#[^\n]*
                 char *copy_string = strdup(yytext);
                 for (int i = yyleng - 1; i >= 0; --i)
                     unput(copy_string[i]);
-                    yy_set_bol(1);
+                yy_set_bol(1);
                 free(copy_string);
-                // stack <int> temp;
-                // while(!indentation_checking.empty()) {
-                //     temp.push(indentation_checking.top());
-                //     // cout << "TOP " << indentation_checking.top() << endl;
-                //     indentation_checking.pop();
-                // }
-                // while(!temp.empty()) {
-                //     indentation_checking.push(temp.top());
-                //     temp.pop();
-                // }
-                // cout << indentation_checking.top() << " " << yylineno << endl;
                 indentation_checking.pop();
                 indentation_flag = true;
-                //cout << "3. DEDENT " << yylineno << endl;;
                 return DEDENT;
             }
         }
     }
 }
 
-{WHITESPACE_PURANA} {
-    // cout << "WHITESPACE PURANA\n";
-}
+{WHITESPACE} {}
 
 <<EOF>> {
     while(!indentation_checking.empty() && indentation_checking.top() != 0) {
         char *copy_string = strdup(yytext);
         for (int i = yyleng - 1; i >= 0; --i)
             unput(copy_string[i]);
-            yy_set_bol(1);
+        yy_set_bol(1);
         free(copy_string);
         indentation_checking.pop();
         indentation_flag = true;
@@ -341,7 +306,6 @@ COMMENT                         [\t ]*#[^\n]*
 
 "def" {
     yylval.strval = strdup(yytext);
-    // cout<<"def "<<yylineno<<endl;
     return KEY_DEF;
 }
 
