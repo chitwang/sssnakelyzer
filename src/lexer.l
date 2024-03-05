@@ -21,7 +21,7 @@
 %}
 
 
-EXPLICIT_LINE_JOINING           \\(?:\r\n?|\n)
+EXPLICIT_LINE_JOINING           \\(?:\r\n?|\n)[ \t]*
 WHITESPACE                      [ \t\r\f\n]|\r\n
 
 DIGIT                           [0-9]
