@@ -89,7 +89,7 @@ void yyerror(const char*);
 
 %token<strval> KEY_FALSE KEY_ELSE KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_TRY KEY_DEF KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST TYPE_DICT
 
-%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt pass_stmt flow_stmt global_stmt nonlocal_stmt assert_stmt semicolon_stmt argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if dictmaker types newline_plus file_input file_plus program_start try_stmt except_plus string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration type_dict type_or_name
+%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt assert_stmt semicolon_stmt argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if  types newline_plus file_input file_plus program_start string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration
 
 %start start_symbol
 
@@ -135,10 +135,8 @@ semicolon_stmt: small_stmt {node_attr = {"semicolon_stmt"}; node_numbers = {$1};
              | small_stmt DELIM_SEMICOLON semicolon_stmt {node_attr = {";", "semicolon_stmt"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 small_stmt: expr_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-          | pass_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
           | flow_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
           | global_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-          | nonlocal_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
           | assert_stmt {node_attr = {"small_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
         
 expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
@@ -175,8 +173,6 @@ augassign: DELIM_ASSIGN_ADD {node_attr = {"+=", "augassign"}; node_numbers = {no
          | DELIM_ASSIGN_POWER {node_attr = {"**=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
          | DELIM_ASSIGN_FLOOR_DIVIDE {node_attr = {"//=", "augassign"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-pass_stmt: KEY_PASS {node_attr = {"pass", "pass_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-
 flow_stmt: break_stmt {node_attr = {"flow_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
          | continue_stmt {node_attr = {"flow_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
          | return_stmt {node_attr = {"flow_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
@@ -193,8 +189,6 @@ global_stmt: KEY_GLOBAL names {node_attr = {"global", "global_stmt"}; node_numbe
 names: NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "names"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
      | NAME DELIM_COMMA names {node_attr = {"NAME", ",", "names"}; node_numbers = {node_count+0,node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
-nonlocal_stmt: KEY_NONLOCAL names {node_attr = {"nonlocal", "nonlocal_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-
 assert_stmt: KEY_ASSERT test DELIM_COMMA test {node_attr = {"assert", ",", "assert_stmt"}; node_numbers = {node_count+0, $2,node_count + 1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
            | KEY_ASSERT test {node_attr = {"assert", "assert_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
@@ -204,7 +198,6 @@ compound_stmt: if_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; inse
              | funcdef {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
              | classdef {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
              | program_start {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-             | try_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
  
 program_start: KEY_IF DUNDER_NAME OP_EQUAL DUNDER_MAIN DELIM_COLON suite {node_attr = {"if", "__name__", "==", "__main__", ":", "program_start"}; node_numbers = {node_count, node_count + 1, node_count + 2, node_count + 3, node_count + 4, $6}; insert_node(); $$ = node_count + 5; node_count += 6;}
 
@@ -223,15 +216,6 @@ for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLO
         | KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite {
             node_attr = {"for","in", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6}; insert_node(); $$ = node_count + 3; node_count += 4;
         }
-
-try_stmt: KEY_TRY DELIM_COLON suite except_plus {node_attr = {"try",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
-        | KEY_TRY DELIM_COLON suite except_plus KEY_ELSE DELIM_COLON suite {node_attr = {"try",":","else",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
-        | KEY_TRY DELIM_COLON suite except_plus KEY_FINALLY DELIM_COLON suite {node_attr = {"try",":","finally",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
-        | KEY_TRY DELIM_COLON suite except_plus KEY_ELSE DELIM_COLON suite KEY_FINALLY DELIM_COLON suite { node_attr = {"try",":","else",":","finally",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, $4, node_count+2, node_count+3, $7, node_count+4, node_count+5, $10}; insert_node(); $$ = node_count + 6; node_count += 7;}
-        | KEY_TRY DELIM_COLON suite KEY_FINALLY DELIM_COLON suite {node_attr = {"try",":","finally",":","try_stmt"}; node_numbers = {node_count, node_count+1, $3, node_count+2, node_count+3, $6}; insert_node(); $$ = node_count + 4; node_count += 5;}
-
-except_plus: KEY_EXCEPT DELIM_COLON suite {node_attr = {"except",":","except_plus"}; node_numbers = {node_count, node_count + 1, $3}; insert_node(); $$ = node_count + 2; node_count += 3;}
-           | KEY_EXCEPT DELIM_COLON suite except_plus {node_attr = {"except",":","except_plus"}; node_numbers = {node_count, node_count + 1, $3, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
 
 stmt_plus : blocks {$$ = $1;}
           | stmt_plus blocks {$$ = $1; adj[$$].push_back($2);}
@@ -315,7 +299,6 @@ atom: DELIM_LEFT_PAREN testlist_comp DELIM_RIGHT_PAREN {node_attr = {"(", ")", "
     | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_BRACKET testlist_comp DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_CURLY dictmaker DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
     | number {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
@@ -376,12 +359,6 @@ testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$
         | test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
         | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-dictmaker: test DELIM_COLON test comp_for {node_attr = {":", "dictmaker"}; node_numbers = {$1, node_count, $3, $4}; insert_node(); $$ = node_count + 1; node_count += 2;}
-              | test_test_plus {node_attr = {"dictmaker"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-              | test_or_star comp_for {node_attr = {"dictmaker"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
-              | test_or_star test_or_star_plus {node_attr = {"dictmaker"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
-              | test_or_star test_or_star_plus DELIM_COMMA {node_attr = {",", "dictmaker"}; node_numbers = {$1, $2, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-
 test_test_plus: test DELIM_COLON test {node_attr = {":", "test_test_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
               | test DELIM_COLON test DELIM_COMMA {node_attr = {":", ",", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
               | test DELIM_COLON test DELIM_COMMA test_test_plus {node_attr = {":", ",", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
@@ -417,18 +394,12 @@ func_body_suite: single_stmt {node_attr = {"func_body_suite"}; node_numbers = {$
         
 types: TYPE_INT {node_attr = {"int", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
      | TYPE_BOOL {node_attr = {"bool", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-     | type_dict {node_attr = {"types"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
      | TYPE_FLOAT {node_attr = {"float", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
      | type_list {node_attr = {"types"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
      | TYPE_STRING {node_attr = {"str", "types"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 type_list: TYPE_LIST DELIM_LEFT_BRACKET types DELIM_RIGHT_BRACKET {node_attr = {"list", "[", "]", "type_list"}; node_numbers = {node_count, node_count + 1, $3, node_count + 2}; insert_node(); $$ = node_count + 3; node_count += 4;}
         | TYPE_LIST DELIM_LEFT_BRACKET NAME DELIM_RIGHT_BRACKET {node_attr = {"list", "[", string("NAME ( ") + strdup($3) + " )", "]", "type_list"}; node_numbers = {node_count, node_count + 1, node_count + 2, node_count + 3}; insert_node(); $$ = node_count + 4; node_count += 5;}
-
-type_dict: TYPE_DICT DELIM_LEFT_BRACKET type_or_name DELIM_COMMA type_or_name DELIM_RIGHT_BRACKET {node_attr = {"dict", "[", ",", "]", "type_dict"}; node_numbers = {node_count, node_count + 1, $3, node_count + 2, $5, node_count + 3}; insert_node(); $$ = node_count + 4; node_count += 5;}
-
-type_or_name: types {node_attr = {"type_or_name"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-            | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "type_or_name"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 %%
 

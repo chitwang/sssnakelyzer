@@ -1,0 +1,4 @@
+Person               Contribution
+1. Chitwan Goel      100/3 %
+2. Shrey Bansal      100/3 %
+3. Talin Gupta       100/3 %
