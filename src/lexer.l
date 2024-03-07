@@ -186,11 +186,6 @@ COMMENT                         [\t ]*#[^\n]*
     return TYPE_LIST;
 }
 
-"dict" {
-    yylval.strval = strdup(yytext);
-    return TYPE_DICT;
-}
-
 "__name__" {
     yylval.strval = strdup(yytext);
     return DUNDER_NAME;    
@@ -232,11 +227,6 @@ COMMENT                         [\t ]*#[^\n]*
     return KEY_ELSE;
 }
 
-"pass" {
-    yylval.strval = strdup(yytext);
-    return KEY_PASS;
-}
-
 "None" {
     yylval.strval = strdup(yytext);
     return KEY_NONE;
@@ -245,11 +235,6 @@ COMMENT                         [\t ]*#[^\n]*
 "break" {
     yylval.strval = strdup(yytext);
     return KEY_BREAK;
-}
-
-"except" {
-    yylval.strval = strdup(yytext);
-    return KEY_EXCEPT;
 }
 
 "in" {
@@ -265,11 +250,6 @@ COMMENT                         [\t ]*#[^\n]*
 "class" {
     yylval.strval = strdup(yytext);
     return KEY_CLASS;
-}
-
-"finally" {
-    yylval.strval = strdup(yytext);
-    return KEY_FINALLY;
 }
 
 "is" {
@@ -297,21 +277,9 @@ COMMENT                         [\t ]*#[^\n]*
     return KEY_FOR;
 }
 
-"try" {
-    yylval.strval = strdup(yytext);
-    return KEY_TRY;
-}
-
-
-
 "def" {
     yylval.strval = strdup(yytext);
     return KEY_DEF;
-}
-
-"nonlocal" {
-    yylval.strval = strdup(yytext);
-    return KEY_NONLOCAL;
 }
 
 "while" {

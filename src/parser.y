@@ -1,5 +1,6 @@
 %{
 #include<bits/stdc++.h>
+#include "../include/node.hpp"
 using namespace std;
 #define YYDEBUG 1
 
@@ -11,6 +12,8 @@ int node_count = 0;
 vector <string> node_attr;
 vector <int> node_numbers;
 bool our_debug = false;
+
+node* root_node = NULL; 
 
 void debug_insert() {
     cout << "PRODUCTION:\t";
@@ -75,6 +78,55 @@ void print_help() {
     exit(1);
 }
 
+void adj_to_nodes() {
+    int num_vertices = nodes.size();
+    vector <node*> all_nodes(num_vertices);
+    for(int i=0;i<num_vertices;i++) {
+        string tmp = nodes[i];
+        if(isdelim(tmp)) {
+            all_nodes[i] = new node(tmp, true, "DELIMITER");
+        }
+        else if(isop(tmp)) {
+            all_nodes[i] = new node(tmp, true, "OPERATOR");
+        }
+        else if(iskeyword(tmp)) {
+            all_nodes[i] = new node(tmp, true, "KEYWORD");
+        }
+        else if(tmp.substr(0,3) == "INT") {
+            all_nodes[i] = new node(tmp, true, "LITERAL");
+            all_nodes[i] -> datatype = "int";
+        }
+        else if(tmp.substr(0,3) == "FLT") {
+            all_nodes[i] = new node(tmp,true,"LITERAL");
+            all_nodes[i]-> datatype = "float";
+        }
+        else if(tmp.substr(0,3) == "BOL") {
+            all_nodes[i] = new node(tmp,true,"LITERAL");
+            all_nodes[i]-> datatype = "bool";
+        }
+        else if(tmp.substr(0,3) == "STR") {
+            all_nodes[i] = new node(tmp,true,"LITERAL");
+            all_nodes[i]-> datatype = "str";
+        }
+        else if(tmp.substr(0, 4) == "NAME") {
+            all_nodes[i] = new node(tmp, true, "NAME");
+        }
+        else {
+            all_nodes[i] = new node(tmp);
+        }
+    }
+    cout << "NODES MADE\n";
+    for(int i = 0;i < num_vertices; i++) {
+        // all_nodes[i]
+        // cout << "ADJ SIZE: " << adj[i].size() << endl;
+        for(auto x: adj[i]) {
+            all_nodes[i]->children.push_back(all_nodes[x]);
+        }
+    }
+    root_node = all_nodes.back();
+    
+}
+
 extern int yylex(void);
 void yyerror(const char*);
 
@@ -87,7 +139,7 @@ void yyerror(const char*);
     int intval;
 }
 
-%token<strval> KEY_FALSE KEY_ELSE KEY_PASS KEY_NONE KEY_BREAK KEY_EXCEPT KEY_IN KEY_TRUE KEY_CLASS KEY_FINALLY KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_TRY KEY_DEF KEY_NONLOCAL KEY_WHILE KEY_ASSERT KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST TYPE_DICT
+%token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK  KEY_IN KEY_TRUE KEY_CLASS  KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR  KEY_DEF  KEY_WHILE KEY_ASSERT KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST 
 
 %type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt assert_stmt semicolon_stmt argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if  types newline_plus file_input file_plus program_start string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration
 
@@ -292,8 +344,8 @@ power: atom_expr {node_attr = {"power"}; node_numbers = {$1}; insert_node(); $$ 
 atom_expr: atom {node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
          | atom trailer_plus {node_attr = {"atom_expr"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
 
-string_plus: string_plus STRING_LITERAL {node_attr = {"STRING_LITERAL", "string_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-           | STRING_LITERAL {node_attr = {"STRING_LITERAL", "string_plus"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+string_plus: string_plus STRING_LITERAL {node_attr = {string("STR ") + strdup($2), "string_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+           | STRING_LITERAL {node_attr = {string("STR ") + strdup($1), "string_plus"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 atom: DELIM_LEFT_PAREN testlist_comp DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
@@ -305,13 +357,13 @@ atom: DELIM_LEFT_PAREN testlist_comp DELIM_RIGHT_PAREN {node_attr = {"(", ")", "
     | string_plus {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
     | DELIM_ELLIPSIS {node_attr = {"...", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
     | KEY_NONE {node_attr = {"None", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | KEY_TRUE {node_attr = {"True", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | KEY_FALSE {node_attr = {"False", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | KEY_TRUE {node_attr = {string("BOL ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+    | KEY_FALSE {node_attr = {string("BOL ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
     | types {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
-number: INTEGER {node_attr = {strdup($1), "number"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-      | FLOAT_NUMBER {node_attr = {strdup($1), "number"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-      | IMAGINARY_NUMBER {node_attr = {strdup($1), "number"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+number: INTEGER {node_attr = {string("INT ") + strdup($1), "number"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+      | FLOAT_NUMBER {node_attr = {string("FLT ") + strdup($1), "number"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+      | IMAGINARY_NUMBER {node_attr = {string("IMG ") + strdup($1), "number"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 testlist_comp: named_or_star comp_for {node_attr = {"testlist_comp"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
              | named_star_plus {node_attr = {"testlist_comp"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
@@ -471,8 +523,11 @@ int main(int argc, char* argv[]) {
     } 
 
     yyparse();
-    
-    ofstream dotFile(output_file.c_str());
+    cout << "PARSING DONE\n";
+    adj_to_nodes();
+    cout << "CONVERSION DONE\n";
+    root_node -> make_dot();
+    /* ofstream dotFile(output_file.c_str());
     dotFile << "digraph G {\n  ordering=\"out\"" << endl;
 	vector <bool> valid(nodes.size(), true);
     
@@ -538,7 +593,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    dotFile << "}" << endl;
+    dotFile << "}" << endl; */
     return 0;
 }
 

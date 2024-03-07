@@ -2,7 +2,8 @@ def Fibonacci(n = 10):
     # Check if input is 0 then it will
     # print incorrect input
     if n < 0: # akbdasdnfna lsdk f
-        print("Incorrect input")
+        # print("Incorrect input)
+        n = 1
  
     # Check if n is 0
     # then it will return 0
