@@ -120,7 +120,7 @@ void adj_to_nodes() {
         // all_nodes[i]
         // cout << "ADJ SIZE: " << adj[i].size() << endl;
         for(auto x: adj[i]) {
-            all_nodes[i]->children.push_back(all_nodes[x]);
+            all_nodes[i]->add_child(all_nodes[x]);
         }
     }
     root_node = all_nodes.back();
@@ -526,6 +526,7 @@ int main(int argc, char* argv[]) {
     cout << "PARSING DONE\n";
     adj_to_nodes();
     cout << "CONVERSION DONE\n";
+    root_node->clean_tree();
     root_node -> make_dot();
     /* ofstream dotFile(output_file.c_str());
     dotFile << "digraph G {\n  ordering=\"out\"" << endl;

@@ -2,6 +2,7 @@
 #include "../include/global.hpp" // Includes node.hpp
 using namespace std;
 
+extern bool isop(string);
 node *root;
 
 node::node(string name /*= ""*/, bool terminal /*= false*/, string type /* = "" */, node* parent /* = NULL */){
@@ -31,7 +32,7 @@ void node::print_tree(int tab){
 void node::clean_tree(){  
 
     // Removing semicolon (and other?) delimiters
-    this->remove_lexeme_policy(";");
+    // this->remove_lexeme_policy(";");
 
     // * Cleans the Parse tree to make an AST; Should necessarily be called from the root.
     // * Removing Nodes with a single child; Replaces them with the child
@@ -103,72 +104,111 @@ void node::kill_parent(int idx, int child_idx /*= 0*/){
     ((child->parent)->children)[idx] = child;
 }
 
-void node::expression_policy(){
-    if(this->exp_applicable){            
-        if((this->children).size() == 2) {
-            node* child = (this->children)[0];
-            if(this->name == "Expression" || this->name == "Assignment"){
-                child->add_child((this->children)[1]);
-                this->children.clear();
-                this->add_child(child);
-            }else{
-                this->copy(*child);
-                (this->children).erase((this->children).begin() + 0, (this->children).begin() + 1);  
-                delete child;
-            }
+// void node::expression_policy(){
+//     if(this->exp_applicable){            
+//         if((this->children).size() == 2) {
+//             node* child = (this->children)[0];
+//             if(this->name == "Expression" || this->name == "Assignment"){
+//                 child->add_child((this->children)[1]);
+//                 this->children.clear();
+//                 this->add_child(child);
+//             }else{
+//                 this->copy(*child);
+//                 (this->children).erase((this->children).begin() + 0, (this->children).begin() + 1);  
+//                 delete child;
+//             }
             
-            // this->name = child->name;
-            // this->type = child->type;
-            // this->terminal = child->terminal;
-            // this->exp_applicable = child->exp_applicable;
-            // (this->children).erase((this->children).begin(), (this->children).begin() + 1);  
-        } else if((this->children).size() == 3){
-            node* child = (this->children)[1];
-            if(this->name == "Expression" || this->name == "Assignment"){
-                child->add_child((this->children)[0]);
-                child->add_child((this->children)[2]);
-                this->children.clear();
-                this->add_child(child);
-            }else{
-                this->copy(*child);
-                (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
-                delete child;
-            }
-            // this->name = child->name;
-            // this->type = child->type;
-            // this->terminal = child->terminal;
-            // this->exp_applicable = child->exp_applicable;
-            // (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
-            // delete child;
-        } else if((this->children).size() == 5){
-            if(this->name == "Expression" || this->name == "Assignment"){
-                node* child = new node("?:", true, "OPERATOR");
-                child->add_child(this->children[0]);
-                child->add_child(this->children[2]);
-                child->add_child(this->children[4]);
-                delete this->children[1];
-                delete this->children[3];
-                this->children.clear();
-                this->add_child(child);
-            }else{
-                node* child;
-                child = (this->children)[1];
-                this->name = "?:";
-                this->type = "OPERATOR";
-                this->terminal = child->terminal;
-                this->exp_applicable = child->exp_applicable;
-                child = (this->children)[3];
-                (this->children).erase((this->children).begin() + 3, (this->children).begin() + 4);  
-                delete child;
-                child = (this->children)[1];
-                (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
-                delete child;
-            }
-        }
-    }
+//             // this->name = child->name;
+//             // this->type = child->type;
+//             // this->terminal = child->terminal;
+//             // this->exp_applicable = child->exp_applicable;
+//             // (this->children).erase((this->children).begin(), (this->children).begin() + 1);  
+//         } else if((this->children).size() == 3){
+//             node* child = (this->children)[1];
+//             if(this->name == "Expression" || this->name == "Assignment"){
+//                 child->add_child((this->children)[0]);
+//                 child->add_child((this->children)[2]);
+//                 this->children.clear();
+//                 this->add_child(child);
+//             }else{
+//                 this->copy(*child);
+//                 (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
+//                 delete child;
+//             }
+//             // this->name = child->name;
+//             // this->type = child->type;
+//             // this->terminal = child->terminal;
+//             // this->exp_applicable = child->exp_applicable;
+//             // (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
+//             // delete child;
+//         } else if((this->children).size() == 5){
+//             if(this->name == "Expression" || this->name == "Assignment"){
+//                 node* child = new node("?:", true, "OPERATOR");
+//                 child->add_child(this->children[0]);
+//                 child->add_child(this->children[2]);
+//                 child->add_child(this->children[4]);
+//                 delete this->children[1];
+//                 delete this->children[3];
+//                 this->children.clear();
+//                 this->add_child(child);
+//             }else{
+//                 node* child;
+//                 child = (this->children)[1];
+//                 this->name = "?:";
+//                 this->type = "OPERATOR";
+//                 this->terminal = child->terminal;
+//                 this->exp_applicable = child->exp_applicable;
+//                 child = (this->children)[3];
+//                 (this->children).erase((this->children).begin() + 3, (this->children).begin() + 4);  
+//                 delete child;
+//                 child = (this->children)[1];
+//                 (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
+//                 delete child;
+//             }
+//         }
+//     }
 
-    for(int x = 0; x < (this->children).size(); x++) {
-        (this->children)[x] -> expression_policy();
+//     for(int x = 0; x < (this->children).size(); x++) {
+//         (this->children)[x] -> expression_policy();
+//     }
+// }
+
+
+/*
+ * Ye apna operator shift h..
+ * Python wala
+*/
+
+void node::expression_policy()
+{
+    int op_index = -1;
+    for(int i=0;i<this->children.size();i++)
+    {
+        if(isop(this->children[i]->name))
+        {
+            op_index = i;
+            break;
+        }
+    }   
+    if(op_index != -1)
+    {
+        this->name = this->children[op_index]->name;
+        this->terminal = this->children[op_index]->terminal;
+        this->type = this->children[op_index]->type;
+        this->line_no = this->children[op_index]->line_no;
+        vector<node *> new_children;
+        for(int i=0;i<this->children.size();i++)
+        {
+            if(i != op_index)
+            {  
+                new_children.push_back(this->children[i]);
+            }
+        }   
+        this->children = new_children;
+    }
+    for(int i=0;i<this->children.size();i++)
+    {
+        this->children[i]->expression_policy();
     }
 }
 

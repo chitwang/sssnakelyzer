@@ -2,7 +2,7 @@
 LR = 0.00005
 MAX_EPOCH = 4
 BATCH_SIZE = 2048
-outpath = '../models/'
+# outpath = '../models/'
 drop_probability = 0.000001
 ###########################
 
@@ -110,14 +110,14 @@ class MyResidualSirenNet(nn.Module):
         return x
 
 ########################
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+# device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 model = MyResidualSirenNet(dropout_val=drop_probability).to(device)
 print(model)
 optimizer = optim.Adam(model.parameters(), lr=LR)
 criterion = nn.MSELoss()
 
-input_data_file = './sample_data/Pf25.binLE.raw_corrected_2_subsampled.vti'
+# input_data_file = './sample_data/Pf25.binLE.raw_corrected_2_subsampled.vti'
 
 reader = vtk.vtkXMLImageDataReader()
 reader.SetFileName(input_data_file)
@@ -159,7 +159,7 @@ train_dataloader = DataLoader(TensorDataset(torch_coords, torch_vals), batch_siz
 
 
 #################################################
-print('Data setup is complete, now starting training...')
+# print('Data setup is complete, now starting training...')
 
 train_loss_list = li
 for epoch in range(MAX_EPOCH+1):
@@ -182,12 +182,6 @@ for epoch in range(MAX_EPOCH+1):
 
     train_loss_list.append(np.average(temp_loss_list))
 
-    print("epoch: ",epoch," train loss: ", train_loss_list[-1])
+    # print("epoch: ",epoch," train loss: ", train_loss_list[-1])
 
-
-    #if epoch%50==0 or epoch==MAX_EPOCH:
-    ## save model
-    torch.save({"epoch": epoch + 1,
-                "model_state_dict": model.state_dict()},
-                os.path.join(outpath + 'vol_uncert_chk_' + str(epoch) + '.pth'))
     
