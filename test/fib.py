@@ -14,11 +14,11 @@ def Fibonacci(n = 10):
     # it will return 1
     elif n == 1 or n == 2:
         n += 100
-        return 1
+        return 
     
     else:
         return Fibonacci(n-1) + Fibonacci(n-2)
  
  
 # Driver Program
-print(Fibonacci(9))
+# print(Fibonacci(9))

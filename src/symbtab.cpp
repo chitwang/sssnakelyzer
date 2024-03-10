@@ -7,41 +7,22 @@ int num_scopes = 0;
 symbol_table_global *main_table = new symbol_table_global();
 
 map<string, int> type_to_size = {
-        {"byte", 1},
-        {"short", 2},
-        {"int", 4},
-        {"long", 8},
-        {"float", 4},
-        {"double", 8},
-        {"boolean", 1},
-        {"char", 2},
-        {"String", 4}
+        {"int", 8}, 
+        {"float", 8},
+        {"bool", 1},
+        {"str", 4}
 };
 
 set<string> primitive_types = {
-    "byte", "short", "int", "long", "float", "double", "boolean", "char", "String", "null"
+    "int", "float", "bool", "str"
 };
-
-// enum MODIFIER {
-//     M_PUBLIC,
-//     M_PRIVATE,
-//     M_PROTECTED,
-//     M_STATIC,
-//     M_ABSTRACT,
-//     M_NATIVE,
-//     M_SYNCHRONIZED,
-//     M_TRANSIENT,
-//     M_VOLATILE,
-//     M_FINAL,
-//     COUNT
-// };
 
 st_entry::st_entry(){;}
 
 st_entry::st_entry(string name, int line_no, int semicolon_no, string type /*= "int"*/){
     this->name = name;
     this->line_no = line_no;
-    this->stmt_no = semicolon_no;
+    // this->stmt_no = semicolon_no;
     this->type = type;
     this->size = type_to_size[type];
 }
@@ -50,30 +31,15 @@ st_entry::st_entry(string name, st_entry (&other)){
     this->name = name;
     this->type = other.type;
     this->line_no = other.line_no;
-    this->stmt_no = other.stmt_no;
+    // this->stmt_no = other.stmt_no;
     this->size = other.size;
 }
 
-void st_entry::update_type(string type){
+void st_entry::update_type(string type) {
     this->type = type;
     this->size = type_to_size[type];
     if(this -> size == 0) {
         this -> size = 4;       // otherwise it's a reference and hence 4 bytes
-    }
-}
-
-void st_entry::update_modifiers(vector<st_entry*> modifiers){
-    for(auto entry : modifiers){
-        if(entry -> name == "public")       this -> modifier_bv [M_PUBLIC]          = true;
-        if(entry -> name == "private")      this -> modifier_bv [M_PRIVATE]         = true;
-        if(entry -> name == "protected")    this -> modifier_bv [M_PROTECTED]       = true;
-        if(entry -> name == "static")       this -> modifier_bv [M_STATIC]          = true;
-        if(entry -> name == "abstract")     this -> modifier_bv [M_ABSTRACT]        = true;
-        if(entry -> name == "native")       this -> modifier_bv [M_NATIVE]          = true;
-        if(entry -> name == "synchronized") this -> modifier_bv [M_SYNCHRONIZED]    = true;
-        if(entry -> name == "transient")    this -> modifier_bv [M_TRANSIENT]       = true;
-        if(entry -> name == "volatile")     this -> modifier_bv [M_VOLATILE]        = true;
-        if(entry -> name == "final")        this -> modifier_bv [M_FINAL]           = true;
     }
 }
 
@@ -101,8 +67,8 @@ void symbol_table::add_entry(st_entry* new_entry){
     }
     new_entry -> update_type(new_entry -> type);
 
-    for(auto (&entry) : entries){
-        if(new_entry->name == entry->name){
+    for(auto (&entry) : entries) {
+        if(new_entry->name == entry->name) {
             cout << "ERROR: Variable " << new_entry->name << " is already declared at line number " << entry->line_no << " in the same scope.\n";
             exit(1);
         }
@@ -111,9 +77,9 @@ void symbol_table::add_entry(st_entry* new_entry){
     new_entry -> table = this;
 }
 
-void symbol_table::delete_entry(string name){
-    for(auto ite = entries.begin(); ite != entries.end(); ite++){
-        if((*ite) -> name == name){
+void symbol_table::delete_entry(string name) {
+    for(auto ite = entries.begin(); ite != entries.end(); ite++) {
+        if((*ite) -> name == name) {
             entries.erase(ite);
             return;
         }
@@ -134,13 +100,13 @@ st_entry* symbol_table::look_up(string name){
             }
         } 
     }
-    for(int idx = 0; idx < entries.size(); idx++){
-        if(entries[idx]->name == name){
+    for(int idx = 0; idx < entries.size(); idx++) {
+        if(entries[idx]->name == name) {
             return entries[idx];
         }
     }
     
-    if(this->parent_st){
+    if(this->parent_st) {
         return this->parent_st->look_up(name);
     }
 
@@ -176,8 +142,8 @@ void symbol_table_func::add_entry(st_entry* new_entry) {
         }
     }
 
-    for(const auto (&entry) : entries){
-        if(new_entry -> name == entry -> name){
+    for(const auto (&entry) : entries) {
+        if(new_entry -> name == entry -> name) {
             cout << "ERROR: Variable " << new_entry -> name << " is already declared at line number " << entry -> line_no << " in the same scope.\n";
             exit(1);
         }
@@ -187,26 +153,12 @@ void symbol_table_func::add_entry(st_entry* new_entry) {
     new_entry -> table = this;
 }
 
-void symbol_table_func::update_modifiers(vector<st_entry*> modifiers){
-    for(auto entry : modifiers){
-        if(entry -> name == "public")       this -> modifier_bv [M_PUBLIC]          = true;
-        if(entry -> name == "private")      this -> modifier_bv [M_PRIVATE]         = true;
-        if(entry -> name == "protected")    this -> modifier_bv [M_PROTECTED]       = true;
-        if(entry -> name == "static")       this -> modifier_bv [M_STATIC]          = true;
-        if(entry -> name == "abstract")     this -> modifier_bv [M_ABSTRACT]        = true;
-        if(entry -> name == "native")       this -> modifier_bv [M_NATIVE]          = true;
-        if(entry -> name == "synchronized") this -> modifier_bv [M_SYNCHRONIZED]    = true;
-        if(entry -> name == "transient")    this -> modifier_bv [M_TRANSIENT]       = true;
-        if(entry -> name == "volatile")     this -> modifier_bv [M_VOLATILE]        = true;
-        if(entry -> name == "final")        this -> modifier_bv [M_FINAL]           = true;
-    }
-}
 
-bool symbol_table_func::operator == (const symbol_table_func& other){
-    if(this->name == other.name){
-        if((this->params).size() == other.params.size()){
-            for(int idx = 0; idx < other.params.size(); idx++){
-                if((this->params)[idx]->type != other.params[idx]->type){
+bool symbol_table_func::operator == (const symbol_table_func& other) {
+    if(this->name == other.name) {
+        if((this->params).size() == other.params.size()) {
+            for(int idx = 0; idx < other.params.size(); idx++) {
+                if((this->params)[idx]->type != other.params[idx]->type) {
                     return false;
                 }
             }
@@ -239,41 +191,13 @@ void symbol_table_class::add_func(symbol_table_func* new_func){
     this->member_funcs.push_back(new_func);
 }
 
-symbol_table_func* symbol_table_class::look_up_function(string &name, vector<string> &params) {
-    bool flag = true;
+symbol_table_func* symbol_table_class::look_up_function(string &name) {
     for(int idx = 0; idx < this -> member_funcs.size(); idx++) {
-        flag = true;
-        if(name == member_funcs[idx] -> name && params.size() == member_funcs[idx] -> params.size()) {
-            flag = false;
-            for(int idx2 = 0; idx2 < params.size(); idx2++) {
-                if(params[idx2] != member_funcs[idx] -> params[idx2] -> type) {
-                    flag = true;
-                    break;
-                }
-            }
-        }
-
-        if(!flag) {
+        if(name == member_funcs[idx] -> name) {
             return member_funcs[idx];
         }
     }
-
     return NULL;
-}
-
-void symbol_table_class::update_modifiers(vector<st_entry*> modifiers){
-    for(auto entry : modifiers){
-        if(entry -> name == "public")       this -> modifier_bv [M_PUBLIC]          = true;
-        if(entry -> name == "private")      this -> modifier_bv [M_PRIVATE]         = true;
-        if(entry -> name == "protected")    this -> modifier_bv [M_PROTECTED]       = true;
-        if(entry -> name == "static")       this -> modifier_bv [M_STATIC]          = true;
-        if(entry -> name == "abstract")     this -> modifier_bv [M_ABSTRACT]        = true;
-        if(entry -> name == "native")       this -> modifier_bv [M_NATIVE]          = true;
-        if(entry -> name == "synchronized") this -> modifier_bv [M_SYNCHRONIZED]    = true;
-        if(entry -> name == "transient")    this -> modifier_bv [M_TRANSIENT]       = true;
-        if(entry -> name == "volatile")     this -> modifier_bv [M_VOLATILE]        = true;
-        if(entry -> name == "final")        this -> modifier_bv [M_FINAL]           = true;
-    }
 }
 
 symbol_table_global::symbol_table_global() {
@@ -297,6 +221,20 @@ void symbol_table_global::add_entry(symbol_table_class* new_cls) {
     this -> classes . push_back(new_cls);
 }
 
+void symbol_table_global::add_entry(symbol_table_func* new_func) {
+    for(auto &func : this -> functions) {
+        if(new_func -> name == func -> name) {
+            cout << "ERROR: Duplicate function " << new_func -> name << " at line number " << new_func -> scope_start_line_no << endl;
+            exit(1);
+        }
+    }
+
+    st_entry *tmp = new st_entry(new_func -> name, new_func -> scope_start_line_no, 0, new_func -> name);
+    tmp -> initialized = true;
+    this -> entries.push_back(tmp);  // populate here as well for other lookups
+    this -> functions.push_back(new_func);
+}
+
 symbol_table_class* symbol_table_global::look_up_class(string &cls_name) {
     for(auto &cls : this -> classes) {
         if(cls -> name == cls_name) {
@@ -304,6 +242,15 @@ symbol_table_class* symbol_table_global::look_up_class(string &cls_name) {
         }
     }
 
+    return NULL;
+}
+
+symbol_table_func* symbol_table_global::look_up_func(string &func_name) {
+    for(auto &func : this -> functions) {
+        if(func -> name == func_name) {
+            return func;
+        }
+    }
     return NULL;
 }
 

@@ -5,15 +5,14 @@ using namespace std;
 #define YYDEBUG 1
 
 extern int yylineno;
-
 vector <string> nodes;
 vector <vector <int>> adj;
 int node_count = 0;
 vector <string> node_attr;
 vector <int> node_numbers;
 bool our_debug = false;
-
 node* root_node = NULL; 
+vector<node *> all_nodes;
 
 void debug_insert() {
     cout << "PRODUCTION:\t";
@@ -22,19 +21,6 @@ void debug_insert() {
     cout << "NODE COUNT " << node_count << endl;
     cout << "NODE_ATTR SIZE " << node_attr.size() << endl;
     cout << "ADJ SIZE " << adj.size() << endl;
-}
-
-void insert_node() {
-    for(int i = 0; i < node_attr.size(); i++) {
-        nodes.push_back(node_attr[i]);
-        adj.push_back(vector<int>());
-    }
-    if(our_debug) {
-        debug_insert();
-    }
-    for(int i = 0; i < node_numbers.size(); i++) {
-        adj[node_count + node_attr.size() - 1].push_back(node_numbers[i]);
-    }
 }
 
 bool isop(string s) {
@@ -63,6 +49,58 @@ bool iskeyword(string s) {
             s == "with" || s == "async" || s == "elif" || s == "if" || s == "or" || s == "yield");
 }
 
+node* adj_to_nodes(string tmp) {
+        node* new_node = NULL;
+        if(isdelim(tmp)) {
+            new_node = new node(tmp, true, "DELIMITER");
+        }
+        else if(isop(tmp)) {
+            new_node = new node(tmp, true, "OPERATOR");
+        }
+        else if(iskeyword(tmp)) {
+            new_node = new node(tmp, true, "KEYWORD");
+        }
+        else if(tmp.substr(0,3) == "INT") {
+            new_node = new node(tmp, true, "LITERAL");
+            new_node -> datatype = "int";
+        }
+        else if(tmp.substr(0,3) == "FLT") {
+            new_node = new node(tmp,true,"LITERAL");
+            new_node -> datatype = "float";
+        }
+        else if(tmp.substr(0,3) == "BOL") {
+            new_node = new node(tmp,true,"LITERAL");
+            new_node-> datatype = "bool";
+        }
+        else if(tmp.substr(0,3) == "STR") {
+           new_node = new node(tmp,true,"LITERAL");
+            new_node-> datatype = "str";
+        }
+        else if(tmp.substr(0, 4) == "NAME") {
+            new_node = new node(tmp, true, "NAME");
+        }
+        else {
+            new_node = new node(tmp);
+        }
+        return new_node;
+}
+
+void insert_node() {
+    for(int i = 0; i < node_attr.size(); i++) {
+        all_nodes.push_back(adj_to_nodes(node_attr[i]));
+        //adj.push_back(vector<int>());
+    }
+    if(our_debug) {
+        debug_insert();
+    }
+    for(int i = 0; i < node_numbers.size(); i++) {
+        // adj[node_count + node_attr.size() - 1].push_back(node_numbers[i]);
+        all_nodes[node_count + node_attr.size() - 1]->add_child(all_nodes[node_numbers[i]]);
+    }
+}
+
+
+
 void print_help() {
     cout << "Usage: ./run.sh --input=<input_file_path> [options]" << endl;
     cout << "The following options can be used" << endl;
@@ -78,54 +116,6 @@ void print_help() {
     exit(1);
 }
 
-void adj_to_nodes() {
-    int num_vertices = nodes.size();
-    vector <node*> all_nodes(num_vertices);
-    for(int i=0;i<num_vertices;i++) {
-        string tmp = nodes[i];
-        if(isdelim(tmp)) {
-            all_nodes[i] = new node(tmp, true, "DELIMITER");
-        }
-        else if(isop(tmp)) {
-            all_nodes[i] = new node(tmp, true, "OPERATOR");
-        }
-        else if(iskeyword(tmp)) {
-            all_nodes[i] = new node(tmp, true, "KEYWORD");
-        }
-        else if(tmp.substr(0,3) == "INT") {
-            all_nodes[i] = new node(tmp, true, "LITERAL");
-            all_nodes[i] -> datatype = "int";
-        }
-        else if(tmp.substr(0,3) == "FLT") {
-            all_nodes[i] = new node(tmp,true,"LITERAL");
-            all_nodes[i]-> datatype = "float";
-        }
-        else if(tmp.substr(0,3) == "BOL") {
-            all_nodes[i] = new node(tmp,true,"LITERAL");
-            all_nodes[i]-> datatype = "bool";
-        }
-        else if(tmp.substr(0,3) == "STR") {
-            all_nodes[i] = new node(tmp,true,"LITERAL");
-            all_nodes[i]-> datatype = "str";
-        }
-        else if(tmp.substr(0, 4) == "NAME") {
-            all_nodes[i] = new node(tmp, true, "NAME");
-        }
-        else {
-            all_nodes[i] = new node(tmp);
-        }
-    }
-    cout << "NODES MADE\n";
-    for(int i = 0;i < num_vertices; i++) {
-        // all_nodes[i]
-        // cout << "ADJ SIZE: " << adj[i].size() << endl;
-        for(auto x: adj[i]) {
-            all_nodes[i]->add_child(all_nodes[x]);
-        }
-    }
-    root_node = all_nodes.back();
-    
-}
 
 extern int yylex(void);
 void yyerror(const char*);
@@ -141,7 +131,7 @@ void yyerror(const char*);
 
 %token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK  KEY_IN KEY_TRUE KEY_CLASS  KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR  KEY_DEF  KEY_WHILE KEY_ASSERT KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST 
 
-%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt assert_stmt semicolon_stmt argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop test_test_plus common_expr comp_iter sync_comp_for comp_if  types newline_plus file_input file_plus program_start string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration
+%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt assert_stmt semicolon_stmt argument_s star_expr test_or_star test_or_star_plus break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_or_star named_star_plus number testlist_comp comp_for arglist subscriptlist sliceop common_expr comp_iter sync_comp_for comp_if  types newline_plus file_input file_plus program_start string_plus testlist_star_expr augassign test_nocond subscript type_list testlist_assign_plus type_declaration
 
 %start start_symbol
 
@@ -155,7 +145,7 @@ file_input: file_plus {node_attr = {"file_input"};  node_numbers = {$1}; insert_
           | newline_plus file_plus {node_attr = {"file_input"}; node_numbers = {$2}; insert_node();  $$ = node_count; node_count += 1;} 
           | newline_plus {node_attr = {"file_input"}; node_numbers = {}; insert_node();  $$ = node_count; node_count += 1;}
 
-file_plus: file_plus blocks {$$ = $1; adj[$$].push_back($2);} 
+file_plus: file_plus blocks {$$ = $1; /* adj[$$].push_back($2);*/  all_nodes[$$]->add_child(all_nodes[$2]);} 
          | blocks {$$ = $1;} 
 
 newline_plus: newline_plus NEWLINE {}
@@ -270,7 +260,7 @@ for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLO
         }
 
 stmt_plus : blocks {$$ = $1;}
-          | stmt_plus blocks {$$ = $1; adj[$$].push_back($2);}
+          | stmt_plus blocks {$$ = $1; /*adj[$$].push_back($2);*/ all_nodes[$$]->add_child(all_nodes[$2]);}
         
 suite: single_stmt {node_attr = {"suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
      | newline_plus INDENT stmt_plus DEDENT {node_attr = {"suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
@@ -411,10 +401,6 @@ testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$
         | test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
         | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-test_test_plus: test DELIM_COLON test {node_attr = {":", "test_test_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-              | test DELIM_COLON test DELIM_COMMA {node_attr = {":", ",", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-              | test DELIM_COLON test DELIM_COMMA test_test_plus {node_attr = {":", ",", "test_test_plus"}; node_numbers = {$1, node_count, $3, node_count + 1, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
-
 classdef: KEY_CLASS NAME DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"class", string("NAME ( ") + strdup($2) + " )", "(", ")", ":", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, $4, node_count + 3, node_count + 4, $7}; insert_node(); $$ = node_count + 5; node_count += 6;}
         | KEY_CLASS NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"class", string("NAME ( ") + strdup($2) + " )", "(", ")", ":", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, node_count + 3, node_count + 4, $6}; insert_node(); $$ = node_count + 5; node_count += 6;}
         | KEY_CLASS NAME DELIM_COLON suite {node_attr = {"class", string("NAME ( ") + strdup($2) + " )", ":", "classdef"}; node_numbers = {node_count, node_count + 1, node_count + 2, $4}; insert_node(); $$ = node_count + 3; node_count += 4;}
@@ -523,9 +509,9 @@ int main(int argc, char* argv[]) {
     } 
 
     yyparse();
-    cout << "PARSING DONE\n";
-    adj_to_nodes();
-    cout << "CONVERSION DONE\n";
+    /* cout << "PARSING DONE\n"; */
+    root_node = all_nodes.back();
+    /* cout << "PARSING DONE\n"; */
     root_node->clean_tree();
     root_node -> make_dot();
     /* ofstream dotFile(output_file.c_str());

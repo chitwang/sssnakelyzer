@@ -158,6 +158,7 @@ COMMENT                         [\t ]*#[^\n]*
         indentation_flag = true;
         return DEDENT;
     }
+  //  if(!indentation_checking.empty() && indentation_checking.top() == 0) indentation_checking.pop();
     return 0;
 }
 

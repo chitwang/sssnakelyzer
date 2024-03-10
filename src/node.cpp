@@ -29,15 +29,14 @@ void node::print_tree(int tab){
     }
 }
 
-void node::clean_tree(){  
-
+void node::clean_tree() {  
     // Removing semicolon (and other?) delimiters
     // this->remove_lexeme_policy(";");
 
     // * Cleans the Parse tree to make an AST; Should necessarily be called from the root.
     // * Removing Nodes with a single child; Replaces them with the child
     node* v = NULL;
-    for(int x = 0; x < (this->children).size(); x++){
+    for(int x = 0; x < (this->children).size(); x++) {
         v = ((this->children)[x])->one_child_policy(x);
         if(v){
             delete v;
@@ -74,9 +73,9 @@ node* node::one_child_policy(int idx){
         if(this->name != "Expression" && this->name != "VariableDeclarator" && this->name != "Assignment" && this->name != "Block" && this->name != "VariableDeclaratorId" && this->name != "ReturnStatement" && this->name != "ArrayCreationExpression" && this->name != "ForInit" && this->name != "ForUpdate"){
             this->kill_parent(idx);
             return this;
-        }else{
+        } else {
             node* v = NULL;
-            while((this->children).size() == 1){
+            while((this->children).size() == 1) {
                 v = (this->children)[0]->one_child_policy(0);
                 if(v){
                     delete v;
@@ -85,9 +84,9 @@ node* node::one_child_policy(int idx){
                 }
             }
         }
-    }else{
+    } else {
         node* v = NULL;
-        for(int x = 0; x < (this->children).size(); x++){
+        for(int x = 0; x < (this->children).size(); x++) {
             v = ((this->children)[x])->one_child_policy(x);
             if(v){
                 delete v;
@@ -98,7 +97,7 @@ node* node::one_child_policy(int idx){
     return NULL;
 }
 
-void node::kill_parent(int idx, int child_idx /*= 0*/){
+void node::kill_parent(int idx, int child_idx /*= 0*/) {
     node* child = this->children[child_idx];
     child->parent = this->parent;
     ((child->parent)->children)[idx] = child;
@@ -179,40 +178,33 @@ void node::kill_parent(int idx, int child_idx /*= 0*/){
  * Python wala
 */
 
-void node::expression_policy()
-{
+void node::expression_policy() {
     int op_index = -1;
-    for(int i=0;i<this->children.size();i++)
-    {
-        if(isop(this->children[i]->name))
-        {
+    for(int i=0;i<this->children.size();i++) {
+        if(isop(this->children[i]->name)) {
             op_index = i;
             break;
         }
     }   
-    if(op_index != -1)
-    {
+    if(op_index != -1) {
         this->name = this->children[op_index]->name;
         this->terminal = this->children[op_index]->terminal;
         this->type = this->children[op_index]->type;
         this->line_no = this->children[op_index]->line_no;
         vector<node *> new_children;
-        for(int i=0;i<this->children.size();i++)
-        {
-            if(i != op_index)
-            {  
+        for(int i=0;i<this->children.size();i++) {
+            if(i != op_index) {  
                 new_children.push_back(this->children[i]);
             }
         }   
         this->children = new_children;
     }
-    for(int i=0;i<this->children.size();i++)
-    {
+    for(int i=0;i<this->children.size();i++) {
         this->children[i]->expression_policy();
     }
 }
 
-void node::make_dot(string filename /*= "tree.gv"*/){
+void node::make_dot(string filename /*= "tree.gv"*/) {
     unsigned long long node_num = 0;
 
     string dot_code = "digraph ast {\n";
@@ -228,11 +220,11 @@ void node::make_dot(string filename /*= "tree.gv"*/){
     }
 }
 
-void node::add_nodes(unsigned long long (&node_num), string (&dot_code)){
+void node::add_nodes(unsigned long long (&node_num), string (&dot_code)) {
     node_num++;
     this->node_number = node_num;
     
-    if(this->terminal){
+    if(this->terminal) {
         dot_code += "node" + to_string(this->node_number) + "[label = \"" + this->type + '\n' + this->name + " (L" + to_string(this->line_no) +  ")\", shape = rectangle, color = ";
         if(this->type == "ID"){
             dot_code += "purple";
@@ -317,29 +309,24 @@ int node::get_dims(node* v){
 
 symbol_table* node::get_symbol_table() {
     node* temp_node = this;
-    
     while(temp_node && !(temp_node -> sym_tab)) {
         temp_node = temp_node->parent;
     }
     if(temp_node == NULL) {
         return NULL;
     }
-    
     return temp_node -> sym_tab;
 }
 
 symbol_table_class* node::get_symbol_table_class() {
     symbol_table* cnt = this -> get_symbol_table();
-
     while(cnt && cnt -> symbol_table_category != 'C') {
         cnt = cnt -> parent_st;
     }
-
     if(!cnt) {
         cout << "Class symbol table not found! Aborting..." << endl;
         exit(1);
     }
-
     return (symbol_table_class *)cnt;
 }
 
@@ -366,7 +353,6 @@ st_entry* node::get_and_look_up(string id) {
         cout << "Unknown error, symbol table not found! Aborting..." << endl;
         exit(1);
     }
-
     st_entry* tmp = cnt_table -> look_up(id);
     return tmp;
 }
@@ -477,9 +463,8 @@ void node::populate_default_constructors() {
         
         if(flag) continue;                          // no need to add default constructor
         
-        vector<string> empty_params;
         vector<st_entry*> empty_formal_params;
-        if(!(cls -> look_up_function(cls->name, empty_params))) {
+        if(!(cls -> look_up_function(cls->name))) {
             cls -> add_func(new symbol_table_func(cls->name, empty_formal_params, cls->name));
         }
     }
@@ -2159,12 +2144,12 @@ void node::type_check() {
                 }
                 this -> children[idx + 2] -> datatype = entry -> type;
             }else{
-                if(this -> parent -> name == "MethodInvocation"){
+                if(this -> parent -> name == "MethodInvocation") {
                     this -> parent -> children[1] -> type_check();
                     vector<string> params = this -> parent -> children[1] ->get_function_parameters();
                     
-                    symbol_table_func* func = ((symbol_table_class* ) cls) -> look_up_function(this -> children[idx + 2] -> name, params);
-                    if(!func){
+                    symbol_table_func* func = ((symbol_table_class* ) cls) -> look_up_function(this -> children[idx + 2] -> name);
+                    if(!func) {
                         cout << "ERROR: (" << this -> children[idx] -> name << ") does not have (" << this -> children[idx + 2] -> name << ") as a member. Line number: " << this -> children[idx] -> line_no << endl;
                         exit(1);
                     }
