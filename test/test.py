@@ -41,3 +41,22 @@
 def pow(base, exponent=2):
     return base ** exponent
 
+# class A:
+#     pass
+
+# def add():
+#     a: A = A()
+#     return a
+i = 100
+while i < 10:
+    i += 1
+    print(i)
+else:
+    i = 100
+
+print(i)
+
+for i in range(5):
+    x=2
+
+print(x)

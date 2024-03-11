@@ -1,25 +1,24 @@
 #include <bits/stdc++.h>
 #include "../include/global.hpp"
-
 using namespace std;
 
 int num_scopes = 0;
 symbol_table_global *main_table = new symbol_table_global();
 
 map<string, int> type_to_size = {
-        {"int", 8}, 
-        {"float", 8},
-        {"bool", 1},
-        {"str", 4}
+    {"int", 8}, 
+    {"float", 8},
+    {"bool", 1},
+    {"str", 4}
 };
 
 set<string> primitive_types = {
     "int", "float", "bool", "str"
 };
 
-st_entry::st_entry(){;}
+st_entry::st_entry() {;}
 
-st_entry::st_entry(string name, int line_no, int semicolon_no, string type /*= "int"*/){
+st_entry::st_entry(string name, int line_no, int semicolon_no, string type /*= "int"*/) {
     this->name = name;
     this->line_no = line_no;
     // this->stmt_no = semicolon_no;
@@ -27,7 +26,7 @@ st_entry::st_entry(string name, int line_no, int semicolon_no, string type /*= "
     this->size = type_to_size[type];
 }
 
-st_entry::st_entry(string name, st_entry (&other)){
+st_entry::st_entry(string name, st_entry (&other)) {
     this->name = name;
     this->type = other.type;
     this->line_no = other.line_no;
@@ -43,7 +42,7 @@ void st_entry::update_type(string type) {
     }
 }
 
-symbol_table::symbol_table(){
+symbol_table::symbol_table() {
     this -> scope = "";
     this -> name = "";
     this -> symbol_table_category = 'B';
@@ -55,13 +54,13 @@ symbol_table::symbol_table(string name) {
     this -> symbol_table_category = 'B';
 }
 
-void symbol_table::add_scope(symbol_table* st){
+void symbol_table::add_scope(symbol_table* st) {
     this->sub_scopes++;
     st->scope = scope + "." + to_string(this->sub_scopes);
     st->parent_st = this;    // st is the child symbol table, this pointer gives the parent symbol table
 }
 
-void symbol_table::add_entry(st_entry* new_entry){
+void symbol_table::add_entry(st_entry* new_entry) {
     for(int i = 0; i < new_entry -> dimensions; i++) {
         new_entry -> type += "[]";
     }
@@ -89,7 +88,16 @@ void symbol_table::delete_entry(string name) {
     cout<<"Returning without deleting...\n";
 }
 
-st_entry* symbol_table::look_up(string name){
+st_entry* symbol_table::look_up_local(string name) {
+    for(auto &en: this->entries) {
+        if(en->name == name) {
+            return en;
+        }
+    }
+    return NULL;
+}
+
+st_entry* symbol_table::look_up(string name) {
     //! populate the global symbol table entry list with class names so that lookup here is possible !//
     
     if(this -> symbol_table_category == 'M') {
@@ -113,20 +121,20 @@ st_entry* symbol_table::look_up(string name){
     return NULL;
 }
 
-symbol_table_func::symbol_table_func(string func_name, vector<st_entry* > (&params), string return_type){
+symbol_table_func::symbol_table_func(string func_name, vector<st_entry* > (&params), string return_type) {
     this->name = func_name;
 
     for(auto &param : params) {
         for(int i = 0; i < param -> dimensions; i++) {
             param -> type += "[]";
         }
-
-        param -> update_type(param -> type); 
+        param -> table = this;
+        param -> update_type(param -> type);
     }
 
     this->params = params;
     this->return_type = return_type;
-    this->symbol_table_category = 'M';  
+    this->symbol_table_category = 'M';
 }
 
 void symbol_table_func::add_entry(st_entry* new_entry) {
@@ -173,14 +181,14 @@ symbol_table_class::symbol_table_class(string class_name) {
     this -> symbol_table_category = 'C';
 }
 
-void symbol_table_class::add_func(symbol_table_func* new_func){
+void symbol_table_class::add_func(symbol_table_func* new_func) {
     for(auto (&func) : (this->member_funcs)){
         if((*func) == (*new_func)){
             cout << "ERROR: Function with name " << (new_func->name) << " and parameter tuple: (";
-            for(int idx = 0; idx < new_func->params.size(); idx++){
-                if(idx){
+            for(int idx = 0; idx < new_func->params.size(); idx++) {
+                if(idx) {
                     cout << ", " << (new_func->params)[idx]->type;
-                }else{
+                } else {
                     cout << (new_func->params)[idx]->type;
                 }
             }
@@ -205,6 +213,8 @@ symbol_table_global::symbol_table_global() {
     this -> scope = "";
     this -> symbol_table_category = 'G';
     this -> parent_st = NULL;
+    this -> classes = vector <symbol_table_class*>();
+    this -> functions = vector <symbol_table_func*>();
 }
 
 void symbol_table_global::add_entry(symbol_table_class* new_cls) {
@@ -241,7 +251,6 @@ symbol_table_class* symbol_table_global::look_up_class(string &cls_name) {
             return cls;
         }
     }
-
     return NULL;
 }
 
@@ -336,10 +345,10 @@ void symbol_table::make_csv_wrapper(string filename) {
 
     for(auto &child : children_st) {
         child_file = filename.substr(0, filename.size()-4) + "_" + child -> name + ".csv";
-        if(child -> symbol_table_category == 'G' || child -> symbol_table_category == 'C' || child -> symbol_table_category == 'M'){
+        if(child -> symbol_table_category == 'G' || child -> symbol_table_category == 'C' || child -> symbol_table_category == 'M') {
             child -> make_csv_wrapper(child_file);
         }
-        else{
+        else {
             child -> make_csv_wrapper(filename);
         }
     }

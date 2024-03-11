@@ -67,7 +67,7 @@ public:
     st_entry* get_and_look_up(string id);
     void create_scope_hierarchy();
 
-    void populate_default_constructors();
+    // void populate_default_constructors();
     void populate_class_sizes();
 
     string get_type_without_array(string type);

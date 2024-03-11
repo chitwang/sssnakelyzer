@@ -9,3 +9,10 @@ Extra:
     f-string
     try..except..finally
     multi dimensional list
+
+doubt in semantics: 
+    default arguments
+    else with while and for ?
+    used datatype for test
+    error checking in params
+    tupe_checked

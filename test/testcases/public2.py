@@ -24,10 +24,10 @@ def compute_avg() -> float:
 
 def main():
   min_value: float = compute_min()
-  print("Minimum value: ")
+  print('Minimum value: ')
   print(min_value)
   avg_value: float = compute_avg()
-  print("Average value: ")
+  print('Average value: ')
   print(avg_value)
 
 

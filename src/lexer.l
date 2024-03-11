@@ -288,11 +288,6 @@ COMMENT                         [\t ]*#[^\n]*
     return KEY_WHILE;
 }
 
-"assert" {
-    yylval.strval = strdup(yytext);
-    return KEY_ASSERT;
-}
-
 "global" {
     yylval.strval = strdup(yytext);
     return KEY_GLOBAL;

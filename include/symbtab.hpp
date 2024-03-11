@@ -42,6 +42,7 @@ public:
     void add_entry(st_entry* new_entry);
     void delete_entry(string name);
     st_entry* look_up(string name);
+    st_entry* look_up_local(string name);
     void make_csv(string filename = "symbol_table.csv");
     void make_csv_wrapper(string filename);
 };
@@ -64,6 +65,7 @@ class symbol_table_class : public symbol_table {
 public:
     // Stores member variables and a list of Function-Symbol tables for member functions 
     vector<symbol_table_func* > member_funcs;
+    symbol_table_class* parent_class = NULL;
     int object_size = 0;
     symbol_table_class(string class_name);
     void add_func(symbol_table_func* func);

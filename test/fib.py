@@ -1,4 +1,4 @@
-def Fibonacci(n = 10):
+def Fibonacci(n):
     # Check if input is 0 then it will
     # print incorrect input
     if n < 0: # akbdasdnfna lsdk f

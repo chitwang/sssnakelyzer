@@ -984,7 +984,7 @@
             $$ -> sym_tab_entry = $2 -> sym_tab_entry;
             ($$ -> sym_tab_entry) -> update_modifiers($1 -> entry_list);
             $$ -> entry_list = $2 -> entry_list;
-            $2 -> entry_list . clear();
+            $2 -> entry_list.clear();
 
             string augmentedReturnType = $$ -> sym_tab_entry -> type;
             for(int i = 0; i < $$ -> sym_tab_entry -> dimensions; i++) {
@@ -2216,7 +2216,6 @@
 			$$->add_child($2);
 			temp_node = new node(";",true,"DELIMITER");
 			$$->add_child(temp_node);
- 
             count_semicolon++;
         }
         ;

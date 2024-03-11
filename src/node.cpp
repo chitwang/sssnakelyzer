@@ -5,26 +5,27 @@ using namespace std;
 extern bool isop(string);
 node *root;
 
-node::node(string name /*= ""*/, bool terminal /*= false*/, string type /* = "" */, node* parent /* = NULL */){
+node::node(string name /*= ""*/, bool terminal /*= false*/, string type /* = "" */, node* parent /* = NULL */) {
     this->parent = parent;
     this->name = name;
     this->terminal = terminal;
     this->type = type;
     this->line_no = yylineno;
     this->children = vector<node *> ();
+    this->entry_list = vector<st_entry*> ();
 }
 
-void node::print_tree(int tab){
-    for(int i=0; i<tab; i++){
+void node::print_tree(int tab) {
+    for(int i=0; i<tab; i++) {
         cout<<'\t';
     }
-    cout<<(this->name)<<"-> ";
-    for(auto i: (this->children)){
+    cout <<(this->name)<<"-> ";
+    for(auto i: (this->children)) {
         cout<<(i->name)<<' ';
     }
     cout<<'\n';
     tab++;
-    for(auto i: (this->children)){
+    for(auto i: (this->children)) {
         i->print_tree(tab);
     }
 }
@@ -62,7 +63,7 @@ void node::remove_lexeme_policy(string lex) {
     }
 }
 
-node* node::one_child_policy(int idx){     
+node* node::one_child_policy(int idx) {     
     // Ensures that each Node in the AST with one child is replaced by the child; deletes the parent afterwards
     // idx is the index of the current node in its parent's list. The node's child shall occupy this index after killing its parent
     if(this->parent == NULL) {
@@ -70,16 +71,16 @@ node* node::one_child_policy(int idx){
         exit(1);
     }
     if((this->children).size() == 1){
-        if(this->name != "Expression" && this->name != "VariableDeclarator" && this->name != "Assignment" && this->name != "Block" && this->name != "VariableDeclaratorId" && this->name != "ReturnStatement" && this->name != "ArrayCreationExpression" && this->name != "ForInit" && this->name != "ForUpdate"){
+        if(this->name != "Expression" && this->name != "VariableDeclarator" && this->name != "Assignment" && this->name != "Block" && this->name != "VariableDeclaratorId" && this->name != "ReturnStatement" && this->name != "ArrayCreationExpression" && this->name != "ForInit" && this->name != "ForUpdate") {
             this->kill_parent(idx);
             return this;
         } else {
             node* v = NULL;
             while((this->children).size() == 1) {
                 v = (this->children)[0]->one_child_policy(0);
-                if(v){
+                if(v) {
                     delete v;
-                }else{
+                } else {
                     break;
                 }
             }
@@ -88,7 +89,7 @@ node* node::one_child_policy(int idx){
         node* v = NULL;
         for(int x = 0; x < (this->children).size(); x++) {
             v = ((this->children)[x])->one_child_policy(x);
-            if(v){
+            if(v) {
                 delete v;
                 x--;
             }
@@ -180,7 +181,7 @@ void node::kill_parent(int idx, int child_idx /*= 0*/) {
 
 void node::expression_policy() {
     int op_index = -1;
-    for(int i=0;i<this->children.size();i++) {
+    for(int i = 0; i < this->children.size(); i++) {
         if(isop(this->children[i]->name)) {
             op_index = i;
             break;
@@ -192,14 +193,14 @@ void node::expression_policy() {
         this->type = this->children[op_index]->type;
         this->line_no = this->children[op_index]->line_no;
         vector<node *> new_children;
-        for(int i=0;i<this->children.size();i++) {
+        for(int i = 0; i < this->children.size(); i++) {
             if(i != op_index) {  
                 new_children.push_back(this->children[i]);
             }
         }   
         this->children = new_children;
     }
-    for(int i=0;i<this->children.size();i++) {
+    for(int i = 0; i < this->children.size(); i++) {
         this->children[i]->expression_policy();
     }
 }
@@ -452,7 +453,8 @@ void node::create_scope_hierarchy() {
 
 // BEFORE WALK 2 ADD DEFAULT CONSTRUCTORS TO ALL CLASSES AS NECESSARY
 // BEFORE WALK 2 CALCULATE ALL THE CLASS SIZES FROM FIELD MEMBERS
-void node::populate_default_constructors() {
+
+/*void node::populate_default_constructors() {
     for(auto &cls : main_table -> classes) {
         bool flag = false;
         for(auto &func : cls -> member_funcs) {
@@ -468,7 +470,7 @@ void node::populate_default_constructors() {
             cls -> add_func(new symbol_table_func(cls->name, empty_formal_params, cls->name));
         }
     }
-}
+}*/
 
 void node::populate_class_sizes() {
     for(auto &cls : main_table -> classes) {
@@ -477,7 +479,6 @@ void node::populate_class_sizes() {
             entry -> offset = offset;
             offset += entry -> size;
         }
-
         cls -> object_size = offset;
     }
 }
@@ -485,7 +486,7 @@ void node::populate_class_sizes() {
 // WALK 2
 
 void node::validate_expression() {
-    if(this->type == "ID"){
+    if(this->type == "ID") {
         symbol_table *cnt_table = this -> get_symbol_table();
         if(!cnt_table) {
             cout << "Unknown error, symbol table not found! Aborting..." << endl;

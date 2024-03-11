@@ -25,16 +25,16 @@ class LALRParser(CLRParser):
     CLRParser.__init__(self, clrname_, srname_)
 
   def print_name(self):
-    print("SLR name:")
+    print('SLR name:')
     print(self.srname)
-    print("CLR name:")
+    print('CLR name:')
     print(self.clrname)
-    print("LALR name:")
+    print('LALR name:')
     print(self.lalrname)
 
 
 def main():
-  obj: LALRParser = LALRParser("LALR", "CLR", "Shift-Reduce")
+  obj: LALRParser = LALRParser('LALR', 'CLR', 'Shift-Reduce')
   obj.print_name()
 
 

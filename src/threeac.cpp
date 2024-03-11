@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 #include "../include/global.hpp" // Includes node.hpp
-// #include "../include/tac.hpp"
 using namespace std;
 
 quad::quad(string r, string a1, string o, string a2) : result(r), arg1(a1), op(o), arg2(a2) {}
