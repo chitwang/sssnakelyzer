@@ -319,6 +319,11 @@ COMMENT                         [\t ]*#[^\n]*
     return OP_ADD;
 }
 
+"self." {
+    yylval.strval = strdup(yytext);
+    return SELF_DOT;
+}
+
 "-" {
     yylval.strval = strdup(yytext);
     return OP_SUBTRACT;

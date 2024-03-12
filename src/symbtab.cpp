@@ -16,7 +16,7 @@ set<string> primitive_types = {
     "int", "float", "bool", "str"
 };
 
-st_entry::st_entry() {;}
+st_entry::st_entry() {}
 
 st_entry::st_entry(string name, int line_no, int semicolon_no, string type /*= "int"*/) {
     this->name = name;
@@ -61,9 +61,9 @@ void symbol_table::add_scope(symbol_table* st) {
 }
 
 void symbol_table::add_entry(st_entry* new_entry) {
-    for(int i = 0; i < new_entry -> dimensions; i++) {
-        new_entry -> type += "[]";
-    }
+    // for(int i = 0; i < new_entry -> dimensions; i++) {
+    //     new_entry -> type += "[]";
+    // }
     new_entry -> update_type(new_entry -> type);
 
     for(auto (&entry) : entries) {
@@ -113,21 +113,23 @@ st_entry* symbol_table::look_up(string name) {
             return entries[idx];
         }
     }
-    
-    if(this->parent_st) {
-        return this->parent_st->look_up(name);
+    st_entry *st = NULL;
+    if(this -> symbol_table_category == 'C' && ((symbol_table_class *)this) -> parent_class) {
+        st = ((symbol_table_class *)this)->parent_class->look_up(name);
     }
-
-    return NULL;
+    if(this->parent_st) {
+        st = this->parent_st->look_up(name);
+    }
+    return st;
 }
 
 symbol_table_func::symbol_table_func(string func_name, vector<st_entry* > (&params), string return_type) {
     this->name = func_name;
 
     for(auto &param : params) {
-        for(int i = 0; i < param -> dimensions; i++) {
-            param -> type += "[]";
-        }
+        // for(int i = 0; i < param -> dimensions; i++) {
+        //     param -> type += "[]";
+        // }
         param -> table = this;
         param -> update_type(param -> type);
     }
@@ -138,9 +140,9 @@ symbol_table_func::symbol_table_func(string func_name, vector<st_entry* > (&para
 }
 
 void symbol_table_func::add_entry(st_entry* new_entry) {
-    for(int i = 0; i < new_entry -> dimensions; i++) {
-        new_entry -> type += "[]";
-    }
+    // for(int i = 0; i < new_entry -> dimensions; i++) {
+    //     new_entry -> type += "[]";
+    // }
     new_entry -> update_type(new_entry -> type);
 
     for(const auto (&param) : params) {
@@ -182,8 +184,8 @@ symbol_table_class::symbol_table_class(string class_name) {
 }
 
 void symbol_table_class::add_func(symbol_table_func* new_func) {
-    for(auto (&func) : (this->member_funcs)){
-        if((*func) == (*new_func)){
+    for(auto (&func) : (this->member_funcs)) {
+        if((*func) == (*new_func)) {
             cout << "ERROR: Function with name " << (new_func->name) << " and parameter tuple: (";
             for(int idx = 0; idx < new_func->params.size(); idx++) {
                 if(idx) {
@@ -300,7 +302,7 @@ void symbol_table_class::make_csv(string filename) {
 
         bool first = true;
         for(auto &param : func -> params) {
-            func_name += (first ? "" : ", ");
+            func_name += (first ? "" : "; ");
             func_name += param -> type;
             first = false;
         }
@@ -324,6 +326,9 @@ void symbol_table_global::make_csv(string filename) {
     out << "Scope, Class Name, Size, Line Number\n";
     for(auto &cls : this -> classes) {
         out << "Global, " << cls -> name << ", " << cls -> object_size << ", " << this -> scope_start_line_no << "\n";  
+    }
+    for(auto &funcs : this -> functions) {
+        out << "Global, " << funcs -> name << ", NULL, " << this -> scope_start_line_no << "\n";  
     }
 
     out.close();

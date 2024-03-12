@@ -19,11 +19,11 @@ void node::print_tree(int tab) {
     for(int i=0; i<tab; i++) {
         cout<<'\t';
     }
-    cout <<(this->name)<<"-> ";
+    cout << this->name << "-> ";
     for(auto i: (this->children)) {
-        cout<<(i->name)<<' ';
+        cout << i->name << ' ';
     }
-    cout<<'\n';
+    cout << '\n';
     tab++;
     for(auto i: (this->children)) {
         i->print_tree(tab);
@@ -472,16 +472,16 @@ void node::create_scope_hierarchy() {
     }
 }*/
 
-void node::populate_class_sizes() {
-    for(auto &cls : main_table -> classes) {
-        int offset = 0;
-        for(auto &entry : cls -> entries) {
-            entry -> offset = offset;
-            offset += entry -> size;
-        }
-        cls -> object_size = offset;
-    }
-}
+// void node::populate_class_sizes() {
+//     for(auto &cls : main_table -> classes) {
+//         int offset = 0;
+//         for(auto &entry : cls -> entries) {
+//             entry -> offset = offset;
+//             offset += entry -> size;
+//         }
+//         cls -> object_size = offset;
+//     }
+// }
 
 // WALK 2
 

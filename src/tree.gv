@@ -1,17 +1,649 @@
 digraph ast {
-node1[label = "semicolon_stmt (L4)"];
-node2[label = "atom_expr (L4)"];
-node3[label = "NAME
-NAME ( self ) (L4)", shape = rectangle, color = red];
-node4[label = "trailer (L4)"];
-node5[label = "DELIMITER
-. (L4)", shape = rectangle, color = red];
+node1[label = "start_symbol (L44)"];
+node2[label = "blocks (L7)"];
+node3[label = "classdef (L7)"];
+node4[label = "class_header (L1)"];
+node5[label = "KEYWORD
+class (L1)", shape = rectangle, color = blue];
 node6[label = "NAME
+NAME ( ShiftReduceParser ) (L1)", shape = rectangle, color = red];
+node7[label = "DELIMITER
+: (L1)", shape = rectangle, color = red];
+node8[label = "funcdef (L6)"];
+node9[label = "func_header (L3)"];
+node10[label = "KEYWORD
+def (L3)", shape = rectangle, color = blue];
+node11[label = "NAME
+NAME ( __init__ ) (L3)", shape = rectangle, color = red];
+node12[label = "parameters (L3)"];
+node13[label = "DELIMITER
+( (L3)", shape = rectangle, color = red];
+node14[label = "typedarglist (L3)"];
+node15[label = "NAME
+NAME ( self ) (L3)", shape = rectangle, color = red];
+node16[label = "DELIMITER
+, (L3)", shape = rectangle, color = red];
+node17[label = "tpdef (L3)"];
+node18[label = "NAME
+NAME ( name_ ) (L3)", shape = rectangle, color = red];
+node19[label = "DELIMITER
+: (L3)", shape = rectangle, color = red];
+node20[label = "str (L3)"];
+node21[label = "DELIMITER
+) (L3)", shape = rectangle, color = red];
+node22[label = "DELIMITER
+: (L3)", shape = rectangle, color = red];
+node23[label = "OPERATOR
+= (L5)", shape = rectangle, color = green];
+node24[label = "type_declaration (L4)"];
+node25[label = "self. (L4)"];
+node26[label = "NAME
 NAME ( srname ) (L4)", shape = rectangle, color = red];
+node27[label = "DELIMITER
+: (L4)", shape = rectangle, color = red];
+node28[label = "str (L4)"];
+node29[label = "NAME
+NAME ( name_ ) (L4)", shape = rectangle, color = red];
+node30[label = "classdef (L14)"];
+node31[label = "class_header (L7)"];
+node32[label = "KEYWORD
+class (L7)", shape = rectangle, color = blue];
+node33[label = "NAME
+NAME ( LR0Parser ) (L7)", shape = rectangle, color = red];
+node34[label = "DELIMITER
+( (L7)", shape = rectangle, color = red];
+node35[label = "NAME
+NAME ( ShiftReduceParser ) (L7)", shape = rectangle, color = red];
+node36[label = "DELIMITER
+) (L7)", shape = rectangle, color = red];
+node37[label = "DELIMITER
+: (L7)", shape = rectangle, color = red];
+node38[label = "funcdef (L13)"];
+node39[label = "func_header (L9)"];
+node40[label = "KEYWORD
+def (L9)", shape = rectangle, color = blue];
+node41[label = "NAME
+NAME ( __init__ ) (L9)", shape = rectangle, color = red];
+node42[label = "parameters (L9)"];
+node43[label = "DELIMITER
+( (L9)", shape = rectangle, color = red];
+node44[label = "typedarglist (L9)"];
+node45[label = "NAME
+NAME ( self ) (L9)", shape = rectangle, color = red];
+node46[label = "DELIMITER
+, (L9)", shape = rectangle, color = red];
+node47[label = "typedarglist (L9)"];
+node48[label = "tpdef (L9)"];
+node49[label = "NAME
+NAME ( myname_ ) (L9)", shape = rectangle, color = red];
+node50[label = "DELIMITER
+: (L9)", shape = rectangle, color = red];
+node51[label = "str (L9)"];
+node52[label = "DELIMITER
+, (L9)", shape = rectangle, color = red];
+node53[label = "tpdef (L9)"];
+node54[label = "NAME
+NAME ( parentname_ ) (L9)", shape = rectangle, color = red];
+node55[label = "DELIMITER
+: (L9)", shape = rectangle, color = red];
+node56[label = "str (L9)"];
+node57[label = "DELIMITER
+) (L9)", shape = rectangle, color = red];
+node58[label = "DELIMITER
+: (L9)", shape = rectangle, color = red];
+node59[label = "blocks (L11)"];
+node60[label = "OPERATOR
+= (L11)", shape = rectangle, color = green];
+node61[label = "type_declaration (L10)"];
+node62[label = "self. (L10)"];
+node63[label = "NAME
+NAME ( lr0name ) (L10)", shape = rectangle, color = red];
+node64[label = "DELIMITER
+: (L10)", shape = rectangle, color = red];
+node65[label = "str (L10)"];
+node66[label = "NAME
+NAME ( myname_ ) (L10)", shape = rectangle, color = red];
+node67[label = "atom_expr (L12)"];
+node68[label = "NAME
+NAME ( ShiftReduceParser ) (L11)", shape = rectangle, color = red];
+node69[label = "trailer_plus (L11)"];
+node70[label = "trailer (L11)"];
+node71[label = "DELIMITER
+. (L11)", shape = rectangle, color = red];
+node72[label = "NAME
+NAME ( __init__ ) (L11)", shape = rectangle, color = red];
+node73[label = "trailer (L11)"];
+node74[label = "DELIMITER
+( (L11)", shape = rectangle, color = red];
+node75[label = "arglist (L11)"];
+node76[label = "NAME
+NAME ( self ) (L11)", shape = rectangle, color = red];
+node77[label = "DELIMITER
+, (L11)", shape = rectangle, color = red];
+node78[label = "NAME
+NAME ( parentname_ ) (L11)", shape = rectangle, color = red];
+node79[label = "DELIMITER
+) (L11)", shape = rectangle, color = red];
+node80[label = "classdef (L21)"];
+node81[label = "class_header (L14)"];
+node82[label = "KEYWORD
+class (L14)", shape = rectangle, color = blue];
+node83[label = "NAME
+NAME ( CLRParser ) (L14)", shape = rectangle, color = red];
+node84[label = "DELIMITER
+( (L14)", shape = rectangle, color = red];
+node85[label = "NAME
+NAME ( ShiftReduceParser ) (L14)", shape = rectangle, color = red];
+node86[label = "DELIMITER
+) (L14)", shape = rectangle, color = red];
+node87[label = "DELIMITER
+: (L14)", shape = rectangle, color = red];
+node88[label = "funcdef (L20)"];
+node89[label = "func_header (L16)"];
+node90[label = "KEYWORD
+def (L16)", shape = rectangle, color = blue];
+node91[label = "NAME
+NAME ( __init__ ) (L16)", shape = rectangle, color = red];
+node92[label = "parameters (L16)"];
+node93[label = "DELIMITER
+( (L16)", shape = rectangle, color = red];
+node94[label = "typedarglist (L16)"];
+node95[label = "NAME
+NAME ( self ) (L16)", shape = rectangle, color = red];
+node96[label = "DELIMITER
+, (L16)", shape = rectangle, color = red];
+node97[label = "typedarglist (L16)"];
+node98[label = "tpdef (L16)"];
+node99[label = "NAME
+NAME ( myname_ ) (L16)", shape = rectangle, color = red];
+node100[label = "DELIMITER
+: (L16)", shape = rectangle, color = red];
+node101[label = "str (L16)"];
+node102[label = "DELIMITER
+, (L16)", shape = rectangle, color = red];
+node103[label = "tpdef (L16)"];
+node104[label = "NAME
+NAME ( parentname_ ) (L16)", shape = rectangle, color = red];
+node105[label = "DELIMITER
+: (L16)", shape = rectangle, color = red];
+node106[label = "str (L16)"];
+node107[label = "DELIMITER
+) (L16)", shape = rectangle, color = red];
+node108[label = "DELIMITER
+: (L16)", shape = rectangle, color = red];
+node109[label = "blocks (L18)"];
+node110[label = "OPERATOR
+= (L18)", shape = rectangle, color = green];
+node111[label = "type_declaration (L17)"];
+node112[label = "self. (L17)"];
+node113[label = "NAME
+NAME ( clrname ) (L17)", shape = rectangle, color = red];
+node114[label = "DELIMITER
+: (L17)", shape = rectangle, color = red];
+node115[label = "str (L17)"];
+node116[label = "NAME
+NAME ( myname_ ) (L17)", shape = rectangle, color = red];
+node117[label = "atom_expr (L19)"];
+node118[label = "NAME
+NAME ( ShiftReduceParser ) (L18)", shape = rectangle, color = red];
+node119[label = "trailer_plus (L18)"];
+node120[label = "trailer (L18)"];
+node121[label = "DELIMITER
+. (L18)", shape = rectangle, color = red];
+node122[label = "NAME
+NAME ( __init__ ) (L18)", shape = rectangle, color = red];
+node123[label = "trailer (L18)"];
+node124[label = "DELIMITER
+( (L18)", shape = rectangle, color = red];
+node125[label = "arglist (L18)"];
+node126[label = "NAME
+NAME ( self ) (L18)", shape = rectangle, color = red];
+node127[label = "DELIMITER
+, (L18)", shape = rectangle, color = red];
+node128[label = "NAME
+NAME ( parentname_ ) (L18)", shape = rectangle, color = red];
+node129[label = "DELIMITER
+) (L18)", shape = rectangle, color = red];
+node130[label = "classdef (L37)"];
+node131[label = "class_header (L21)"];
+node132[label = "KEYWORD
+class (L21)", shape = rectangle, color = blue];
+node133[label = "NAME
+NAME ( LALRParser ) (L21)", shape = rectangle, color = red];
+node134[label = "DELIMITER
+( (L21)", shape = rectangle, color = red];
+node135[label = "NAME
+NAME ( CLRParser ) (L21)", shape = rectangle, color = red];
+node136[label = "DELIMITER
+) (L21)", shape = rectangle, color = red];
+node137[label = "DELIMITER
+: (L21)", shape = rectangle, color = red];
+node138[label = "blocks (L27)"];
+node139[label = "funcdef (L27)"];
+node140[label = "func_header (L23)"];
+node141[label = "KEYWORD
+def (L23)", shape = rectangle, color = blue];
+node142[label = "NAME
+NAME ( __init__ ) (L23)", shape = rectangle, color = red];
+node143[label = "parameters (L23)"];
+node144[label = "DELIMITER
+( (L23)", shape = rectangle, color = red];
+node145[label = "typedarglist (L23)"];
+node146[label = "NAME
+NAME ( self ) (L23)", shape = rectangle, color = red];
+node147[label = "DELIMITER
+, (L23)", shape = rectangle, color = red];
+node148[label = "typedarglist (L23)"];
+node149[label = "tpdef (L23)"];
+node150[label = "NAME
+NAME ( myname_ ) (L23)", shape = rectangle, color = red];
+node151[label = "DELIMITER
+: (L23)", shape = rectangle, color = red];
+node152[label = "str (L23)"];
+node153[label = "DELIMITER
+, (L23)", shape = rectangle, color = red];
+node154[label = "typedarglist (L23)"];
+node155[label = "tpdef (L23)"];
+node156[label = "NAME
+NAME ( clrname_ ) (L23)", shape = rectangle, color = red];
+node157[label = "DELIMITER
+: (L23)", shape = rectangle, color = red];
+node158[label = "str (L23)"];
+node159[label = "DELIMITER
+, (L23)", shape = rectangle, color = red];
+node160[label = "tpdef (L23)"];
+node161[label = "NAME
+NAME ( srname_ ) (L23)", shape = rectangle, color = red];
+node162[label = "DELIMITER
+: (L23)", shape = rectangle, color = red];
+node163[label = "str (L23)"];
+node164[label = "DELIMITER
+) (L23)", shape = rectangle, color = red];
+node165[label = "DELIMITER
+: (L23)", shape = rectangle, color = red];
+node166[label = "blocks (L25)"];
+node167[label = "OPERATOR
+= (L25)", shape = rectangle, color = green];
+node168[label = "type_declaration (L24)"];
+node169[label = "self. (L24)"];
+node170[label = "NAME
+NAME ( lalrname ) (L24)", shape = rectangle, color = red];
+node171[label = "DELIMITER
+: (L24)", shape = rectangle, color = red];
+node172[label = "str (L24)"];
+node173[label = "NAME
+NAME ( myname_ ) (L24)", shape = rectangle, color = red];
+node174[label = "atom_expr (L26)"];
+node175[label = "NAME
+NAME ( CLRParser ) (L25)", shape = rectangle, color = red];
+node176[label = "trailer_plus (L25)"];
+node177[label = "trailer (L25)"];
+node178[label = "DELIMITER
+. (L25)", shape = rectangle, color = red];
+node179[label = "NAME
+NAME ( __init__ ) (L25)", shape = rectangle, color = red];
+node180[label = "trailer (L25)"];
+node181[label = "DELIMITER
+( (L25)", shape = rectangle, color = red];
+node182[label = "arglist (L25)"];
+node183[label = "NAME
+NAME ( self ) (L25)", shape = rectangle, color = red];
+node184[label = "DELIMITER
+, (L25)", shape = rectangle, color = red];
+node185[label = "arglist (L25)"];
+node186[label = "NAME
+NAME ( clrname_ ) (L25)", shape = rectangle, color = red];
+node187[label = "DELIMITER
+, (L25)", shape = rectangle, color = red];
+node188[label = "NAME
+NAME ( srname_ ) (L25)", shape = rectangle, color = red];
+node189[label = "DELIMITER
+) (L25)", shape = rectangle, color = red];
+node190[label = "funcdef (L36)"];
+node191[label = "func_header (L27)"];
+node192[label = "KEYWORD
+def (L27)", shape = rectangle, color = blue];
+node193[label = "NAME
+NAME ( print_name ) (L27)", shape = rectangle, color = red];
+node194[label = "parameters (L27)"];
+node195[label = "DELIMITER
+( (L27)", shape = rectangle, color = red];
+node196[label = "NAME
+NAME ( self ) (L27)", shape = rectangle, color = red];
+node197[label = "DELIMITER
+) (L27)", shape = rectangle, color = red];
+node198[label = "DELIMITER
+: (L27)", shape = rectangle, color = red];
+node199[label = "OPERATOR
+= (L29)", shape = rectangle, color = green];
+node200[label = "type_declaration (L28)"];
+node201[label = "NAME
+NAME ( a ) (L28)", shape = rectangle, color = red];
+node202[label = "DELIMITER
+: (L28)", shape = rectangle, color = red];
+node203[label = "int (L28)"];
+node204[label = "LITERAL
+INT 5 (L28)", shape = rectangle, color = red];
+node205[label = "funcdef (L42)"];
+node206[label = "func_header (L37)"];
+node207[label = "KEYWORD
+def (L37)", shape = rectangle, color = blue];
+node208[label = "NAME
+NAME ( main ) (L37)", shape = rectangle, color = red];
+node209[label = "parameters (L37)"];
+node210[label = "DELIMITER
+( (L37)", shape = rectangle, color = red];
+node211[label = "DELIMITER
+) (L37)", shape = rectangle, color = red];
+node212[label = "DELIMITER
+: (L37)", shape = rectangle, color = red];
+node213[label = "blocks (L39)"];
+node214[label = "OPERATOR
+= (L39)", shape = rectangle, color = green];
+node215[label = "type_declaration (L38)"];
+node216[label = "NAME
+NAME ( obj ) (L38)", shape = rectangle, color = red];
+node217[label = "DELIMITER
+: (L38)", shape = rectangle, color = red];
+node218[label = "NAME
+NAME ( LALRParser ) (L38)", shape = rectangle, color = red];
+node219[label = "atom_expr (L39)"];
+node220[label = "NAME
+NAME ( LALRParser ) (L38)", shape = rectangle, color = red];
+node221[label = "trailer (L38)"];
+node222[label = "DELIMITER
+( (L38)", shape = rectangle, color = red];
+node223[label = "arglist (L38)"];
+node224[label = "LITERAL
+STR 'LALR' (L38)", shape = rectangle, color = red];
+node225[label = "DELIMITER
+, (L38)", shape = rectangle, color = red];
+node226[label = "arglist (L38)"];
+node227[label = "LITERAL
+STR 'CLR' (L38)", shape = rectangle, color = red];
+node228[label = "DELIMITER
+, (L38)", shape = rectangle, color = red];
+node229[label = "LITERAL
+STR 'Shift-Reduce' (L38)", shape = rectangle, color = red];
+node230[label = "DELIMITER
+) (L38)", shape = rectangle, color = red];
+node231[label = "atom_expr (L40)"];
+node232[label = "NAME
+NAME ( obj ) (L39)", shape = rectangle, color = red];
+node233[label = "trailer_plus (L39)"];
+node234[label = "trailer (L39)"];
+node235[label = "DELIMITER
+. (L39)", shape = rectangle, color = red];
+node236[label = "NAME
+NAME ( print_name ) (L39)", shape = rectangle, color = red];
+node237[label = "trailer (L39)"];
+node238[label = "DELIMITER
+( (L39)", shape = rectangle, color = red];
+node239[label = "DELIMITER
+) (L39)", shape = rectangle, color = red];
+node240[label = "OPERATOR
+== (L44)", shape = rectangle, color = green];
+node241[label = "KEYWORD
+if (L44)", shape = rectangle, color = blue];
+node242[label = "__name__ (L44)"];
+node243[label = "__main__ (L44)"];
+node244[label = "DELIMITER
+: (L44)", shape = rectangle, color = red];
+node245[label = "atom_expr (L44)"];
+node246[label = "NAME
+NAME ( main ) (L43)", shape = rectangle, color = red];
+node247[label = "trailer (L43)"];
+node248[label = "DELIMITER
+( (L43)", shape = rectangle, color = red];
+node249[label = "DELIMITER
+) (L43)", shape = rectangle, color = red];
 
 node1 -> node2;
 node2 -> node3;
-node2 -> node4;
+node3 -> node4;
 node4 -> node5;
 node4 -> node6;
+node4 -> node7;
+node3 -> node8;
+node8 -> node9;
+node9 -> node10;
+node9 -> node11;
+node9 -> node12;
+node12 -> node13;
+node12 -> node14;
+node14 -> node15;
+node14 -> node16;
+node14 -> node17;
+node17 -> node18;
+node17 -> node19;
+node17 -> node20;
+node12 -> node21;
+node9 -> node22;
+node8 -> node23;
+node23 -> node24;
+node24 -> node25;
+node24 -> node26;
+node24 -> node27;
+node24 -> node28;
+node23 -> node29;
+node2 -> node30;
+node30 -> node31;
+node31 -> node32;
+node31 -> node33;
+node31 -> node34;
+node31 -> node35;
+node31 -> node36;
+node31 -> node37;
+node30 -> node38;
+node38 -> node39;
+node39 -> node40;
+node39 -> node41;
+node39 -> node42;
+node42 -> node43;
+node42 -> node44;
+node44 -> node45;
+node44 -> node46;
+node44 -> node47;
+node47 -> node48;
+node48 -> node49;
+node48 -> node50;
+node48 -> node51;
+node47 -> node52;
+node47 -> node53;
+node53 -> node54;
+node53 -> node55;
+node53 -> node56;
+node42 -> node57;
+node39 -> node58;
+node38 -> node59;
+node59 -> node60;
+node60 -> node61;
+node61 -> node62;
+node61 -> node63;
+node61 -> node64;
+node61 -> node65;
+node60 -> node66;
+node59 -> node67;
+node67 -> node68;
+node67 -> node69;
+node69 -> node70;
+node70 -> node71;
+node70 -> node72;
+node69 -> node73;
+node73 -> node74;
+node73 -> node75;
+node75 -> node76;
+node75 -> node77;
+node75 -> node78;
+node73 -> node79;
+node2 -> node80;
+node80 -> node81;
+node81 -> node82;
+node81 -> node83;
+node81 -> node84;
+node81 -> node85;
+node81 -> node86;
+node81 -> node87;
+node80 -> node88;
+node88 -> node89;
+node89 -> node90;
+node89 -> node91;
+node89 -> node92;
+node92 -> node93;
+node92 -> node94;
+node94 -> node95;
+node94 -> node96;
+node94 -> node97;
+node97 -> node98;
+node98 -> node99;
+node98 -> node100;
+node98 -> node101;
+node97 -> node102;
+node97 -> node103;
+node103 -> node104;
+node103 -> node105;
+node103 -> node106;
+node92 -> node107;
+node89 -> node108;
+node88 -> node109;
+node109 -> node110;
+node110 -> node111;
+node111 -> node112;
+node111 -> node113;
+node111 -> node114;
+node111 -> node115;
+node110 -> node116;
+node109 -> node117;
+node117 -> node118;
+node117 -> node119;
+node119 -> node120;
+node120 -> node121;
+node120 -> node122;
+node119 -> node123;
+node123 -> node124;
+node123 -> node125;
+node125 -> node126;
+node125 -> node127;
+node125 -> node128;
+node123 -> node129;
+node2 -> node130;
+node130 -> node131;
+node131 -> node132;
+node131 -> node133;
+node131 -> node134;
+node131 -> node135;
+node131 -> node136;
+node131 -> node137;
+node130 -> node138;
+node138 -> node139;
+node139 -> node140;
+node140 -> node141;
+node140 -> node142;
+node140 -> node143;
+node143 -> node144;
+node143 -> node145;
+node145 -> node146;
+node145 -> node147;
+node145 -> node148;
+node148 -> node149;
+node149 -> node150;
+node149 -> node151;
+node149 -> node152;
+node148 -> node153;
+node148 -> node154;
+node154 -> node155;
+node155 -> node156;
+node155 -> node157;
+node155 -> node158;
+node154 -> node159;
+node154 -> node160;
+node160 -> node161;
+node160 -> node162;
+node160 -> node163;
+node143 -> node164;
+node140 -> node165;
+node139 -> node166;
+node166 -> node167;
+node167 -> node168;
+node168 -> node169;
+node168 -> node170;
+node168 -> node171;
+node168 -> node172;
+node167 -> node173;
+node166 -> node174;
+node174 -> node175;
+node174 -> node176;
+node176 -> node177;
+node177 -> node178;
+node177 -> node179;
+node176 -> node180;
+node180 -> node181;
+node180 -> node182;
+node182 -> node183;
+node182 -> node184;
+node182 -> node185;
+node185 -> node186;
+node185 -> node187;
+node185 -> node188;
+node180 -> node189;
+node138 -> node190;
+node190 -> node191;
+node191 -> node192;
+node191 -> node193;
+node191 -> node194;
+node194 -> node195;
+node194 -> node196;
+node194 -> node197;
+node191 -> node198;
+node190 -> node199;
+node199 -> node200;
+node200 -> node201;
+node200 -> node202;
+node200 -> node203;
+node199 -> node204;
+node2 -> node205;
+node205 -> node206;
+node206 -> node207;
+node206 -> node208;
+node206 -> node209;
+node209 -> node210;
+node209 -> node211;
+node206 -> node212;
+node205 -> node213;
+node213 -> node214;
+node214 -> node215;
+node215 -> node216;
+node215 -> node217;
+node215 -> node218;
+node214 -> node219;
+node219 -> node220;
+node219 -> node221;
+node221 -> node222;
+node221 -> node223;
+node223 -> node224;
+node223 -> node225;
+node223 -> node226;
+node226 -> node227;
+node226 -> node228;
+node226 -> node229;
+node221 -> node230;
+node213 -> node231;
+node231 -> node232;
+node231 -> node233;
+node233 -> node234;
+node234 -> node235;
+node234 -> node236;
+node233 -> node237;
+node237 -> node238;
+node237 -> node239;
+node2 -> node240;
+node240 -> node241;
+node240 -> node242;
+node240 -> node243;
+node240 -> node244;
+node240 -> node245;
+node245 -> node246;
+node245 -> node247;
+node247 -> node248;
+node247 -> node249;
 }

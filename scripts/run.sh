@@ -15,6 +15,7 @@ fi
 output_file="${output_file%.dot}"
 
 cd ../src
+rm *.csv
 bison -d parser.y
 flex lexer.l
 g++ lex.yy.c symbtab.cpp threeac.cpp node.cpp parser.tab.c parser.tab.h -o parser

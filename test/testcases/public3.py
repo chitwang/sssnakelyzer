@@ -25,12 +25,13 @@ class LALRParser(CLRParser):
     CLRParser.__init__(self, clrname_, srname_)
 
   def print_name(self):
-    print('SLR name:')
-    print(self.srname)
-    print('CLR name:')
-    print(self.clrname)
-    print('LALR name:')
-    print(self.lalrname)
+    a: int = 5
+    # print('SLR name:')
+    # print(self.srname)
+    # print('CLR name:')
+    # print(self.clrname)
+    # print('LALR name:')
+    # print(self.lalrname)
 
 
 def main():

@@ -10,9 +10,15 @@ Extra:
     try..except..finally
     multi dimensional list
 
-doubt in semantics: 
+Doubt in semantics: 
     default arguments
     else with while and for ?
     used datatype for test
     error checking in params
     tupe_checked
+    self
+    global ka offset
+    can 2 be treated as true 
+    check name used in form of classes and functions also 
+    trailer plus : how much to do 
+    add global functions for range, len and print
