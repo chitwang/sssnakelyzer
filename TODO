@@ -22,3 +22,8 @@ Doubt in semantics:
     check name used in form of classes and functions also 
     trailer plus : how much to do 
     add global functions for range, len and print
+    static polymorphism ?
+    self.add() and add()
+    i:float = 2, list[i] allowed ?
+    typecasting of list ?
+    support is ?

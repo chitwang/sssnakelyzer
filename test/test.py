@@ -1,62 +1,117 @@
-# a: int = -1 + 2 + 3 + 4
-# a: int = 1 - 2 - 3 - 4
+# # a: int = -1 + 2 + 3 + 4
+# # a: int = 1 - 2 - 3 - 4
 
-# a = 1*2*3
-# b = """ajbaisbd asf
-# sd fas as
-# df 
-# asdf 
-# asd
-#  fasd
-#   fa
-#   sdf 
-#   asdf 
-#   asbfd
+# # a = 1*2*3
+# # b = """ajbaisbd asf
+# # sd fas as
+# # df 
+# # asdf 
+# # asd
+# #  fasd
+# #   fa
+# #   sdf 
+# #   asdf 
+# #   asbfd
   
   
-#   asdf asdf asdf 
+# #   asdf asdf asdf 
   
-#    asdf """
+# #    asdf """
 
-# print(b)
+# # print(b)
 
-# a = 4 if true else 5
-# if a == 4:
-#     d: int = 14
+# # a = 4 if true else 5
+# # if a == 4:
+# #     d: int = 14
  
-# class main():
-#     d += 12
+# # class main():
+# #     d += 12
 
-# y: int = 5|6|7 * 9 << 1 + 0 
-# z: float = 1 << 2 << 3 >> 3 >> 2
-# x = 2^5*4+4-3**43&1>>3<<1
+# # y: int = 5|6|7 * 9 << 1 + 0 
+# # z: float = 1 << 2 << 3 >> 3 >> 2
+# # x = 2^5*4+4-3**43&1>>3<<1
 
-# print(x)
+# # print(x)
     
-# a = """str'ing"""
-# a = '''str"iong'''
-# a = 'str'ing'
-# a = "str"ing"
-# print(a)
-def pow(base, exponent=2):
-    return base ** exponent
+# # a = """str'ing"""
+# # a = '''str"iong'''
+# # a = 'str'ing'
+# # a = "str"ing"
+# # print(a)
+# def pow(base: int, exponent: int) -> int:
+#     return base ** exponent
+
+# def print():
+#     return
+# # pow(exponent=3, base=2)
 
 # class A:
-#     pass
+#     def __init__(self, x: int):
+#         self.x: int = x
 
-# def add():
-#     a: A = A()
-#     return a
-i = 100
-while i < 10:
-    i += 1
-    print(i)
-else:
-    i = 100
+# class B:
+#     def __init__(self, obj: A):
+#         self.obj: A = obj
+#     def add() -> int:
+#         return 1 + 3
 
-print(i)
+# def add(a:int) -> int:
+#     return 2 // a
 
-for i in range(5):
-    x=2
+# def sub(a:int, b:int, c:int, d:int) -> bool:
+#     return True
 
-print(x)
+# class C(B):
+#     def __init__(self, cobj: B):
+#         self.cobj: B = cobj
+#         print() 
+#         # self.add()
+#         add()
+#         sub()
+
+# def func():
+#     print(1)
+        
+# a: A = A(4)
+# b: B = B(a)
+# c: C = C(b)
+
+# # print(b.obj.x)
+# print()
+# # print(ff)
+# # print(c.cobj.obj.x)
+# # print(cobj)
+# # i = 100
+# # while i < 10:
+# #     i += 1
+# #     print(i)
+# # else:
+# #     i = 100
+
+# # # print(i)
+
+# # for i in range(5):
+# #     x=2
+
+# # print(x)
+
+
+b = 0.0
+c: float = 1.0
+a: int = 2
+if b:
+    print("f")
+elif c:
+    print("g")
+
+if "":
+    print("HI")
+
+if "asdf":
+    print("HELLO")
+
+if a > c:
+    print("YES")
+
+if True > False:
+    print(2)

@@ -12,13 +12,15 @@ public:
     string name = "";                   // stores the lexeme if terminal or the name of the non terminal otherwise
     bool terminal = false;
     bool exp_applicable = false;
+    bool is_self = false;
     string type = "";                   // To be used only if node is a terminal, empty otherwise. stores the token
     int node_number = 0;                // For disambiguity in AST code
     node* parent = NULL;
+    vector <string> type_list = {};           // Used for typechecking
     string datatype = "UNDEFINED";      // Used for typechecking
     string typecast_to = "UNNEEDED";    // If the node needs to be type-casted,
     int line_no = 0;                    // Stores where the node body **ENDS**, i.e., where the production rule is completed
-    vector<quad> ta_codes;
+    vector <quad> ta_codes;
     bool type_checked = false;          // Tracks if type_checked is called or not
 
     long long int exp_int_val = 0;
@@ -28,11 +30,11 @@ public:
 
     symbol_table* sym_tab;              // symbol table to which the node belongs
     st_entry* sym_tab_entry;
-    vector<st_entry* > entry_list;
+    vector <st_entry *> entry_list;
 
-    vector< node* > children;
+    vector <node *> children;
 
-    node(string name = "", bool terminal = false, string type = "", node* parent = NULL);
+    node(string name = "", bool terminal = false, string type = "", node *parent = NULL);
 
     void add_child(node* child);                                // add child
 

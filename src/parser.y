@@ -183,13 +183,143 @@ void make_new_func_symbtab(string func_name, vector<st_entry *> &params, string 
     current_table = temp_table;
 }
 
-void check_decl_before_use(string name) {
+// void check_
+symbol_table_func *check_if_function(string name, bool is_self_attr) {
+    symbol_table_func *st_func = NULL;
+    if(current_table -> symbol_table_category == 'M') {
+        if(current_table -> parent_st -> symbol_table_category == 'G') {
+            st_func = global_table -> look_up_func(name);
+        }
+        else if(current_table -> parent_st -> symbol_table_category == 'C') {
+            if(is_self_attr) {
+                st_func = ((symbol_table_class *)(current_table -> parent_st)) -> look_up_function_in_class_hierarchy(name);
+            }
+            else  {
+                st_func = global_table -> look_up_func(name);
+            }
+        }
+    }
+    else if(current_table -> symbol_table_category == 'G') {
+        st_func = global_table -> look_up_func(name);
+    }
+    else if(current_table -> symbol_table_category == 'C') {
+        if(is_self_attr) {
+            st_func = ((symbol_table_class *)(current_table -> parent_st)) -> look_up_function_in_class_hierarchy(name);
+        }
+        else {
+            st_func = global_table -> look_up_func(name);
+        }
+    }
+    return st_func;
+}
+
+symbol_table_class* check_if_class(string name){
+    symbol_table_class *st_class = NULL;
+    st_class = global_table -> look_up_class(name);
+    return st_class;
+}
+
+string check_decl_before_use(string name) {
     st_entry *existing_entry = current_table->look_up(name);
     if(!existing_entry) {
-        cout << "Variable " << name << " at line " << yylineno << " not declared\n";
+        symbol_table_func *st_func = check_if_function(name, 0);
+        if(!st_func) {
+            symbol_table_class *st_class = check_if_class(name);
+            if(!st_class) {
+                cout << "Identifier " << name << " at line " << yylineno << " was not declared\n";
+                exit(1);
+            }
+            else {
+                return "0" + name;
+            }
+        }
+        else {
+            // cout << name << endl;
+            return "1" + name;
+        }
+    }
+    else {
+        // cout << "existing entry at line " << yylineno << endl;
+        return existing_entry->type;
+    }
+}
+
+string check_attribute_in_class(string name) {
+    st_entry* existing_entry = ((symbol_table_class*)current_table)->look_up_attribute_in_class_hierarchy(name);
+    if(!existing_entry) {
+        cout << "Attribute " << name << " at line " << yylineno << " was not declared\n";
+        exit(1);
+    }
+    else {
+        return existing_entry->type;
+    }
+}
+
+string set_trailer_type_compatibility(string typeLeft, string typeRight, string attribute_name = "", vector<string> actual_params = {}) {
+    if(typeRight == "list_subs") {
+        if(typeLeft.length() >= 4 && typeLeft.substr(0, 4) == "list") 
+            return typeLeft.substr(6, typeLeft.length() - 8);
+        else {
+            cout << "Item on line " << yylineno << " of type " << typeLeft << " is not subscriptable\n";
+            exit(1);
+        }
+    }
+    if(typeRight == "objattribute") {
+        if(typeLeft[0] != '0') {
+            cout << "Object error \n";
+            exit(1);
+        } 
+        string class_name = typeLeft.substr(1);
+        symbol_table_class *if_class = global_table -> look_up_class(class_name);
+        if(!if_class) {
+            cout << "Object error \n";
+            exit(1);
+        }
+        st_entry *is_attr = if_class -> look_up(attribute_name);
+        if(!is_attr || is_attr -> table -> symbol_table_category != 'C') {
+            symbol_table_func *is_class_func = if_class -> look_up_function_in_class_hierarchy(attribute_name);
+            if(!is_class_func) {
+                cout << attribute_name << " on line " << yylineno << " is not an attribute of " << class_name << endl;
+                exit(1);
+            }
+            else return "1" + is_class_func -> name;
+        }
+        return is_attr -> type;
+    }
+    if(typeRight == "functrailer") {
+        string func_name = typeLeft.substr(1);
+        if(typeLeft[0] != '1') {
+            cout << func_name << " at line " << yylineno << " is not a function\n";
+            exit(1);
+        }
+        symbol_table_func *is_func = check_if_function(func_name, false);
+        cout << "debug stmt at line 285 " << is_func->name << is_func->params.size() << endl;
+        if(actual_params.size() != (is_func -> params).size()) {
+            cout << "Invalid params for function " << func_name << " at line " << yylineno << endl;
+            exit(1);
+        }
+        for(int i=0;i<actual_params.size();i++) {
+            if(actual_params[i] != is_func -> params[i]-> type) {
+                cout << "invalid parameter for func " << is_func -> name << " line no \n";
+                exit(1);
+            }
+        }
+        return is_func -> return_type;
+    }
+    return "UNDEFINED";
+}
+
+void check_bool_compatibility(string type1, string type2 = "bool") {
+    if(type1 != "int" && type1 != "float" && type1 != "bool"  && type1 != "str") {
+        cout << "Invalid type " << type1 << " at line " << yylineno << endl;
+        exit(1);
+    }
+    if(type2 != "int" && type2 != "float" && type2 != "bool"  && type2 != "str") {
+        cout << "Invalid type " << type1 << " at line " << yylineno << endl;
         exit(1);
     }
 }
+
 
 extern int yylex(void);
 void yyerror(const char*);
@@ -203,9 +333,9 @@ void yyerror(const char*);
     int intval;
 }
 
-%token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK KEY_IN KEY_TRUE KEY_CLASS  KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_DEF KEY_WHILE KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER IMAGINARY_NUMBER INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST SELF_DOT
+%token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK KEY_IN KEY_TRUE KEY_CLASS  KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_DEF KEY_WHILE KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_AT OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_LEFT_CURLY DELIM_RIGHT_CURLY DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER  INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST SELF_DOT
 
-%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt semicolon_stmt break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom trailer_plus trailer argument named_star_plus number arglist types newline_plus file_input file_plus program_start string_plus augassign type_list type_declaration func_header class_header type_or_name
+%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt semicolon_stmt break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom argument named_star_plus number arglist types newline_plus file_input file_plus program_start string_plus augassign type_list type_declaration func_header class_header type_or_name trailored_atom
 
 %start start_symbol
 
@@ -258,37 +388,18 @@ parameters: DELIM_LEFT_PAREN typedarglist DELIM_RIGHT_PAREN {
     node_count += 3;
 }
 
-typedarglist: tfpdef DELIM_COMMA {
-    node_attr = {",", "typedarglist"};
-    node_numbers = {$1, node_count};
-    insert_node();
-    $$ = node_count + 1;
-    node_count += 2;
+typedarglist: tfpdef DELIM_COMMA { node_attr = {",", "typedarglist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1;  node_count += 2;
     all_nodes[$$]->entry_list = all_nodes[$1]->entry_list;
 }
-| tfpdef {
-    node_attr = {"typedarglist"};
-    node_numbers = {$1};
-    insert_node();
-    $$ = node_count;
-    node_count += 1;
+| tfpdef { node_attr = {"typedarglist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->entry_list = all_nodes[$1]->entry_list;
 }
-| tfpdef DELIM_COMMA typedarglist {
-    node_attr = {",", "typedarglist"};
-    node_numbers = {$1, node_count, $3};
-    insert_node();
-    $$ = node_count + 1; 
-    node_count += 2;
+| tfpdef DELIM_COMMA typedarglist { node_attr = {",", "typedarglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->entry_list = all_nodes[$1]->entry_list; 
     all_nodes[$$]->entry_list.insert(all_nodes[$$]->entry_list.end(), all_nodes[$3]->entry_list.begin(), all_nodes[$3]->entry_list.end());
 }
 
-tfpdef: NAME DELIM_COLON type_or_name {
-    node_attr = {string("NAME ( ") + strdup($1) + " )", ":", "tpdef"};
-    node_numbers = {node_count, node_count + 1, $3};
-    insert_node();
-    $$ = node_count + 2;
+tfpdef: NAME DELIM_COLON type_or_name { node_attr = {string("NAME ( ") + strdup($1) + " )", ":", "tpdef"}; node_numbers = {node_count, node_count + 1, $3}; insert_node(); $$ = node_count + 2;
     st_entry *new_entry = new st_entry(strdup($1), yylineno, yylineno, all_nodes[$3]->datatype);
     all_nodes[$$]->entry_list = {new_entry};
     all_nodes[node_count]->datatype = all_nodes[$3]->datatype;
@@ -339,7 +450,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     $$ = node_count + 2;
     st_entry *entry = current_table -> look_up_local(strdup($1));
     if(entry) {
-        cout << strdup($1) << " already declared at " << entry->line_no << endl;
+        cout << strdup($1) << " already declared at line" << entry->line_no << endl;
         exit(1);
     }
     st_entry *new_entry = new st_entry(strdup($1), yylineno, yylineno, all_nodes[$3]->datatype);
@@ -363,7 +474,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     $$ = node_count + 3;
     st_entry *entry = current_table -> parent_st -> look_up_local(strdup($2));
     if(entry) {
-        cout << strdup($2) << " attribute already declared at " << entry->line_no << endl;
+        cout << strdup($2) << " attribute already declared at line " << entry->line_no << endl;
         exit(1);
     }
     st_entry *new_entry = new st_entry(strdup($2), yylineno, yylineno, all_nodes[$4]->datatype);
@@ -440,19 +551,43 @@ suite: single_stmt {node_attr = {"suite"}; node_numbers = {$1}; insert_node(); $
 namedexpr_test: test {node_attr = {"namedexpr_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
               | test DELIM_ASSIGN test {node_attr = {"=", "namedexpr_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
     
-test: or_test {node_attr = {"test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+test: or_test {node_attr = {"test"}; node_numbers = {$1}; insert_node(); $$ = node_count;
+    node_count += 1;
+    all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+}
 
-or_test: and_test {node_attr = {"or_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-       | and_test KEY_OR or_test {node_attr = {"or", "or_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+or_test: and_test {node_attr = {"or_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; 
+    node_count += 1;
+    all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+}
+| and_test KEY_OR or_test {node_attr = {"or", "or_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; 
+    node_count += 2;
+    check_bool_compatibility(all_nodes[$1]->datatype);
+    check_bool_compatibility(all_nodes[$3]->datatype);
+    all_nodes[$$]->datatype = "bool";
+}
 
-and_test: not_test {node_attr = {"and_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | not_test KEY_AND and_test {node_attr = {"and", "and_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+and_test: not_test {node_attr = {"and_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1; all_nodes[$$] -> datatype = all_nodes[$1]->datatype;}
+| not_test KEY_AND and_test {node_attr = {"and", "and_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    check_bool_compatibility(all_nodes[$1]->datatype);
+    check_bool_compatibility(all_nodes[$3]->datatype);
+    all_nodes[$$]->datatype = "bool";
+}
 
-not_test: KEY_NOT not_test {node_attr = {"not", "not_test"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        | comparison {node_attr = {"not_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+not_test: KEY_NOT not_test {node_attr = {"not", "not_test"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
+    check_bool_compatibility(all_nodes[$2]->datatype);
+    all_nodes[$$]->datatype = all_nodes[$2]->datatype;
+}
+| comparison {node_attr = {"not_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+}
         
-comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-          | expr comp_op comparison {node_attr = {"comparison"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count + 0; node_count += 1;}
+comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
+}
+| expr comp_op comparison {node_attr = {"comparison"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count + 0; node_count += 1; 
+    
+}
 
 comp_op: OP_LESS_THAN {node_attr = {"<", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
        | OP_GREATER_THAN {node_attr = {">", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -497,8 +632,54 @@ factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node
 power: atom_expr {node_attr = {"power"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
      | atom_expr OP_POWER factor {node_attr = {"**", "power"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
     
-atom_expr: atom {node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-         | atom trailer_plus {node_attr = {"atom_expr"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count; node_count += 1;}
+atom_expr: atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+}
+| trailored_atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+}
+
+trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailer"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2; 
+    node_count += 3;
+    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
+}
+| atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailer"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2; 
+    node_count += 3;
+    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$1]->datatype, "functrailer");
+}
+| atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailer"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    if(all_nodes[$3]->datatype != "int") {
+        cout << "Index at line " << yylineno << " should be an integer\n";
+        exit(1);
+    }
+    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$1]->datatype, "list_subs");
+}
+| atom DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailer"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$1]->datatype, "objattribute", strdup($3));
+}
+| trailored_atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
+}
+| trailored_atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count+1}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+        all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$1]->datatype, "functrailer");
+
+}
+| trailored_atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    if(all_nodes[$3]->datatype != "int") {
+        cout << "Index at line " << yylineno << " should be an integer\n";
+        exit(1);
+    }
+    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$1]->datatype, "list_subs");
+}
+| trailored_atom DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailored_atom"}; node_numbers = {$1 ,node_count, node_count + 1}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$1]->datatype, "objattribute", strdup($3));
+}
 
 string_plus: string_plus STRING_LITERAL {node_attr = {string("STR ") + strdup($2), "string_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
            | STRING_LITERAL {node_attr = {string("STR ") + strdup($1), "string_plus"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -508,15 +689,24 @@ atom: DELIM_LEFT_PAREN named_star_plus DELIM_RIGHT_PAREN {node_attr = {"(", ")",
     | DELIM_LEFT_BRACKET named_star_plus DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
     | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; check_decl_before_use(strdup($1)); all_nodes[$$]->datatype = all_nodes[node_count]->datatype; node_count += 2;}
-    | number {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1; all_nodes[$$]->datatype = all_nodes[$1]->datatype;}
+| NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; 
+    all_nodes[$$]->datatype = check_decl_before_use(strdup($1));
+    node_count += 2;
+}
+| number {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+}
     | string_plus {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
     | DELIM_ELLIPSIS {node_attr = {"...", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-    | KEY_NONE {node_attr = {"None", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;all_nodes[$$]->datatype = "None";}
+| KEY_NONE {node_attr = {"None", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$]->datatype = "None";
+}
     | KEY_TRUE {node_attr = {string("BOL ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2; all_nodes[$$]->datatype = "bool";}
     | KEY_FALSE {node_attr = {string("BOL ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;all_nodes[$$]->datatype = "bool";}
     | types {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1; all_nodes[$$]->datatype = all_nodes[$1]->datatype;}
-    | SELF_DOT NAME {node_attr = {"self.", string("NAME ( ") + strdup($2) + " )", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+| SELF_DOT NAME {node_attr = {"self.", string("NAME ( ") + strdup($2) + " )", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;
+    all_nodes[$$]->is_self = true;
+}
 
 number: INTEGER {
     node_attr = {string("INT ") + strdup($1), "number"};
@@ -534,26 +724,10 @@ number: INTEGER {
     all_nodes[$$]->datatype = "float";
     node_count += 2;
 }
-/* | IMAGINARY_NUMBER {
-    node_attr = {string("IMG ") + strdup($1), "number"};
-    node_numbers = {node_count};
-    insert_node();
-    $$ = node_count + 1;
-    all_nodes[$$]->datatype = "float";
-    node_count += 2;
-} */
 
 named_star_plus: namedexpr_test {node_attr = {"named_star_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
                | namedexpr_test DELIM_COMMA {node_attr = {",", "named_star_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
                | namedexpr_test DELIM_COMMA named_star_plus {node_attr = {",", "named_star_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-
-trailer: DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailer"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailer"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailer"}; node_numbers = {node_count, $2, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailer"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-
-trailer_plus: trailer_plus trailer {node_attr = {"trailer_plus"}; node_numbers = {$1, $2}; insert_node(); $$ = node_count + 0; node_count += 1;}
-            | trailer {node_attr = {"trailer_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
 
 exprlist: expr {node_attr = {"exprlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
         | expr DELIM_COMMA exprlist {node_attr = {",", "exprlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -603,14 +777,21 @@ class_header: KEY_CLASS NAME DELIM_LEFT_PAREN NAME DELIM_RIGHT_PAREN DELIM_COLON
     make_new_class_symbtab(strdup($2));
 }
 
-arglist: argument {node_attr = {"arglist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1; }
-       | argument DELIM_COMMA arglist {node_attr = {",", "arglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2; }
-       | argument DELIM_COMMA {node_attr = {",", "arglist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2; }
+arglist: argument {node_attr = {"arglist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1; 
+    all_nodes[$$]->type_list.push_back(all_nodes[$1]->datatype);
+}
+| argument DELIM_COMMA arglist {node_attr = {",", "arglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$]->type_list = {all_nodes[$1]->datatype};
+    all_nodes[$$]->type_list.insert(all_nodes[$$]->type_list.end(), all_nodes[$3]->type_list.begin(), all_nodes[$3]->type_list.end());
+}
+| argument DELIM_COMMA {node_attr = {",", "arglist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$]->type_list.push_back(all_nodes[$1]->datatype);
+}
 
-argument: test {node_attr = {"argument"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+argument: test {node_attr = {"argument"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$]->datatype = all_nodes[$1] -> datatype;
+}
         | test DELIM_ASSIGN test {node_attr = {"=", "argument"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        /* | OP_POWER test {node_attr = {"**", "argument"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        | OP_MULTIPLY test  {node_attr = {"*", "argument"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;} */
 
 func_body_suite: single_stmt {node_attr = {"func_body_suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
                |  newline_plus INDENT stmt_plus DEDENT {node_attr = {"func_body_suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}

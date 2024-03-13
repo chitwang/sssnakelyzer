@@ -43,8 +43,6 @@ EXPONENT                        ("e"|"E")["+"|"-"]?{DIGIT_PART}
 EXPONENT_FLOAT                  ({DIGIT_PART}|{POINT_FLOAT}){EXPONENT}
 FLOAT_NUMBER                    {POINT_FLOAT}|{EXPONENT_FLOAT}
 
-IMAGINARY_NUMBER                ({FLOAT_NUMBER}|{DIGIT_PART})("J"|"j")
-
 NEWLINE                         "\n"|"\r"|"\r\n"
 
 STRING_ESCAPE_SEQ               \\(?:'|\"|a|b|f|n|r|t|v)
@@ -210,11 +208,6 @@ COMMENT                         [\t ]*#[^\n]*
 {FLOAT_NUMBER} {
     yylval.strval = strdup(yytext);
     return FLOAT_NUMBER;
-}
-
-{IMAGINARY_NUMBER} {
-    yylval.strval = strdup(yytext);
-    return IMAGINARY_NUMBER;
 }
 
 "False" {

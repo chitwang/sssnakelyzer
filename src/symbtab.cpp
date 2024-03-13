@@ -117,7 +117,7 @@ st_entry* symbol_table::look_up(string name) {
     if(this -> symbol_table_category == 'C' && ((symbol_table_class *)this) -> parent_class) {
         st = ((symbol_table_class *)this)->parent_class->look_up(name);
     }
-    if(this->parent_st) {
+    if(!st && this->parent_st) {
         st = this->parent_st->look_up(name);
     }
     return st;
@@ -207,7 +207,35 @@ symbol_table_func* symbol_table_class::look_up_function(string &name) {
             return member_funcs[idx];
         }
     }
+    // if(this -> parent_class) {
+    //     return this -> parent_class -> look_up_function(name);
+    // }
     return NULL;
+}
+
+symbol_table_func* symbol_table_class::look_up_function_in_class_hierarchy(string &name) {
+    for(int idx = 0; idx < this -> member_funcs.size(); idx++) {
+        if(name == member_funcs[idx] -> name) {
+            return member_funcs[idx];
+        }
+    }
+    if(this -> parent_class) {
+        return this -> parent_class -> look_up_function_in_class_hierarchy(name);
+    }
+    return NULL;
+}
+
+st_entry* symbol_table_class::look_up_attribute_in_class_hierarchy(string &name) {
+    for(int idx = 0; idx < this -> entries.size(); idx++) {
+        if(name == entries[idx] -> name) {
+            return entries[idx];
+        }
+    }
+    if(this -> parent_class) {
+        return this -> parent_class -> look_up_attribute_in_class_hierarchy(name);
+    }
+    return NULL;
+    
 }
 
 symbol_table_global::symbol_table_global() {
@@ -229,8 +257,8 @@ void symbol_table_global::add_entry(symbol_table_class* new_cls) {
 
     st_entry *tmp = new st_entry(new_cls -> name, new_cls -> scope_start_line_no, 0, new_cls -> name);
     tmp -> initialized = true;
-    this -> entries . push_back(tmp);  // populate here as well for other lookups
-    this -> classes . push_back(new_cls);
+    // this -> entries.push_back(tmp);  // populate here as well for other lookups
+    this -> classes.push_back(new_cls);
 }
 
 void symbol_table_global::add_entry(symbol_table_func* new_func) {
@@ -243,7 +271,7 @@ void symbol_table_global::add_entry(symbol_table_func* new_func) {
 
     st_entry *tmp = new st_entry(new_func -> name, new_func -> scope_start_line_no, 0, new_func -> name);
     tmp -> initialized = true;
-    this -> entries.push_back(tmp);  // populate here as well for other lookups
+    // this -> entries.push_back(tmp);  // populate here as well for other lookups
     this -> functions.push_back(new_func);
 }
 

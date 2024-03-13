@@ -29,10 +29,10 @@ public:
 
 class symbol_table {
 public:
-    vector<st_entry*> entries;
+    vector <st_entry *> entries;
     string scope, name;
     symbol_table* parent_st = NULL;
-    vector<symbol_table*> children_st;
+    vector <symbol_table *> children_st;
     int sub_scopes = 0;
     int scope_start_line_no = 0;
     char symbol_table_category = 'O';     // GLOBAL : G || CLASS : C || METHOD : M || BLOCK : B || OTHER : O
@@ -51,7 +51,7 @@ class symbol_table_func : public symbol_table {
 public:
     // Additionally stores the types of parameters expected in the function
     // Along with other entries in a typical symbol table
-    vector<st_entry* > params;
+    vector <st_entry *> params;
     string return_type;
     symbol_table_func(string func_name, vector<st_entry* > (&params), string return_type);
     void add_entry(st_entry* new_entry);
@@ -64,12 +64,14 @@ public:
 class symbol_table_class : public symbol_table {
 public:
     // Stores member variables and a list of Function-Symbol tables for member functions 
-    vector<symbol_table_func* > member_funcs;
+    vector <symbol_table_func *> member_funcs;
     symbol_table_class* parent_class = NULL;
     int object_size = 0;
     symbol_table_class(string class_name);
     void add_func(symbol_table_func* func);
     symbol_table_func* look_up_function(string &name);
+    symbol_table_func* look_up_function_in_class_hierarchy(string &name);
+    st_entry* look_up_attribute_in_class_hierarchy(string &name);
     void make_csv(string filename);
     // bool modifier_bv[10] = {0};
     // void update_modifiers(vector<st_entry*> modifiers);
@@ -78,8 +80,8 @@ public:
 class symbol_table_global : public symbol_table {
 public:
     // Stores classes 
-    vector<symbol_table_class* > classes;
-    vector<symbol_table_func* > functions;
+    vector <symbol_table_class *> classes;
+    vector <symbol_table_func *> functions;
     symbol_table_global();
     void add_entry(symbol_table_class* new_cls);
     void add_entry(symbol_table_func* new_func);
