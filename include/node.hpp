@@ -13,6 +13,8 @@ public:
     bool terminal = false;
     bool exp_applicable = false;
     bool is_self = false;
+    bool is_func = false;
+    bool is_class = false;
     string type = "";                   // To be used only if node is a terminal, empty otherwise. stores the token
     int node_number = 0;                // For disambiguity in AST code
     node* parent = NULL;

@@ -238,6 +238,8 @@ st_entry* symbol_table_class::look_up_attribute_in_class_hierarchy(string &name)
     return NULL;
 }
 
+
+
 symbol_table_global::symbol_table_global() {
     this -> name = "__GlobalSymbolTable__";
     this -> scope = "";

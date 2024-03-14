@@ -2,7 +2,6 @@
 #define THREEAC_HPP
 
 #include <bits/stdc++.h>
-
 using namespace std;
 
 class quad{

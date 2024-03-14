@@ -347,11 +347,6 @@ COMMENT                         [\t ]*#[^\n]*
     return OP_MODULO;
 }
 
-"@" {
-    yylval.strval = strdup(yytext);
-    return OP_AT;
-}
-
 "<<" {
     yylval.strval = strdup(yytext);
     return OP_LEFT_SHIFT;
@@ -435,18 +430,6 @@ COMMENT                         [\t ]*#[^\n]*
     if(!implicit_line_join.empty()) implicit_line_join.pop();
     yylval.strval = strdup(yytext);
     return DELIM_RIGHT_BRACKET;
-}
-
-"{" {
-    implicit_line_join.push('{');
-    yylval.strval = strdup(yytext);
-    return DELIM_LEFT_CURLY;
-}
-
-"}" {
-    if(!implicit_line_join.empty()) implicit_line_join.pop();
-    yylval.strval = strdup(yytext);
-    return DELIM_RIGHT_CURLY;
 }
 
 "," {

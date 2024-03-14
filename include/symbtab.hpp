@@ -72,6 +72,7 @@ public:
     symbol_table_func* look_up_function(string &name);
     symbol_table_func* look_up_function_in_class_hierarchy(string &name);
     st_entry* look_up_attribute_in_class_hierarchy(string &name);
+    // string check_attribute_in_class(string &name, node * current_node);
     void make_csv(string filename);
     // bool modifier_bv[10] = {0};
     // void update_modifiers(vector<st_entry*> modifiers);

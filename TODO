@@ -27,3 +27,4 @@ Doubt in semantics:
     i:float = 2, list[i] allowed ?
     typecasting of list ?
     support is ?
+    supporting float in modulo ? 
