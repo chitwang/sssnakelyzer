@@ -3,7 +3,7 @@
 using namespace std;
 
 int num_scopes = 0;
-symbol_table_global *main_table = new symbol_table_global();
+symbol_table_global *global_table = new symbol_table_global();
 
 map<string, int> type_to_size = {
     {"int", 8}, 
@@ -387,9 +387,9 @@ void symbol_table::make_csv_wrapper(string filename) {
     }
 }
 
-void symbol_table_global::add_SysOutPln(){
+void symbol_table_global::add_Print(){
     // MAKE PrintStream CLASS
-    symbol_table_class *prnt;
+    /*symbol_table_class *prnt;
     symbol_table_func *pln;
     prnt = new symbol_table_class("PrintStream");
 
@@ -429,5 +429,11 @@ void symbol_table_global::add_SysOutPln(){
     // ADD to Global Table
     main_table -> add_entry(syst);
     main_table -> add_entry(prnt);
-    main_table -> add_entry(sup);
+    main_table -> add_entry(sup);*/
+    vector <st_entry *> args;
+    // st_entry *arg = new st_entry("print_arg", 0, 0, "str");
+    symbol_table_func *print = new symbol_table_func("print", args, "None");
+    global_table -> add_entry(print);
+    global_table -> add_scope((symbol_table *)print);
+    global_table -> children_st.push_back((symbol_table *)print);
 }

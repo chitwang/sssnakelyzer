@@ -96,22 +96,23 @@
 # # print(x)
 
 
-b = 0.0
+b:float = 0.0
 c: float = 1.0
 a: int = 2
+
 if b:
-    print("f")
+    print()
 elif c:
-    print("g")
+    print()
 
-if "":
-    print("HI")
+# if "":
+#     print("HI")
 
-if "asdf":
-    print("HELLO")
+# if "asdf":
+#     print("HELLO")
 
-if a > c:
-    print("YES")
+# if a > c:
+#     print("YES")
 
-if True > False:
-    print(2)
+# if True > False:
+#     print(2)

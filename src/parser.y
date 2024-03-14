@@ -1,6 +1,6 @@
 %{
 #include<bits/stdc++.h>
-#include "../include/node.hpp"
+#include "../include/global.hpp"
 using namespace std;
 #define YYDEBUG 1
 
@@ -11,12 +11,12 @@ int node_count = 0;
 vector <string> node_attr;
 vector <int> node_numbers;
 bool our_debug = false;
-node* root_node = NULL; 
+node* root_node = NULL;
 vector<node *> all_nodes;
 
-symbol_table_global* global_table;
-symbol_table* current_table;
-symbol_table* temp_table;
+// symbol_table_global *global_table;
+symbol_table *current_table;
+symbol_table *temp_table;
 
 void debug_insert() {
     cout << "PRODUCTION:\t";
@@ -293,7 +293,7 @@ string set_trailer_type_compatibility(string typeLeft, string typeRight, string 
             exit(1);
         }
         symbol_table_func *is_func = check_if_function(func_name, false);
-        cout << "debug stmt at line 285 " << is_func->name << is_func->params.size() << endl;
+        cout << "debug stmt at line 296 " << is_func->name << is_func->params.size() << endl;
         if(actual_params.size() != (is_func -> params).size()) {
             cout << "Invalid params for function " << func_name << " at line " << yylineno << endl;
             exit(1);
@@ -319,7 +319,6 @@ void check_bool_compatibility(string type1, string type2 = "bool") {
         exit(1);
     }
 }
-
 
 extern int yylex(void);
 void yyerror(const char*);
@@ -876,7 +875,7 @@ type_or_name: types {
 
 
 int main(int argc, char* argv[]) {
-    global_table = new symbol_table_global();
+    /* global_table = new symbol_table_global(); */
     current_table = global_table;
     temp_table = NULL;
     /* int yydebug = 0; */
@@ -944,6 +943,7 @@ int main(int argc, char* argv[]) {
         freopen(input_file.c_str(), "r", stdin);
     } 
 
+    global_table->add_Print();
     yyparse();
     root_node = all_nodes.back();
     root_node->clean_tree();

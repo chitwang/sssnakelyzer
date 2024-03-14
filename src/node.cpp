@@ -3,7 +3,9 @@
 using namespace std;
 
 extern bool isop(string);
-node *root;
+// node *root;
+symbol_table_global *main_table;
+
 
 node::node(string name /*= ""*/, bool terminal /*= false*/, string type /* = "" */, node* parent /* = NULL */) {
     this->parent = parent;

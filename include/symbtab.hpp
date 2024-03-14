@@ -88,7 +88,7 @@ public:
     symbol_table_class* look_up_class(string &cls_name);
     symbol_table_func* look_up_func(string &func_name);
     void make_csv(string filename);
-    void add_SysOutPln();
+    void add_Print();
 };
 
 #endif 

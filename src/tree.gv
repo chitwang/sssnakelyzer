@@ -1,325 +1,64 @@
 digraph ast {
-node1[label = "start_symbol (L89)"];
-node2[label = "blocks (L44)"];
-node3[label = "funcdef (L44)"];
-node4[label = "func_header (L41)"];
-node5[label = "KEYWORD
-def (L41)", shape = rectangle, color = blue];
-node6[label = "NAME
-NAME ( pow ) (L41)", shape = rectangle, color = red];
-node7[label = "parameters (L41)"];
-node8[label = "DELIMITER
-( (L41)", shape = rectangle, color = red];
-node9[label = "typedarglist (L41)"];
-node10[label = "tpdef (L41)"];
+node1[label = "start_symbol (L118)"];
+node2[label = "blocks (L100)"];
+node3[label = "OPERATOR
+= (L99)", shape = rectangle, color = green];
+node4[label = "type_declaration (L99)"];
+node5[label = "NAME
+NAME ( b ) (L99)", shape = rectangle, color = red];
+node6[label = "DELIMITER
+: (L99)", shape = rectangle, color = red];
+node7[label = "float (L99)"];
+node8[label = "LITERAL
+FLT 0.0 (L99)", shape = rectangle, color = red];
+node9[label = "OPERATOR
+= (L100)", shape = rectangle, color = green];
+node10[label = "type_declaration (L100)"];
 node11[label = "NAME
-NAME ( base ) (L41)", shape = rectangle, color = red];
+NAME ( c ) (L100)", shape = rectangle, color = red];
 node12[label = "DELIMITER
-: (L41)", shape = rectangle, color = red];
-node13[label = "int (L41)"];
-node14[label = "DELIMITER
-, (L41)", shape = rectangle, color = red];
-node15[label = "tpdef (L41)"];
-node16[label = "NAME
-NAME ( exponent ) (L41)", shape = rectangle, color = red];
-node17[label = "DELIMITER
-: (L41)", shape = rectangle, color = red];
-node18[label = "int (L41)"];
-node19[label = "DELIMITER
-) (L41)", shape = rectangle, color = red];
-node20[label = "DELIMITER
--> (L41)", shape = rectangle, color = red];
-node21[label = "int (L41)"];
-node22[label = "DELIMITER
-: (L41)", shape = rectangle, color = red];
-node23[label = "return_stmt (L43)"];
-node24[label = "KEYWORD
-return (L43)", shape = rectangle, color = blue];
-node25[label = "OPERATOR
-** (L43)", shape = rectangle, color = green];
+: (L100)", shape = rectangle, color = red];
+node13[label = "float (L100)"];
+node14[label = "LITERAL
+FLT 1.0 (L100)", shape = rectangle, color = red];
+node15[label = "OPERATOR
+= (L102)", shape = rectangle, color = green];
+node16[label = "type_declaration (L101)"];
+node17[label = "NAME
+NAME ( a ) (L101)", shape = rectangle, color = red];
+node18[label = "DELIMITER
+: (L101)", shape = rectangle, color = red];
+node19[label = "int (L101)"];
+node20[label = "LITERAL
+INT 2 (L101)", shape = rectangle, color = red];
+node21[label = "if_stmt (L118)"];
+node22[label = "KEYWORD
+if (L118)", shape = rectangle, color = blue];
+node23[label = "NAME
+NAME ( b ) (L103)", shape = rectangle, color = red];
+node24[label = "DELIMITER
+: (L118)", shape = rectangle, color = red];
+node25[label = "trailer (L104)"];
 node26[label = "NAME
-NAME ( base ) (L42)", shape = rectangle, color = red];
-node27[label = "NAME
-NAME ( exponent ) (L42)", shape = rectangle, color = red];
-node28[label = "funcdef (L48)"];
-node29[label = "func_header (L44)"];
+NAME ( print ) (L104)", shape = rectangle, color = red];
+node27[label = "DELIMITER
+( (L104)", shape = rectangle, color = red];
+node28[label = "DELIMITER
+) (L104)", shape = rectangle, color = red];
+node29[label = "elif_plus (L118)"];
 node30[label = "KEYWORD
-def (L44)", shape = rectangle, color = blue];
+elif (L118)", shape = rectangle, color = blue];
 node31[label = "NAME
-NAME ( print ) (L44)", shape = rectangle, color = red];
-node32[label = "parameters (L44)"];
-node33[label = "DELIMITER
-( (L44)", shape = rectangle, color = red];
-node34[label = "DELIMITER
-) (L44)", shape = rectangle, color = red];
+NAME ( c ) (L105)", shape = rectangle, color = red];
+node32[label = "DELIMITER
+: (L118)", shape = rectangle, color = red];
+node33[label = "trailer (L106)"];
+node34[label = "NAME
+NAME ( print ) (L106)", shape = rectangle, color = red];
 node35[label = "DELIMITER
-: (L44)", shape = rectangle, color = red];
-node36[label = "KEYWORD
-return (L46)", shape = rectangle, color = blue];
-node37[label = "classdef (L52)"];
-node38[label = "class_header (L48)"];
-node39[label = "KEYWORD
-class (L48)", shape = rectangle, color = blue];
-node40[label = "NAME
-NAME ( A ) (L48)", shape = rectangle, color = red];
-node41[label = "DELIMITER
-: (L48)", shape = rectangle, color = red];
-node42[label = "funcdef (L51)"];
-node43[label = "func_header (L49)"];
-node44[label = "KEYWORD
-def (L49)", shape = rectangle, color = blue];
-node45[label = "NAME
-NAME ( __init__ ) (L49)", shape = rectangle, color = red];
-node46[label = "parameters (L49)"];
-node47[label = "DELIMITER
-( (L49)", shape = rectangle, color = red];
-node48[label = "typedarglist (L49)"];
-node49[label = "NAME
-NAME ( self ) (L49)", shape = rectangle, color = red];
-node50[label = "DELIMITER
-, (L49)", shape = rectangle, color = red];
-node51[label = "tpdef (L49)"];
-node52[label = "NAME
-NAME ( x ) (L49)", shape = rectangle, color = red];
-node53[label = "DELIMITER
-: (L49)", shape = rectangle, color = red];
-node54[label = "int (L49)"];
-node55[label = "DELIMITER
-) (L49)", shape = rectangle, color = red];
-node56[label = "DELIMITER
-: (L49)", shape = rectangle, color = red];
-node57[label = "OPERATOR
-= (L51)", shape = rectangle, color = green];
-node58[label = "type_declaration (L50)"];
-node59[label = "self. (L50)"];
-node60[label = "NAME
-NAME ( x ) (L50)", shape = rectangle, color = red];
-node61[label = "DELIMITER
-: (L50)", shape = rectangle, color = red];
-node62[label = "int (L50)"];
-node63[label = "NAME
-NAME ( x ) (L50)", shape = rectangle, color = red];
-node64[label = "classdef (L58)"];
-node65[label = "class_header (L52)"];
-node66[label = "KEYWORD
-class (L52)", shape = rectangle, color = blue];
-node67[label = "NAME
-NAME ( B ) (L52)", shape = rectangle, color = red];
-node68[label = "DELIMITER
-: (L52)", shape = rectangle, color = red];
-node69[label = "blocks (L55)"];
-node70[label = "funcdef (L55)"];
-node71[label = "func_header (L53)"];
-node72[label = "KEYWORD
-def (L53)", shape = rectangle, color = blue];
-node73[label = "NAME
-NAME ( __init__ ) (L53)", shape = rectangle, color = red];
-node74[label = "parameters (L53)"];
-node75[label = "DELIMITER
-( (L53)", shape = rectangle, color = red];
-node76[label = "typedarglist (L53)"];
-node77[label = "NAME
-NAME ( self ) (L53)", shape = rectangle, color = red];
-node78[label = "DELIMITER
-, (L53)", shape = rectangle, color = red];
-node79[label = "tpdef (L53)"];
-node80[label = "NAME
-NAME ( obj ) (L53)", shape = rectangle, color = red];
-node81[label = "DELIMITER
-: (L53)", shape = rectangle, color = red];
-node82[label = "NAME
-NAME ( A ) (L53)", shape = rectangle, color = red];
-node83[label = "DELIMITER
-) (L53)", shape = rectangle, color = red];
-node84[label = "DELIMITER
-: (L53)", shape = rectangle, color = red];
-node85[label = "OPERATOR
-= (L55)", shape = rectangle, color = green];
-node86[label = "type_declaration (L54)"];
-node87[label = "self. (L54)"];
-node88[label = "NAME
-NAME ( obj ) (L54)", shape = rectangle, color = red];
-node89[label = "DELIMITER
-: (L54)", shape = rectangle, color = red];
-node90[label = "NAME
-NAME ( A ) (L54)", shape = rectangle, color = red];
-node91[label = "NAME
-NAME ( obj ) (L54)", shape = rectangle, color = red];
-node92[label = "funcdef (L57)"];
-node93[label = "func_header (L55)"];
-node94[label = "KEYWORD
-def (L55)", shape = rectangle, color = blue];
-node95[label = "NAME
-NAME ( add ) (L55)", shape = rectangle, color = red];
-node96[label = "parameters (L55)"];
-node97[label = "DELIMITER
-( (L55)", shape = rectangle, color = red];
-node98[label = "DELIMITER
-) (L55)", shape = rectangle, color = red];
-node99[label = "DELIMITER
-: (L55)", shape = rectangle, color = red];
-node100[label = "return_stmt (L57)"];
-node101[label = "KEYWORD
-return (L57)", shape = rectangle, color = blue];
-node102[label = "OPERATOR
-+ (L57)", shape = rectangle, color = green];
-node103[label = "LITERAL
-INT 1 (L56)", shape = rectangle, color = red];
-node104[label = "LITERAL
-INT 3 (L56)", shape = rectangle, color = red];
-node105[label = "classdef (L64)"];
-node106[label = "class_header (L58)"];
-node107[label = "KEYWORD
-class (L58)", shape = rectangle, color = blue];
-node108[label = "NAME
-NAME ( C ) (L58)", shape = rectangle, color = red];
-node109[label = "DELIMITER
-( (L58)", shape = rectangle, color = red];
-node110[label = "NAME
-NAME ( B ) (L58)", shape = rectangle, color = red];
-node111[label = "DELIMITER
-) (L58)", shape = rectangle, color = red];
-node112[label = "DELIMITER
-: (L58)", shape = rectangle, color = red];
-node113[label = "funcdef (L63)"];
-node114[label = "func_header (L59)"];
-node115[label = "KEYWORD
-def (L59)", shape = rectangle, color = blue];
-node116[label = "NAME
-NAME ( __init__ ) (L59)", shape = rectangle, color = red];
-node117[label = "parameters (L59)"];
-node118[label = "DELIMITER
-( (L59)", shape = rectangle, color = red];
-node119[label = "typedarglist (L59)"];
-node120[label = "NAME
-NAME ( self ) (L59)", shape = rectangle, color = red];
-node121[label = "DELIMITER
-, (L59)", shape = rectangle, color = red];
-node122[label = "tpdef (L59)"];
-node123[label = "NAME
-NAME ( cobj ) (L59)", shape = rectangle, color = red];
-node124[label = "DELIMITER
-: (L59)", shape = rectangle, color = red];
-node125[label = "NAME
-NAME ( B ) (L59)", shape = rectangle, color = red];
-node126[label = "DELIMITER
-) (L59)", shape = rectangle, color = red];
-node127[label = "DELIMITER
-: (L59)", shape = rectangle, color = red];
-node128[label = "blocks (L61)"];
-node129[label = "OPERATOR
-= (L61)", shape = rectangle, color = green];
-node130[label = "type_declaration (L60)"];
-node131[label = "self. (L60)"];
-node132[label = "NAME
-NAME ( cobj ) (L60)", shape = rectangle, color = red];
-node133[label = "DELIMITER
-: (L60)", shape = rectangle, color = red];
-node134[label = "NAME
-NAME ( B ) (L60)", shape = rectangle, color = red];
-node135[label = "NAME
-NAME ( cobj ) (L60)", shape = rectangle, color = red];
-node136[label = "trailer (L61)"];
-node137[label = "NAME
-NAME ( print ) (L61)", shape = rectangle, color = red];
-node138[label = "DELIMITER
-( (L61)", shape = rectangle, color = red];
-node139[label = "NAME
-NAME ( cobj ) (L61)", shape = rectangle, color = red];
-node140[label = "DELIMITER
-) (L61)", shape = rectangle, color = red];
-node141[label = "trailer (L62)"];
-node142[label = "atom (L62)"];
-node143[label = "self. (L62)"];
-node144[label = "NAME
-NAME ( add ) (L62)", shape = rectangle, color = red];
-node145[label = "DELIMITER
-( (L62)", shape = rectangle, color = red];
-node146[label = "DELIMITER
-) (L62)", shape = rectangle, color = red];
-node147[label = "funcdef (L67)"];
-node148[label = "func_header (L64)"];
-node149[label = "KEYWORD
-def (L64)", shape = rectangle, color = blue];
-node150[label = "NAME
-NAME ( func ) (L64)", shape = rectangle, color = red];
-node151[label = "parameters (L64)"];
-node152[label = "DELIMITER
-( (L64)", shape = rectangle, color = red];
-node153[label = "DELIMITER
-) (L64)", shape = rectangle, color = red];
-node154[label = "DELIMITER
-: (L64)", shape = rectangle, color = red];
-node155[label = "trailer (L65)"];
-node156[label = "NAME
-NAME ( print ) (L65)", shape = rectangle, color = red];
-node157[label = "DELIMITER
-( (L65)", shape = rectangle, color = red];
-node158[label = "LITERAL
-INT 1 (L65)", shape = rectangle, color = red];
-node159[label = "DELIMITER
-) (L65)", shape = rectangle, color = red];
-node160[label = "OPERATOR
-= (L67)", shape = rectangle, color = green];
-node161[label = "type_declaration (L67)"];
-node162[label = "NAME
-NAME ( a ) (L67)", shape = rectangle, color = red];
-node163[label = "DELIMITER
-: (L67)", shape = rectangle, color = red];
-node164[label = "NAME
-NAME ( A ) (L67)", shape = rectangle, color = red];
-node165[label = "trailer (L67)"];
-node166[label = "NAME
-NAME ( A ) (L67)", shape = rectangle, color = red];
-node167[label = "DELIMITER
-( (L67)", shape = rectangle, color = red];
-node168[label = "LITERAL
-INT 4 (L67)", shape = rectangle, color = red];
-node169[label = "DELIMITER
-) (L67)", shape = rectangle, color = red];
-node170[label = "OPERATOR
-= (L68)", shape = rectangle, color = green];
-node171[label = "type_declaration (L68)"];
-node172[label = "NAME
-NAME ( b ) (L68)", shape = rectangle, color = red];
-node173[label = "DELIMITER
-: (L68)", shape = rectangle, color = red];
-node174[label = "NAME
-NAME ( B ) (L68)", shape = rectangle, color = red];
-node175[label = "trailer (L68)"];
-node176[label = "NAME
-NAME ( B ) (L68)", shape = rectangle, color = red];
-node177[label = "DELIMITER
-( (L68)", shape = rectangle, color = red];
-node178[label = "NAME
-NAME ( a ) (L68)", shape = rectangle, color = red];
-node179[label = "DELIMITER
-) (L68)", shape = rectangle, color = red];
-node180[label = "OPERATOR
-= (L70)", shape = rectangle, color = green];
-node181[label = "type_declaration (L69)"];
-node182[label = "NAME
-NAME ( c ) (L69)", shape = rectangle, color = red];
-node183[label = "DELIMITER
-: (L69)", shape = rectangle, color = red];
-node184[label = "NAME
-NAME ( C ) (L69)", shape = rectangle, color = red];
-node185[label = "trailer (L69)"];
-node186[label = "NAME
-NAME ( C ) (L69)", shape = rectangle, color = red];
-node187[label = "DELIMITER
-( (L69)", shape = rectangle, color = red];
-node188[label = "NAME
-NAME ( b ) (L69)", shape = rectangle, color = red];
-node189[label = "DELIMITER
-) (L69)", shape = rectangle, color = red];
-node190[label = "trailer (L72)"];
-node191[label = "NAME
-NAME ( print ) (L72)", shape = rectangle, color = red];
-node192[label = "DELIMITER
-( (L72)", shape = rectangle, color = red];
-node193[label = "DELIMITER
-) (L72)", shape = rectangle, color = red];
+( (L106)", shape = rectangle, color = red];
+node36[label = "DELIMITER
+) (L106)", shape = rectangle, color = red];
 
 node1 -> node2;
 node2 -> node3;
@@ -327,190 +66,33 @@ node3 -> node4;
 node4 -> node5;
 node4 -> node6;
 node4 -> node7;
-node7 -> node8;
-node7 -> node9;
+node3 -> node8;
+node2 -> node9;
 node9 -> node10;
 node10 -> node11;
 node10 -> node12;
 node10 -> node13;
 node9 -> node14;
-node9 -> node15;
+node2 -> node15;
 node15 -> node16;
-node15 -> node17;
-node15 -> node18;
-node7 -> node19;
-node4 -> node20;
-node4 -> node21;
-node4 -> node22;
-node3 -> node23;
-node23 -> node24;
-node23 -> node25;
+node16 -> node17;
+node16 -> node18;
+node16 -> node19;
+node15 -> node20;
+node2 -> node21;
+node21 -> node22;
+node21 -> node23;
+node21 -> node24;
+node21 -> node25;
 node25 -> node26;
 node25 -> node27;
-node2 -> node28;
-node28 -> node29;
+node25 -> node28;
+node21 -> node29;
 node29 -> node30;
 node29 -> node31;
 node29 -> node32;
-node32 -> node33;
-node32 -> node34;
-node29 -> node35;
-node28 -> node36;
-node2 -> node37;
-node37 -> node38;
-node38 -> node39;
-node38 -> node40;
-node38 -> node41;
-node37 -> node42;
-node42 -> node43;
-node43 -> node44;
-node43 -> node45;
-node43 -> node46;
-node46 -> node47;
-node46 -> node48;
-node48 -> node49;
-node48 -> node50;
-node48 -> node51;
-node51 -> node52;
-node51 -> node53;
-node51 -> node54;
-node46 -> node55;
-node43 -> node56;
-node42 -> node57;
-node57 -> node58;
-node58 -> node59;
-node58 -> node60;
-node58 -> node61;
-node58 -> node62;
-node57 -> node63;
-node2 -> node64;
-node64 -> node65;
-node65 -> node66;
-node65 -> node67;
-node65 -> node68;
-node64 -> node69;
-node69 -> node70;
-node70 -> node71;
-node71 -> node72;
-node71 -> node73;
-node71 -> node74;
-node74 -> node75;
-node74 -> node76;
-node76 -> node77;
-node76 -> node78;
-node76 -> node79;
-node79 -> node80;
-node79 -> node81;
-node79 -> node82;
-node74 -> node83;
-node71 -> node84;
-node70 -> node85;
-node85 -> node86;
-node86 -> node87;
-node86 -> node88;
-node86 -> node89;
-node86 -> node90;
-node85 -> node91;
-node69 -> node92;
-node92 -> node93;
-node93 -> node94;
-node93 -> node95;
-node93 -> node96;
-node96 -> node97;
-node96 -> node98;
-node93 -> node99;
-node92 -> node100;
-node100 -> node101;
-node100 -> node102;
-node102 -> node103;
-node102 -> node104;
-node2 -> node105;
-node105 -> node106;
-node106 -> node107;
-node106 -> node108;
-node106 -> node109;
-node106 -> node110;
-node106 -> node111;
-node106 -> node112;
-node105 -> node113;
-node113 -> node114;
-node114 -> node115;
-node114 -> node116;
-node114 -> node117;
-node117 -> node118;
-node117 -> node119;
-node119 -> node120;
-node119 -> node121;
-node119 -> node122;
-node122 -> node123;
-node122 -> node124;
-node122 -> node125;
-node117 -> node126;
-node114 -> node127;
-node113 -> node128;
-node128 -> node129;
-node129 -> node130;
-node130 -> node131;
-node130 -> node132;
-node130 -> node133;
-node130 -> node134;
-node129 -> node135;
-node128 -> node136;
-node136 -> node137;
-node136 -> node138;
-node136 -> node139;
-node136 -> node140;
-node128 -> node141;
-node141 -> node142;
-node142 -> node143;
-node142 -> node144;
-node141 -> node145;
-node141 -> node146;
-node2 -> node147;
-node147 -> node148;
-node148 -> node149;
-node148 -> node150;
-node148 -> node151;
-node151 -> node152;
-node151 -> node153;
-node148 -> node154;
-node147 -> node155;
-node155 -> node156;
-node155 -> node157;
-node155 -> node158;
-node155 -> node159;
-node2 -> node160;
-node160 -> node161;
-node161 -> node162;
-node161 -> node163;
-node161 -> node164;
-node160 -> node165;
-node165 -> node166;
-node165 -> node167;
-node165 -> node168;
-node165 -> node169;
-node2 -> node170;
-node170 -> node171;
-node171 -> node172;
-node171 -> node173;
-node171 -> node174;
-node170 -> node175;
-node175 -> node176;
-node175 -> node177;
-node175 -> node178;
-node175 -> node179;
-node2 -> node180;
-node180 -> node181;
-node181 -> node182;
-node181 -> node183;
-node181 -> node184;
-node180 -> node185;
-node185 -> node186;
-node185 -> node187;
-node185 -> node188;
-node185 -> node189;
-node2 -> node190;
-node190 -> node191;
-node190 -> node192;
-node190 -> node193;
+node29 -> node33;
+node33 -> node34;
+node33 -> node35;
+node33 -> node36;
 }
