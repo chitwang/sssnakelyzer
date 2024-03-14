@@ -45,37 +45,40 @@
 #     return
 # # pow(exponent=3, base=2)
 
-# class A:
-#     def __init__(self, x: int):
-#         self.x: int = x
+class A:
+    def __init__(self, x: int):
+        self.x: int = x
 
-# class B:
-#     def __init__(self, obj: A):
-#         self.obj: A = obj
-#     def add() -> int:
-#         return 1 + 3
+class B:
+    x:int = 10
+    def __init__(self, obj: A):
+        self.obj: A = obj
+    def add(self) -> int:
+        self.a = x
+        return 1 + 3
 
-# def add(a:int) -> int:
-#     return 2 // a
+def add(a:int) -> int:
+    return 2 // a
 
-# def sub(a:int, b:int, c:int, d:int) -> bool:
-#     return True
+def sub(a:int, b:int, c:int, d:int) -> bool:
+    return True
 
-# class C(B):
-#     def __init__(self, cobj: B):
-#         self.cobj: B = cobj
-#         print() 
-#         # self.add()
-#         add()
-#         sub()
+class C(B):
+    def __init__(self, cobj: B):
+        self.cobj: B = cobj
+        print() 
+        # self.add()
+        add()
+        sub()
 
-# def func():
-#     print(1)
+def func():
+    print(1)
         
-# a: A = A(4)
-# b: B = B(a)
-# c: C = C(b)
+a: A = A(4)
+b: B = B(a)
+c: C = C(b)
 
+print(c)
 # # print(b.obj.x)
 # print()
 # # print(ff)

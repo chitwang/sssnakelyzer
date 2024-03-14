@@ -126,6 +126,8 @@ void print_help() {
     exit(1);
 }
 
+// bool type_castable()
+
 void make_new_class_symbtab(string s, string parent = "") {
     temp_table = new symbol_table_class(s);
     if(current_table->symbol_table_category == 'G') {
@@ -183,48 +185,47 @@ void make_new_func_symbtab(string func_name, vector<st_entry *> &params, string 
     current_table = temp_table;
 }
 
-// void check_
-symbol_table_func *check_if_function(string name, bool is_self_attr) {
-    symbol_table_func *st_func = NULL;
-    if(current_table -> symbol_table_category == 'M') {
-        if(current_table -> parent_st -> symbol_table_category == 'G') {
-            st_func = global_table -> look_up_func(name);
-        }
-        else if(current_table -> parent_st -> symbol_table_category == 'C') {
-            if(is_self_attr) {
-                st_func = ((symbol_table_class *)(current_table -> parent_st)) -> look_up_function_in_class_hierarchy(name);
-            }
-            else  {
-                st_func = global_table -> look_up_func(name);
-            }
-        }
-    }
-    else if(current_table -> symbol_table_category == 'G') {
-        st_func = global_table -> look_up_func(name);
-    }
-    else if(current_table -> symbol_table_category == 'C') {
-        if(is_self_attr) {
-            st_func = ((symbol_table_class *)(current_table -> parent_st)) -> look_up_function_in_class_hierarchy(name);
-        }
-        else {
-            st_func = global_table -> look_up_func(name);
-        }
-    }
-    return st_func;
-}
+// symbol_table_func *check_if_function(string name, bool is_self_attr) {
+//     symbol_table_func *st_func = NULL;
+//     if(current_table -> symbol_table_category == 'M') {
+//         if(current_table -> parent_st -> symbol_table_category == 'G') {
+//             st_func = global_table -> look_up_func(name);
+//         }
+//         else if(current_table -> parent_st -> symbol_table_category == 'C') {
+//             if(is_self_attr) {
+//                 st_func = ((symbol_table_class *)(current_table -> parent_st)) -> look_up_function_in_class_hierarchy(name);
+//             }
+//             else  {
+//                 st_func = global_table -> look_up_func(name);
+//             }
+//         }
+//     }
+//     else if(current_table -> symbol_table_category == 'G') {
+//         st_func = global_table -> look_up_func(name);
+//     }
+//     else if(current_table -> symbol_table_category == 'C') {
+//         if(is_self_attr) {
+//             st_func = ((symbol_table_class *)(current_table -> parent_st)) -> look_up_function_in_class_hierarchy(name);
+//         }
+//         else {
+//             st_func = global_table -> look_up_func(name);
+//         }
+//     }
+//     return st_func;
+// }
 
-symbol_table_class* check_if_class(string name){
-    symbol_table_class *st_class = NULL;
-    st_class = global_table -> look_up_class(name);
-    return st_class;
-}
+// symbol_table_class* check_if_class(string name) {
+//     symbol_table_class *st_class = NULL;
+//     st_class = global_table -> look_up_class(name);
+//     return st_class;
+// }
 
 string check_decl_before_use(string name) {
     st_entry *existing_entry = current_table->look_up(name);
     if(!existing_entry) {
-        symbol_table_func *st_func = check_if_function(name, 0);
+        symbol_table_func *st_func = global_table -> look_up_func(name);
         if(!st_func) {
-            symbol_table_class *st_class = check_if_class(name);
+            symbol_table_class *st_class = global_table -> look_up_class(name);
             if(!st_class) {
                 cout << "Identifier " << name << " at line " << yylineno << " was not declared\n";
                 exit(1);
@@ -244,11 +245,18 @@ string check_decl_before_use(string name) {
     }
 }
 
+string check_self_decl_before_use(string name) {
+    if(current_table->symbol_table_category == 'M') {
+
+    }
+}
+
 string check_attribute_in_class(string name) {
     st_entry* existing_entry = ((symbol_table_class*)current_table)->look_up_attribute_in_class_hierarchy(name);
     if(!existing_entry) {
-        cout << "Attribute " << name << " at line " << yylineno << " was not declared\n";
-        exit(1);
+        // cout << "Attribute " << name << " at line " << yylineno << " was not declared\n";
+        // exit(1);
+        
     }
     else {
         return existing_entry->type;
@@ -683,11 +691,15 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
 string_plus: string_plus STRING_LITERAL {node_attr = {string("STR ") + strdup($2), "string_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
            | STRING_LITERAL {node_attr = {string("STR ") + strdup($1), "string_plus"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-atom: DELIM_LEFT_PAREN named_star_plus DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_BRACKET named_star_plus DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+atom: DELIM_LEFT_BRACKET named_star_plus DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    all_nodes[$$]->datatype = "list[ " + all_nodes[$2]->datatype + " ]";
+
+}
+| DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;
+
+}
+    /* | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;} */
 | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; 
     all_nodes[$$]->datatype = check_decl_before_use(strdup($1));
     node_count += 2;
@@ -706,6 +718,8 @@ atom: DELIM_LEFT_PAREN named_star_plus DELIM_RIGHT_PAREN {node_attr = {"(", ")",
 | SELF_DOT NAME {node_attr = {"self.", string("NAME ( ") + strdup($2) + " )", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;
     all_nodes[$$]->is_self = true;
 }
+    /* | DELIM_LEFT_PAREN named_star_plus DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+    | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;} */
 
 number: INTEGER {
     node_attr = {string("INT ") + strdup($1), "number"};

@@ -113,13 +113,14 @@ st_entry* symbol_table::look_up(string name) {
             return entries[idx];
         }
     }
-    st_entry *st = NULL;
-    if(this -> symbol_table_category == 'C' && ((symbol_table_class *)this) -> parent_class) {
-        st = ((symbol_table_class *)this)->parent_class->look_up(name);
-    }
-    if(!st && this->parent_st) {
-        st = this->parent_st->look_up(name);
-    }
+    st_entry *st = global_table->look_up_local(name);
+
+    // if(this -> symbol_table_category == 'C' && ((symbol_table_class *)this) -> parent_class) {
+    //     st = ((symbol_table_class *)this)->parent_class->look_up(name);
+    // }
+    // if(!st && this->parent_st &&) {
+    //     st = this->parent_st->look_up(name);
+    // }
     return st;
 }
 
@@ -235,7 +236,6 @@ st_entry* symbol_table_class::look_up_attribute_in_class_hierarchy(string &name)
         return this -> parent_class -> look_up_attribute_in_class_hierarchy(name);
     }
     return NULL;
-    
 }
 
 symbol_table_global::symbol_table_global() {
