@@ -7,11 +7,11 @@
 using namespace std;
 
 class node {
-
 public:
     string name = "";                   // stores the lexeme if terminal or the name of the non terminal otherwise
     bool terminal = false;
     bool exp_applicable = false;
+    bool is_var = false;
     bool is_self = false;
     bool is_func = false;
     bool is_class = false;

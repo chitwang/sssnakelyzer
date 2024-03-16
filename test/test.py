@@ -11,6 +11,8 @@
 # # #   fa
 # # #   sdf 
 # # #   asdf 
+b =1
+a = [b = 3]
 # # #   asbfd
   
   
@@ -122,4 +124,7 @@
 # #     print(2)
 
 # print(4.1//2.3)
-print(-True)
+def foo() -> None:
+  return
+
+foo = 4

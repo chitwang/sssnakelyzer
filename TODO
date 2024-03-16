@@ -11,20 +11,25 @@ Extra:
     multi dimensional list
 
 Doubt in semantics: 
-    default arguments
     else with while and for ?
-    used datatype for test
-    error checking in params
+   
     tupe_checked
-    self
+   
     global ka offset
-    can 2 be treated as true 
-    check name used in form of classes and functions also 
+
+ 
     trailer plus : how much to do 
     add global functions for range, len and print
-    static polymorphism ?
-    self.add() and add()
-    i:float = 2, list[i] allowed ?
-    typecasting of list ?
+
+  
+
+
     support is ?
     supporting float in modulo ? 
+    
+    is, not in, in 
+    only int in (for i in range,,)  (currently, return type of range is int )
+    for 2 in 5 ?? 
+    do we have to check if assignable ? 
+    <function>:int = 2 ? 
+    a = [b=c,1,2]

@@ -246,11 +246,6 @@ COMMENT                         [\t ]*#[^\n]*
     return KEY_CLASS;
 }
 
-"is" {
-    yylval.strval = strdup(yytext);
-    return KEY_IS;
-}
-
 "return" {
     yylval.strval = strdup(yytext);
     return KEY_RETURN;

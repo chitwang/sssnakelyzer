@@ -14,7 +14,6 @@ bool our_debug = false;
 node* root_node = NULL;
 vector<node *> all_nodes;
 
-// symbol_table_global *global_table;
 symbol_table *current_table;
 symbol_table *temp_table;
 
@@ -140,17 +139,15 @@ bool is_not_class(string &type) {
     return flag;
 }
 
-void check_type_int_bool(string type1, string type2, string op)
-{
-    if((type1 != "int" && type1 != "bool") || (type2 != "bool" && type2 != "int")){
+void check_type_int_bool(string type1, string type2, string op) {
+    if((type1 != "int" && type1 != "bool") || (type2 != "bool" && type2 != "int")) {
         cout<<"Typeerror at line "<<yylineno<<": unsupported operand type(s) for "<<op<<": "<<type1 << " and "<<type2<<endl;
         exit(1);
     }
 }
 
-string check_type_arith(string type1, string type2, string op)
-{
-    if((type1 != "int" && type1 != "bool" && type1 != "float") || (type2 != "bool" && type2 != "int" &&type2 != "float")){
+string check_type_arith(string type1, string type2, string op) {
+    if((type1 != "int" && type1 != "bool" && type1 != "float") || (type2 != "bool" && type2 != "int" &&type2 != "float")) {
         cout<<"Typeerror at line "<<yylineno<<": unsupported operand type(s) for "<<op<<": "<<type1 << " and "<<type2<<endl;
         exit(1);
     }
@@ -254,6 +251,7 @@ string check_decl_before_use(string name , node *current_node) {
     }
     else {
         // cout << "existing entry at line " << yylineno << endl;
+        current_node->is_var = true;
         return existing_entry -> type;
     }
 }
@@ -274,6 +272,8 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
     else {
         if(!is_not_class(existing_entry -> type)) {
             current_node -> is_class = true;
+        } else {
+            cuurent_node -> is_var = true;
         }
         return existing_entry -> type;    
     }
@@ -326,17 +326,12 @@ string set_trailer_type_compatibility(node *current_node, node* leftnode, string
             exit(1);
         }
         for(int i=0;i<actual_params.size();i++) {
-            if(!is_compatible(actual_params[i], is_func -> params[i]-> type)) {
-                cout << "invalid parameter for func " << is_func -> name << " line no \n";
-                exit(1);
-            }
+            is_compatible(actual_params[i], is_func -> params[i]-> type);
         }
         return is_func -> return_type;
     }
     return "UNDEFINED";
 }
-
-
 
 extern int yylex(void);
 void yyerror(const char*);
@@ -350,9 +345,9 @@ void yyerror(const char*);
     int intval;
 }
 
-%token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK KEY_IN KEY_TRUE KEY_CLASS  KEY_IS KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_DEF KEY_WHILE KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER  INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST SELF_DOT
+%token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK KEY_IN KEY_TRUE KEY_CLASS  KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_DEF KEY_WHILE KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER  INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST SELF_DOT
 
-%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt semicolon_stmt break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom argument named_star_plus number arglist types newline_plus file_input file_plus program_start string_plus augassign type_list type_declaration func_header class_header type_or_name trailored_atom
+%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt semicolon_stmt break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom argument  number arglist types newline_plus file_input file_plus program_start string_plus augassign type_list type_declaration func_header class_header type_or_name trailored_atom
 
 %start start_symbol
 
@@ -382,7 +377,7 @@ func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
     node_count += 5;
     make_new_func_symbtab(strdup($2), all_nodes[$3]->entry_list, all_nodes[$5]->datatype);
 }
-    | KEY_DEF NAME parameters DELIM_COLON {
+| KEY_DEF NAME parameters DELIM_COLON {
     node_attr = {"def", string("NAME ( ") + strdup($2) + " )", ":", "func_header"};
     node_numbers = {node_count, node_count + 1, $3, node_count + 2};
     insert_node();
@@ -545,20 +540,51 @@ compound_stmt: if_stmt {node_attr = {"compound_stmt"}; node_numbers = {$1}; inse
  
 program_start: KEY_IF DUNDER_NAME OP_EQUAL DUNDER_MAIN DELIM_COLON suite {node_attr = {"if", "__name__", "==", "__main__", ":", "program_start"}; node_numbers = {node_count, node_count + 1, node_count + 2, node_count + 3, node_count + 4, $6}; insert_node(); $$ = node_count + 5; node_count += 6;}
 
-if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | KEY_IF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"if",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"if",":","else",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2,node_count + 3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
-       | KEY_IF namedexpr_test DELIM_COLON suite elif_plus KEY_ELSE DELIM_COLON suite {node_attr = {"if",":","else",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5, node_count+2, node_count + 3, $8}; insert_node(); $$ = node_count + 4; node_count += 5;}
+if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    is_compatible(all_nodes[$2]->datatype, "bool");
+}
+| KEY_IF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"if",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    is_compatible(all_nodes[$2]->datatype, "bool");
+}
+| KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"if",":","else",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2,node_count + 3, $7}; insert_node(); $$ = node_count + 4;
+    node_count += 5;
+    is_compatible(all_nodes[$2]->datatype, "bool");
+}
+| KEY_IF namedexpr_test DELIM_COLON suite elif_plus KEY_ELSE DELIM_COLON suite {node_attr = {"if",":","else",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, $5, node_count+2, node_count + 3, $8}; insert_node(); $$ = node_count + 4;
+    node_count += 5;
+    is_compatible(all_nodes[$2]->datatype, "bool");
+}
 
-elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite {node_attr = {"elif",":","elif_plus"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
-         | KEY_ELIF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"elif",":","elif_plus"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;}
+elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite {node_attr = {"elif",":","elif_plus"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;
+    is_compatible(all_nodes[$2]->datatype, "bool");
+}
+| KEY_ELIF namedexpr_test DELIM_COLON suite elif_plus {node_attr = {"elif",":","elif_plus"}; node_numbers = {node_count, $2, node_count+1, $4, $5}; insert_node(); $$ = node_count + 2; node_count += 3;
+    is_compatible(all_nodes[$2]->datatype, "bool");
+}
 
-while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"while",":","else",":","while_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;}
-          |  KEY_WHILE namedexpr_test DELIM_COLON suite {node_attr = {"while",":","while_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;}
+while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"while",":","else",":","while_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, node_count+3, $7}; insert_node(); $$ = node_count + 4; node_count += 5;
+    is_compatible(all_nodes[$2]->datatype, "bool");
+}
+| KEY_WHILE namedexpr_test DELIM_COLON suite {node_attr = {"while",":","while_stmt"}; node_numbers = {node_count, $2, node_count+1, $4}; insert_node(); $$ = node_count + 2; node_count += 3;
+    is_compatible(all_nodes[$2]->datatype, "bool");
+}
 
-for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"for","in", ":","else",":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6, node_count+3, node_count+4, $9}; insert_node(); $$ = node_count + 5; node_count += 6;}
-        | KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite {
-            node_attr = {"for","in", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6}; insert_node(); $$ = node_count + 3; node_count += 4;}
+for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"for","in", ":","else",":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6, node_count+3, node_count+4, $9}; insert_node(); $$ = node_count + 5;
+    node_count += 6;
+    if(all_nodes[$2]->datatype != "int" || all_nodes[$4]->datatype != "int") {
+        cout << "Invalid for loop at line " << yylineno << endl;
+        exit(1);
+    }
+}
+| KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite {node_attr = {"for","in", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6}; insert_node(); $$ = node_count + 3;
+    node_count += 4;
+    if(all_nodes[$2]->datatype != "int" || all_nodes[$4]->datatype != "int") {
+        cout << "Invalid for loop at line " << yylineno << endl;
+        exit(1);
+    }
+}
 
 stmt_plus : blocks {$$ = $1;}
           | stmt_plus blocks {$$ = $1; /*adj[$$].push_back($2);*/ all_nodes[$$]->add_child(all_nodes[$2]);}
@@ -567,8 +593,10 @@ suite: single_stmt {node_attr = {"suite"}; node_numbers = {$1}; insert_node(); $
      | newline_plus INDENT stmt_plus DEDENT {node_attr = {"suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
      | newline_plus INDENT stmt_plus DEDENT newline_plus{node_attr = {"suite"}; node_numbers = {$3}; insert_node(); $$ = node_count; node_count += 1;}
 
-namedexpr_test: test {node_attr = {"namedexpr_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-              | test DELIM_ASSIGN test {node_attr = {"=", "namedexpr_test"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
+namedexpr_test: test {node_attr = {"namedexpr_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+}
+
     
 test: or_test {node_attr = {"test"}; node_numbers = {$1}; insert_node(); $$ = node_count;
     node_count += 1;
@@ -591,7 +619,7 @@ and_test: not_test {node_attr = {"and_test"}; node_numbers = {$1}; insert_node()
     node_count += 2;
     is_compatible(all_nodes[$1]->datatype, "bool");
     is_compatible(all_nodes[$3]->datatype, "bool");
-    bbball_nodes[$$]->datatype = "bool";
+    all_nodes[$$]->datatype = "bool";
 }
 
 not_test: KEY_NOT not_test {node_attr = {"not", "not_test"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
@@ -607,56 +635,65 @@ comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node()
 }
 | expr comp_op comparison {node_attr = {"comparison"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count + 0;
     node_count += 1; 
-    
+    if(all_nodes[$2]->name.substr(7) == "in" || all_nodes[$2]->name.substr(7) == "not_in") {
+        if(all_nodes[$1]->datatype != "int" || all_nodes[$3]->datatype != "int") {
+            cout << "Type Error at line " << yylineno << endl;
+            exit(1);
+        }
+    }
+    else {
+        is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
+    }
+    all_nodes[$$]->datatype = "bool";
+   
 }
 
-comp_op: OP_LESS_THAN {node_attr = {"<", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_GREATER_THAN {node_attr = {">", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_EQUAL {node_attr = {"==", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_GREATER_THAN_EQUAL {node_attr = {">=", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_LESS_THAN_EQUAL {node_attr = {"<=", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | OP_NOT_EQUAL {node_attr = {"!=", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | KEY_IN {node_attr = {"in", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | KEY_NOT KEY_IN {node_attr = {"not", "in", "comp_op"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-       | KEY_IS {node_attr = {"is", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-       | KEY_IS KEY_NOT {node_attr = {"is", "not", "comp_op"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+comp_op: OP_LESS_THAN {node_attr = {"<", "comp_op<"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_GREATER_THAN {node_attr = {">", "comp_op>"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_EQUAL {node_attr = {"==", "comp_op=="}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_GREATER_THAN_EQUAL {node_attr = {">=", "comp_op>="}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_LESS_THAN_EQUAL {node_attr = {"<=", "comp_op<="}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | OP_NOT_EQUAL {node_attr = {"!=", "comp_op!="}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | KEY_IN {node_attr = {"in", "comp_opin"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | KEY_NOT KEY_IN {node_attr = {"not", "in", "comp_opnot_in"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+       /* | KEY_IS {node_attr = {"is", "comp_op"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+       | KEY_IS KEY_NOT {node_attr = {"is", "not", "comp_op"}; node_numbers = {node_count, node_count + 1}; insert_node(); $$ = node_count + 2; node_count += 3;} */
 
 expr: xor_expr {node_attr = {"expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
    all_nodes[$$]->datatype = all_nodes[$1]->datatype;
 }
-    | expr OP_BITWISE_OR xor_expr {node_attr = {"|", "expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2; 
-        check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-        all_nodes[$$]->datatype = "int";
-    }
+| expr OP_BITWISE_OR xor_expr {node_attr = {"|", "expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2; 
+    check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    all_nodes[$$]->datatype = "int";
+}
 
 xor_expr: and_expr {node_attr = {"xor_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
-    }
-    | xor_expr OP_BITWISE_XOR and_expr {node_attr = {"^", "xor_expr"}; node_numbers = {$1, node_count + 0, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-            check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-            all_nodes[$$]->datatype = "int";
-    }
+}
+| xor_expr OP_BITWISE_XOR and_expr {node_attr = {"^", "xor_expr"}; node_numbers = {$1, node_count + 0, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    all_nodes[$$]->datatype = "int";
+}
 
 and_expr: shift_expr {node_attr = {"and_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
-    }
-    | and_expr OP_BITWISE_AND shift_expr {node_attr = {"&", "and_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-        check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-        all_nodes[$$]->datatype = "int";
-    }
+}
+| and_expr OP_BITWISE_AND shift_expr {node_attr = {"&", "and_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    all_nodes[$$]->datatype = "int";
+}
         
 shift_expr: arith_expr {node_attr = {"shift_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
 }
-
-          | shift_expr OP_LEFT_SHIFT arith_expr {node_attr = {"<<", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-            check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-            all_nodes[$$]->datatype = "int";
-          }
-          | shift_expr OP_RIGHT_SHIFT arith_expr {node_attr = {">>", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-          check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-            all_nodes[$$]->datatype = "int";
-          }
+| shift_expr OP_LEFT_SHIFT arith_expr {node_attr = {"<<", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    all_nodes[$$]->datatype = "int";
+}
+| shift_expr OP_RIGHT_SHIFT arith_expr {node_attr = {">>", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    all_nodes[$$]->datatype = "int";
+}
 
 arith_expr: term {node_attr = {"arith_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
@@ -673,19 +710,19 @@ arith_expr: term {node_attr = {"arith_expr"}; node_numbers = {$1}; insert_node()
 term: factor {node_attr = {"term"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
 }
-    | term OP_MULTIPLY factor {node_attr = {"*", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-        all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-    }
-    | term OP_DIVIDE factor {node_attr = {"/", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-        all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-    }
-    | term OP_MODULO factor {node_attr = {"%", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-        all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-    }
-    | term OP_FLOOR_DIVIDE factor {node_attr = {"//", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-        all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-        all_nodes[$$]->datatype = "int";
-    }
+| term OP_MULTIPLY factor {node_attr = {"*", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+}
+| term OP_DIVIDE factor {node_attr = {"/", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+}
+| term OP_MODULO factor {node_attr = {"%", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+}
+| term OP_FLOOR_DIVIDE factor {node_attr = {"//", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    all_nodes[$$]->datatype = "int";
+}
 
 factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
     if(all_nodes[$2]->datatype != "int" && all_nodes[$2]->datatype != "bool") {
@@ -694,24 +731,25 @@ factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node
     }
     all_nodes[$$]->datatype = "int";
 }
-      | OP_ADD factor {node_attr = {"+", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
-      is_compatible(all_nodes[$2]->datatype, "int");
-        all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
-      }
-      | OP_SUBTRACT factor {node_attr = {"-", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
-        is_compatible(all_nodes[$2]->datatype, "int");
-        all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
-        }
-      | power {node_attr = {"factor"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
-      all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
-      }
+| OP_ADD factor {node_attr = {"+", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
+    is_compatible(all_nodes[$2]->datatype, "int");
+    all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
+}
+| OP_SUBTRACT factor {node_attr = {"-", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
+    is_compatible(all_nodes[$2]->datatype, "int");
+    all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
+}
+| power {node_attr = {"factor"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
+}
 
 power: atom_expr {node_attr = {"power"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
 all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
 }
-     | atom_expr OP_POWER factor {node_attr = {"**", "power"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
-        all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-     }
+| atom_expr OP_POWER factor {node_attr = {"**", "power"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1;
+    node_count += 2;
+    all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+}
     
 atom_expr: atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
@@ -746,8 +784,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
 }
 | trailored_atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count+1}; insert_node(); $$ = node_count + 2;
     node_count += 3;
-        all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[node_count],all_nodes[$1]->datatype, "functrailer");
-
+    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[node_count],all_nodes[$1]->datatype, "functrailer");
 }
 | trailored_atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     node_count += 3;
@@ -765,15 +802,11 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
 string_plus: string_plus STRING_LITERAL {node_attr = {string("STR ") + strdup($2), "string_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
            | STRING_LITERAL {node_attr = {string("STR ") + strdup($1), "string_plus"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
-atom: DELIM_LEFT_BRACKET named_star_plus DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
+atom: DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
     node_count += 3;
     all_nodes[$$]->datatype = "list[ " + all_nodes[$2]->datatype + " ]";
-
 }
-| DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;
-
-}
-    /* | DELIM_LEFT_CURLY DELIM_RIGHT_CURLY {node_attr = {"{", "}", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;} */
+    | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
 | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; 
     all_nodes[$$]->datatype = check_decl_before_use(strdup($1), all_nodes[$$]);
     node_count += 2;
@@ -793,8 +826,6 @@ atom: DELIM_LEFT_BRACKET named_star_plus DELIM_RIGHT_BRACKET {node_attr = {"[", 
     node_count += 3;
     all_nodes[$$]->datatype = check_self_decl_before_use(strdup($2), all_nodes[$$]);
 }
-    /* | DELIM_LEFT_PAREN named_star_plus DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
-    | DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;} */
 
 number: INTEGER {
     node_attr = {string("INT ") + strdup($1), "number"};
@@ -812,10 +843,6 @@ number: INTEGER {
     all_nodes[$$]->datatype = "float";
     node_count += 2;
 }
-
-named_star_plus: namedexpr_test {node_attr = {"named_star_plus"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-               | namedexpr_test DELIM_COMMA {node_attr = {",", "named_star_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-               | namedexpr_test DELIM_COMMA named_star_plus {node_attr = {",", "named_star_plus"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 exprlist: expr {node_attr = {"exprlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
         | expr DELIM_COMMA exprlist {node_attr = {",", "exprlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -961,7 +988,6 @@ type_or_name: types {
 }
 
 %%
-
 
 int main(int argc, char* argv[]) {
     /* global_table = new symbol_table_global(); */
