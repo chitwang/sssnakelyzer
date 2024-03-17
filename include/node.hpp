@@ -72,7 +72,7 @@ public:
     void create_scope_hierarchy();
 
     // void populate_default_constructors();
-    // void populate_class_sizes();
+    void calculate_class_offest();
 
     string get_type_without_array(string type);
 

@@ -11,9 +11,13 @@
 # # #   fa
 # # #   sdf 
 # # #   asdf 
-b =1
-a = [b = 3]
+# b =1
+# a = [b,3]
 # # #   asbfd
+# a
+
+# b
+
   
   
 # # #   asdf asdf asdf 
@@ -47,9 +51,10 @@ a = [b = 3]
 # #     return
 # # # pow(exponent=3, base=2)
 
-# class A:
-#     def __init__(self, x: int):
-#         self.x: int = x
+class A:
+    def __init__(self, x: int):
+        self.x: int = x
+        return
 
 # class B:
 #     x:int = 10
@@ -124,7 +129,37 @@ a = [b = 3]
 # #     print(2)
 
 # print(4.1//2.3)
-def foo() -> None:
-  return
+x:int = 3
 
-foo = 4
+def foo(a: int) -> int:
+  b:int = x
+  # x:int = 3
+  global x
+  # x:int = 5
+
+  # print()
+  return a + 5
+
+b:int = foo(x)
+c:int = 4
+# b: A = A(2)
+# c:int = b.x
+
+# print(x)
+# f:str = foo(x)
+# class A():
+#   global x
+#   def __init__(self):
+#     print(x)
+#     return
+#   def foo(self):
+#     self.x = 65
+#     x = 10
+#     print(x)
+#     print(self.x)
+# foo = 4
+# x = 10
+# a = A()
+# a.foo()
+# print(foo(5), x)
+# print(x)

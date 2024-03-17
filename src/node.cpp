@@ -474,16 +474,16 @@ void node::create_scope_hierarchy() {
     }
 }*/
 
-// void node::populate_class_sizes() {
-//     for(auto &cls : main_table -> classes) {
-//         int offset = 0;
-//         for(auto &entry : cls -> entries) {
-//             entry -> offset = offset;
-//             offset += entry -> size;
-//         }
-//         cls -> object_size = offset;
-//     }
-// }
+void node::calculate_class_offest() {
+    for(auto &cls : main_table -> classes) {
+        int offset = 0;
+        for(auto &entry : cls -> entries) {
+            entry -> offset = offset;
+            offset += entry -> size;
+        }
+        cls -> object_size = offset;
+    }
+}
 
 // WALK 2
 
@@ -2581,8 +2581,8 @@ vector<string> node::get_func_args_tac(){
     return args;
 }
 
-void node::generate_tac(){
-    for(auto (&child) : this -> children){
+void node::generate_tac() {
+    for(auto (&child) : this -> children) {
         child -> generate_tac();
     }
 
@@ -3008,7 +3008,7 @@ void node::generate_tac(){
     }
 }
 
-void node::print_tac(string filename){
+void node::print_tac(string filename) {
     ofstream out(filename);
 
     int ins_count = 1;

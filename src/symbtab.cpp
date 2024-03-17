@@ -72,6 +72,9 @@ void symbol_table::add_entry(st_entry* new_entry) {
             exit(1);
         }
     }
+    if(this -> symbol_table_category == 'G') {
+        new_entry -> is_global = true;
+    }
     entries.push_back(new_entry);
     new_entry -> table = this;
 }
@@ -92,6 +95,14 @@ st_entry* symbol_table::look_up_local(string name) {
     for(auto &en: this->entries) {
         if(en->name == name) {
             return en;
+        }
+    }
+    if(this->symbol_table_category == 'M') {
+        symbol_table_func* tmp = (symbol_table_func *) this;
+        for(auto &param: tmp->params) {
+            if(param->name == name) {
+                return param;
+            }
         }
     }
     return NULL;
@@ -434,6 +445,7 @@ void symbol_table_global::add_Print(){
     main_table -> add_entry(sup);*/
     vector <st_entry *> args;
     // st_entry *arg = new st_entry("print_arg", 0, 0, "str");
+    // args.push_back(arg);
     symbol_table_func *print = new symbol_table_func("print", args, "None");
     global_table -> add_entry(print);
     global_table -> add_scope((symbol_table *)print);

@@ -15,6 +15,7 @@ public:
     symbol_table* table;
     int line_no;
     int size;
+    bool is_global = false;
     int offset = 0; // offset for field declarations 
     int dimensions = 0;
     bool initialized = false;   // FIELD DECLARATIONS are initialized with default values

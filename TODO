@@ -33,3 +33,10 @@ Doubt in semantics:
     do we have to check if assignable ? 
     <function>:int = 2 ? 
     a = [b=c,1,2]
+    check if variable in assign / augassign
+    if global not already a global, static typing doesnt work there. So do we have to support like this ?
+    exact usage of global
+    a:int cannot use a before initializing it (is_initialized)
+    how to get function name in set_trailer_type_compatibility ???
+
+    can we assume def foo(a:int, a:int):  such erroneous case will not be there 
