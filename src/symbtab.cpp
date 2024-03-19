@@ -249,8 +249,6 @@ st_entry* symbol_table_class::look_up_attribute_in_class_hierarchy(string &name)
     return NULL;
 }
 
-
-
 symbol_table_global::symbol_table_global() {
     this -> name = "__GlobalSymbolTable__";
     this -> scope = "";
@@ -268,8 +266,8 @@ void symbol_table_global::add_entry(symbol_table_class* new_cls) {
         }
     }
 
-    st_entry *tmp = new st_entry(new_cls -> name, new_cls -> scope_start_line_no, 0, new_cls -> name);
-    tmp -> initialized = true;
+    // st_entry *tmp = new st_entry(new_cls -> name, new_cls -> scope_start_line_no, 0, new_cls -> name);
+    // tmp -> initialized = true;
     // this -> entries.push_back(tmp);  // populate here as well for other lookups
     this -> classes.push_back(new_cls);
 }
@@ -281,9 +279,8 @@ void symbol_table_global::add_entry(symbol_table_func* new_func) {
             exit(1);
         }
     }
-
-    st_entry *tmp = new st_entry(new_func -> name, new_func -> scope_start_line_no, 0, new_func -> name);
-    tmp -> initialized = true;
+    // st_entry *tmp = new st_entry(new_func -> name, new_func -> scope_start_line_no, 0, new_func -> name);
+    // tmp -> initialized = true;
     // this -> entries.push_back(tmp);  // populate here as well for other lookups
     this -> functions.push_back(new_func);
 }
@@ -313,7 +310,6 @@ void symbol_table::make_csv(string filename) {
     for(auto &entry : this -> entries) {
         out << this -> scope << ", " <<  entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
     }
-
     out.close();
 }
 
@@ -368,8 +364,14 @@ void symbol_table_global::make_csv(string filename) {
     for(auto &cls : this -> classes) {
         out << "Global, " << cls -> name << ", " << cls -> object_size << ", " << this -> scope_start_line_no << "\n";  
     }
+    out << "Scope, Function Name, Size, Line Number\n";
     for(auto &funcs : this -> functions) {
         out << "Global, " << funcs -> name << ", NULL, " << this -> scope_start_line_no << "\n";  
+    }
+    out << "Scope, Variable Name, Size, Line Number\n";
+
+    for(auto &entry : this -> entries) {
+        out << "Global, " << entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
     }
 
     out.close();
@@ -400,54 +402,65 @@ void symbol_table::make_csv_wrapper(string filename) {
     }
 }
 
-void symbol_table_global::add_Print(){
-    // MAKE PrintStream CLASS
-    /*symbol_table_class *prnt;
-    symbol_table_func *pln;
-    prnt = new symbol_table_class("PrintStream");
-
-    vector<st_entry *> empty_params;
-    vector<st_entry *> only_string;
-    only_string.push_back(new st_entry("message", -1, -1, "String"));
-  
-    pln = new symbol_table_func("println", empty_params, "void");
-    prnt->add_func(pln);
-
-    pln = new symbol_table_func("println", only_string, "void");
-    prnt->add_func(pln);
-        
-    pln = new symbol_table_func("print", empty_params, "void");
-    prnt->add_func(pln);
-
-    pln = new symbol_table_func("print", only_string, "void");
-    prnt->add_func(pln);
-
-    // END PrintStream class
-    
-    // MAKE System class
-    symbol_table_class *syst;
-    st_entry *out;
-    syst = new symbol_table_class("System");
-    out = new st_entry("out", -1, -1, "PrintStream");
-    syst -> entries.push_back(out);
-    // END System class
-
-    // ADD Dummy to simulate System
-    symbol_table_class *sup;
-    st_entry* dum;
-    sup = new symbol_table_class("__SUPER__SYSTEM__");
-    dum = new st_entry("System", -1, -1, "System");
-    sup -> entries.push_back(dum);
-
-    // ADD to Global Table
-    main_table -> add_entry(syst);
-    main_table -> add_entry(prnt);
-    main_table -> add_entry(sup);*/
+void symbol_table_global::add_Print() {
     vector <st_entry *> args;
-    // st_entry *arg = new st_entry("print_arg", 0, 0, "str");
-    // args.push_back(arg);
-    symbol_table_func *print = new symbol_table_func("print", args, "None");
-    global_table -> add_entry(print);
-    global_table -> add_scope((symbol_table *)print);
-    global_table -> children_st.push_back((symbol_table *)print);
+
+    st_entry *arg = new st_entry("print_str", 0, 0, "str");
+    args.push_back(arg);
+    symbol_table_func *print_str = new symbol_table_func("print", args, "None");
+    global_table -> functions.push_back(print_str);
+    global_table -> add_scope((symbol_table *)print_str);
+    global_table -> children_st.push_back((symbol_table *)print_str);
+
+    arg = new st_entry("print_int", 0, 0, "int");
+    args = {arg};
+    symbol_table_func *print_int = new symbol_table_func("print", args, "None");
+    global_table -> functions.push_back(print_int);
+    global_table -> add_scope((symbol_table *)print_int);
+    global_table -> children_st.push_back((symbol_table *)print_int);
+
+    arg = new st_entry("print_flt", 0, 0, "float");
+    args = {arg};
+    symbol_table_func *print_float = new symbol_table_func("print", args, "None");
+    global_table -> functions.push_back(print_float);
+    global_table -> add_scope((symbol_table *)print_float);
+    global_table -> children_st.push_back((symbol_table *)print_float);
+
+    arg = new st_entry("print_bol", 0, 0, "bool");
+    args = {arg};
+    symbol_table_func *print_bool = new symbol_table_func("print", args, "None");
+    global_table -> functions.push_back(print_bool);
+    global_table -> add_scope((symbol_table *)print_bool);
+    global_table -> children_st.push_back((symbol_table *)print_bool);
+}
+
+void symbol_table_global::add_Range() {
+    vector <st_entry *> args;
+
+    st_entry *start = new st_entry("start", 0, 0, "int");
+    st_entry *end = new st_entry("end", 0, 0, "int");
+    args.push_back(start);
+    args.push_back(end);
+
+    symbol_table_func *range_start_end = new symbol_table_func("range", args, "int");
+    global_table -> functions.push_back(range_start_end);
+    global_table -> add_scope((symbol_table *)range_start_end);
+    global_table -> children_st.push_back((symbol_table *)range_start_end);
+
+    args = {end};
+    symbol_table_func *range_end = new symbol_table_func("range", args, "int");
+    global_table -> functions.push_back(range_end);
+    global_table -> add_scope((symbol_table *)range_end);
+    global_table -> children_st.push_back((symbol_table *)range_end);
+}
+
+void symbol_table_global::add_Len() {
+    vector<st_entry *> args;
+
+    st_entry *list = new st_entry("list_var", 0, 0, "list");
+    args.push_back(list);
+    symbol_table_func *len = new symbol_table_func("len", args, "int");
+    global_table -> functions.push_back(len);
+    global_table -> add_scope((symbol_table *)len);
+    global_table -> children_st.push_back((symbol_table *)len);
 }

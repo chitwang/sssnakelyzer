@@ -11,32 +11,27 @@ Extra:
     multi dimensional list
 
 Doubt in semantics: 
-    else with while and for ?
+
    
     tupe_checked
    
     global ka offset
 
  
-    trailer plus : how much to do 
     add global functions for range, len and print
-
-  
-
-
-    support is ?
     supporting float in modulo ? 
-    
-    is, not in, in 
+
     only int in (for i in range,,)  (currently, return type of range is int )
-    for 2 in 5 ?? 
     do we have to check if assignable ? 
     <function>:int = 2 ? 
-    a = [b=c,1,2]
     check if variable in assign / augassign
     if global not already a global, static typing doesnt work there. So do we have to support like this ?
-    exact usage of global
-    a:int cannot use a before initializing it (is_initialized)
-    how to get function name in set_trailer_type_compatibility ???
-
-    can we assume def foo(a:int, a:int):  such erroneous case will not be there 
+    
+    line numbers 
+    
+    typecasting inside list as well ? 
+    change check type arithmetic 
+    string plus ?
+    user defined print ?
+    None is compatible with all ? 
+    call init from class name ??

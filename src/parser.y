@@ -124,6 +124,19 @@ void print_help() {
     exit(1);
 }
 
+string max_type(string type1, string type2) {
+    if(type1 == type2) {
+        return type1;
+    }
+    if(type1 == "float" || type2 == "float") {
+        return "float";
+    }
+    if(type1 == "int" || type2 == "int") {
+        return "int";
+    }
+    return "UNDEFINED";
+}
+
 bool is_not_class(string &type) {
     bool flag = false;
     for(auto t: primitive_types) {
@@ -185,7 +198,61 @@ void make_new_class_symbtab(string s, string parent = "") {
     // cout<<current_table->symbol_table_category<<endl;
 }
 
+string check_predefined_functions(string func_name, vector<string> &params) {
+    if(func_name == "print") {
+        if(params.size() != 1){
+            cout << "Invalid arguments for print at line " << yylineno << endl;
+            exit(1);
+        }
+        if(params[0] != "str" && params[0] != "int" && params[0] != "float" && params[0] != "bool") {
+            cout << "Invalid arguments for print at line " << yylineno << endl;
+            exit(1);
+        }
+        return "None";
+    }
+    else if(func_name == "range"){
+        if(params.size() == 1) {
+            if(params[0] != "int") {
+                cout << "Invalid arguments for range at line " << yylineno << endl;
+                exit(1);
+            }
+        }
+        else if(params.size() == 2) {
+            if(params[0] != "int" || params[1] != "int") {
+                cout << "Invalid arguments for range at line " << yylineno << endl;
+                exit(1);
+            }
+        }    
+        else{
+            cout << "Invalid arguments for range at line " << yylineno << endl;
+            exit(1);
+        }
+        return "int";
+    }
+    else if(func_name == "len"){
+        if(params.size() != 1) {
+            cout << "Invalid arguments for len at line " << yylineno << endl;
+            exit(1);
+        }
+        if(params[0].length() < 4 || params[0].substr(0,4) != "list") {
+            cout << "Invalid arguments for len at line " << yylineno << endl;
+            exit(1);
+        }
+        return "int";
+    }
+    return "UNDEFINED";
+}
+
 void make_new_func_symbtab(string func_name, vector<st_entry *> &params, string ret_type) {
+    int sz = params.size();
+    for(int i = 0; i < sz - 1; i++) {
+        for(int j = i + 1; j < sz; j++) {
+            if(params[i]->name == params[j] -> name) {
+                cout << "Invalid function parameters for function "<<func_name<<endl;
+                exit(1);
+            }
+        }
+    }
     temp_table = new symbol_table_func(func_name, params, ret_type);
     if(current_table->symbol_table_category == 'C') {
         symbol_table_func *if_exist = ((symbol_table_class *)current_table) -> look_up_function(func_name);
@@ -212,16 +279,29 @@ void make_new_func_symbtab(string func_name, vector<st_entry *> &params, string 
 }
 
 void is_compatible(string type1, string type2 = "bool") {
-    if(type1 == "int" || type1 == "float" || type1 == "bool") {
+    if(type1 == "int") {
         if (!(type2 == "int" || type2 == "float" || type2 == "bool")){
-            cout<<"Incompatible operands\n";
+            cout << "Incompatible types " << type1 << " and " << type2 << " on line " << yylineno << endl;
             exit(1);
         }
         return;
     }
-
+    if(type1 == "float") {
+        if (!(type2 == "int" || type2 == "float")){
+            cout << "Incompatible types " << type1 << " and " << type2 << " on line " << yylineno << endl;
+            exit(1);
+        }
+        return;
+    }
+    if(type1 == "bool") {
+        if (!(type2 == "int" || type2 == "bool")){
+           cout << "Incompatible types " << type1 << " and " << type2 << " on line " << yylineno << endl;
+            exit(1);
+        }
+        return;
+    }
     if(type1 != type2){
-        cout<<"Incompatible types\n";
+        cout << "Incompatible types " << type1 << " and " << type2 << " on line " << yylineno << endl;
         exit(1);
     }
     return;
@@ -245,6 +325,7 @@ string check_decl_before_use(string name , node *current_node) {
         else {
             // cout << name << endl;
             current_node->is_func = true;
+            current_node->sym_tab_func = st_func;
             return st_func -> return_type;
         }
     }
@@ -266,6 +347,7 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
         }
         else {
             current_node -> is_func = true;
+            current_node -> sym_tab_func = function_entry;
             return function_entry -> return_type;
         }
     }
@@ -293,6 +375,28 @@ string check_self_decl_before_use(string name, node *current_node) {
     }
 }
 
+string check_constructor(string class_name, vector<string> actual_params) {   
+    symbol_table_class *cl_tb = global_table -> look_up_class(class_name);
+    if(!cl_tb) {
+        cout << "Class " << class_name << " at line " << yylineno << " doesn't exist\n";
+        exit(1);
+    }
+    string init = "__init__";
+    symbol_table_func *constr = cl_tb -> look_up_function_in_class_hierarchy(init);
+    if(!constr)  {
+        cout << "Constructor for class " << class_name << "at line " << yylineno << " doesn't exist\n";
+        exit(1);
+    }
+    if(constr -> params.size() != actual_params.size() + 1){
+        cout << "Invalid arguments for constructor of class " << class_name << " at line " << yylineno << endl;
+        exit(1);
+    }
+    for(int i = 1; i < constr->params.size(); i++) {
+        is_compatible(constr->params[i]->type, actual_params[i - 1]);
+    }
+    return cl_tb -> name;
+}
+
 string set_trailer_type_compatibility(node *current_node, node *leftnode, string typeLeft, string typeRight, string attribute_name = "", vector<string> actual_params = {}) {
     if(typeRight == "list_subs") {
         if(typeLeft.length() >= 4 && typeLeft.substr(0, 4) == "list") 
@@ -303,8 +407,8 @@ string set_trailer_type_compatibility(node *current_node, node *leftnode, string
         }
     }
     if(typeRight == "objattribute") {
-        if(!leftnode->is_class) {
-            cout << typeLeft << "on line " << yylineno << "is not a class object\n";
+        if(is_not_class(typeLeft)) {
+            cout << typeLeft << " on line " << yylineno << " is not a class object\n";
             exit(1);
         } 
         string class_name = typeLeft;
@@ -316,28 +420,39 @@ string set_trailer_type_compatibility(node *current_node, node *leftnode, string
         return (check_attribute_in_class(if_class, attribute_name, current_node));
     }
     if(typeRight == "functrailer") {
-        // cout << "Function call\n";
-        if(!(leftnode -> is_func)){
-            cout<<"error on line "<<yylineno<<": "<<typeLeft<<" is not a function\n";
-            exit(1);
+        if(!(leftnode -> is_func)) {
+            if(leftnode -> is_class) {
+                return check_constructor(typeLeft, actual_params); 
+            }
+            else{
+                cout<<"Not a func or class constructor\n";
+                exit(1);
+            }
         }
         // cout << "IS A FUNC\n";
-        string func_name = typeLeft;
+        // string func_name = leftnode -> sym_tab_func -> name;
         // cout << "FUNC NAME: " << func_name << endl;
-        symbol_table_func *is_func = global_table -> look_up_func(func_name);
         // cout << "LOOK UP DONE\n";
         // if(!is_func) {
         //     cout << "FUNC NOT FOUND\n";
         // }
-        if(actual_params.size() != (is_func -> params).size()) {
-            cout << "Invalid params for function " << func_name << " at line " << yylineno << endl;
+        
+        int flag = 0;
+        symbol_table_func *func_table = leftnode -> sym_tab_func;
+        if(func_table -> name == "print" || func_table -> name == "len" || func_table -> name == "range"){
+            return check_predefined_functions(func_table -> name, actual_params);
+        }
+        if(func_table -> parent_st -> symbol_table_category == 'C') {
+            flag = 1;
+        }
+        if(actual_params.size() + flag != (func_table -> params).size()) {
+            cout << "Invalid params for function call" << func_table->name << " at line " << yylineno << endl;
             exit(1);
         }
-        // cout << "PARAM CHECK DONE\n";
-        for(int i=0;i<actual_params.size();i++) {
-            is_compatible(actual_params[i], is_func -> params[i]-> type);
+        for(int i = 0; i < actual_params.size(); i++) {
+            is_compatible(actual_params[i], func_table -> params[i + flag]-> type);
         }
-        return is_func -> return_type;
+        return func_table -> return_type;
     }
     return "UNDEFINED";
 }
@@ -365,7 +480,7 @@ void yyerror(const char*);
 
 %token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK KEY_IN KEY_TRUE KEY_CLASS  KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_DEF KEY_WHILE KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER  INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST SELF_DOT
 
-%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt semicolon_stmt break_stmt continue_stmt exprlist return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom argument  number arglist types newline_plus file_input file_plus program_start string_plus augassign type_list type_declaration func_header class_header type_or_name trailored_atom
+%type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt semicolon_stmt break_stmt continue_stmt return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom argument  number arglist types newline_plus file_input file_plus program_start augassign type_list type_declaration func_header class_header type_or_name trailored_atom
 
 %start start_symbol
 
@@ -648,14 +763,14 @@ while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suit
     is_compatible(all_nodes[$2]->datatype, "bool");
 }
 
-for_stmt: KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"for","in", ":","else",":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6, node_count+3, node_count+4, $9}; insert_node(); $$ = node_count + 5;
+for_stmt: KEY_FOR expr KEY_IN testlist DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"for","in", ":","else",":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6, node_count+3, node_count+4, $9}; insert_node(); $$ = node_count + 5;
     node_count += 6;
     if(all_nodes[$2]->datatype != "int" || all_nodes[$4]->datatype != "int") {
         cout << "Invalid for loop at line " << yylineno << endl;
         exit(1);
     }
 }
-| KEY_FOR exprlist KEY_IN testlist DELIM_COLON suite {node_attr = {"for","in", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6}; insert_node(); $$ = node_count + 3;
+| KEY_FOR expr KEY_IN testlist DELIM_COLON suite {node_attr = {"for","in", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6}; insert_node(); $$ = node_count + 3;
     node_count += 4;
     if(all_nodes[$2]->datatype != "int" || all_nodes[$4]->datatype != "int") {
         cout << "Invalid for loop at line " << yylineno << endl;
@@ -807,14 +922,17 @@ factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node
     }
     all_nodes[$$]->datatype = "int";
 }
+
 | OP_ADD factor {node_attr = {"+", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$2]->datatype, "int");
     all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
 }
+
 | OP_SUBTRACT factor {node_attr = {"-", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$2]->datatype, "int");
     all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
 }
+
 | power {node_attr = {"factor"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
 }
@@ -822,6 +940,7 @@ factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node
 power: atom_expr {node_attr = {"power"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
 all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
 }
+
 | atom_expr OP_POWER factor {node_attr = {"**", "power"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
@@ -830,20 +949,23 @@ all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
 atom_expr: atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
 }
+
 | trailored_atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
 }
 
 trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
-    cout << "BEFORE\n";
+    // cout << "BEFORE\n";
     all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$],all_nodes[$1], all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
-    cout << "AFTER\n";
+    // cout << "AFTER\n";
 }
+
 | atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2; 
     all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
 }
+
 | atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     if(all_nodes[$3]->datatype != "int") {
         cout << "Index at line " << yylineno << " should be an integer\n";
@@ -877,10 +999,11 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     node_count += 3;
 }
 
-string_plus: string_plus STRING_LITERAL {node_attr = {string("STR ") + strdup($2), "string_plus"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-           | STRING_LITERAL {node_attr = {string("STR ") + strdup($1), "string_plus"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-
-atom: DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
+atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, $2, node_count + 1}; insert_node(); $$ = node_count + 2;
+    node_count += 3;
+    all_nodes[$$]->datatype = all_nodes[$2]->datatype;
+}
+| DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
     node_count += 3;
     all_nodes[$$]->datatype = "list[ " + all_nodes[$2]->datatype + " ]";
 }
@@ -892,7 +1015,9 @@ atom: DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "a
 | number {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
 }
-    | string_plus {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
+| STRING_LITERAL {node_attr = {string("STR ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$]->datatype = "str";
+}
     | DELIM_ELLIPSIS {node_attr = {"...", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 | KEY_NONE {node_attr = {"None", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = "None";
@@ -922,13 +1047,16 @@ number: INTEGER {
     node_count += 2;
 }
 
-exprlist: expr {node_attr = {"exprlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | expr DELIM_COMMA exprlist {node_attr = {",", "exprlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        | expr DELIM_COMMA {node_attr = {",", "exprlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
-
-testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;}
-        | test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;}
-        | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
+testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
+    all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
+}
+| test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    is_compatible(all_nodes[$1] -> datatype, all_nodes[$3] -> datatype);
+    all_nodes[$$] -> datatype = max_type(all_nodes[$1] -> datatype, all_nodes[$3] -> datatype);
+}
+| test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
+    all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
+}
 
 classdef: class_header suite {
     node_attr = {"classdef"};
@@ -1137,6 +1265,8 @@ int main(int argc, char* argv[]) {
     } 
 
     global_table->add_Print();
+    global_table->add_Range();
+    global_table->add_Len();
     yyparse();
     root_node = all_nodes.back();
     root_node->clean_tree();

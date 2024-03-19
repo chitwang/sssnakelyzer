@@ -51,10 +51,10 @@
 # #     return
 # # # pow(exponent=3, base=2)
 
-class A:
-    def __init__(self, x: int):
-        self.x: int = x
-        return
+# class A:
+#     def __init__(self, x: int):
+#         self.x: int = x
+#         return
 
 # class B:
 #     x:int = 10
@@ -62,8 +62,10 @@ class A:
 #         self.obj: A = obj
 #         self.a : int = 5
 #     def add(self) -> int:
-#         self.a = x
+#         self.a = self.x
 #         return 1 + 3
+#     # def ret(self) -> A:
+#     #     return self.obj
 
 # def add(a:int) -> int:
 #     return 2 // a
@@ -76,19 +78,23 @@ class A:
 #         self.cobj: B = cobj
 #         print() 
 #         # self.add()
-#         add()
-#         sub()
+#         add(4)
+#         sub(1, 2, 3, 4)
+#     def ret(self) -> B:
+#         return self.cobj
 
-# def func():
-#     print(1)
+# # def func():
+# #     print(1)
         
 # a: A = A(4)
 # b: B = B(a)
 # c: C = C(b)
-
-# print(c)
-# # # print(b.obj.x)
-# # print()
+# b.add()
+# # d:str = c.cobj.add()
+# e:int = c.ret().add()
+# # print(c)
+# # # # print(b.obj.x)
+# print()
 # # # print(ff)
 # # # print(c.cobj.obj.x)
 # # # print(cobj)
@@ -129,19 +135,20 @@ class A:
 # #     print(2)
 
 # print(4.1//2.3)
-x:int = 3
 
-def foo(a: int) -> int:
-  b:int = x
-  # x:int = 3
-  global x
-  # x:int = 5
+# x:int = 3
 
-  # print()
-  return a + 5
+# def foo(a: int) -> int:
+#   # b:int = x
+#   # x:int = 3
+#   global x
+#   # x:int = 5
 
-b:int = foo(x)
-c:int = 4
+#   print()
+#   return a + 5
+
+# b:int = foo(x)
+# c:int = 4
 # b: A = A(2)
 # c:int = b.x
 
@@ -163,3 +170,7 @@ c:int = 4
 # a.foo()
 # print(foo(5), x)
 # print(x)
+
+
+# a:list[int] = ["123", 2.4, 3]
+x:int = 203

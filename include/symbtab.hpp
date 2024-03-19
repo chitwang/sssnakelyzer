@@ -91,6 +91,8 @@ public:
     symbol_table_func* look_up_func(string &func_name);
     void make_csv(string filename);
     void add_Print();
+    void add_Range();
+    void add_Len();
 };
 
 #endif 
