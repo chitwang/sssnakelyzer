@@ -11,15 +11,10 @@ Extra:
     multi dimensional list
 
 Doubt in semantics: 
-
-   
     tupe_checked
-   
     global ka offset
-
- 
-    add global functions for range, len and print
     supporting float in modulo ? 
+ 
 
     only int in (for i in range,,)  (currently, return type of range is int )
     do we have to check if assignable ? 
@@ -31,7 +26,8 @@ Doubt in semantics:
     
     typecasting inside list as well ? 
     change check type arithmetic 
-    string plus ?
-    user defined print ?
-    None is compatible with all ? 
     call init from class name ??
+    3AC for "for"
+    confirm name resolution method from sir 
+    self.a:int = 3 in a fn except init ?
+    3AC for typecasting ? 

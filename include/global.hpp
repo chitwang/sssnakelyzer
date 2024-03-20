@@ -13,7 +13,11 @@ extern symbol_table_global *global_table;
 
 extern map<string, int> type_to_size;
 extern set<string> primitive_types;
+extern vector<node *> all_nodes;
+extern vector<quad> all_quads; 
 
 extern node *root_node;     // contains the root node of the parse tree
+
+void print_tac(string filename);
 
 #endif

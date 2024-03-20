@@ -2,44 +2,40 @@
 #include "../include/global.hpp" // Includes node.hpp
 using namespace std;
 
-extern bool isop(string);
-// node *root;
-symbol_table_global *main_table;
+node *root;
 
-
-node::node(string name /*= ""*/, bool terminal /*= false*/, string type /* = "" */, node* parent /* = NULL */) {
+node::node(string name /*= ""*/, bool terminal /*= false*/, string type /* = "" */, node* parent /* = NULL */){
     this->parent = parent;
     this->name = name;
     this->terminal = terminal;
     this->type = type;
     this->line_no = yylineno;
-    this->children = vector<node *> ();
-    this->entry_list = vector<st_entry*> ();
 }
 
-void node::print_tree(int tab) {
-    for(int i=0; i<tab; i++) {
+void node::print_tree(int tab){
+    for(int i=0; i<tab; i++){
         cout<<'\t';
     }
-    cout << this->name << "-> ";
-    for(auto i: (this->children)) {
-        cout << i->name << ' ';
+    cout<<(this->name)<<"-> ";
+    for(auto i: (this->children)){
+        cout<<(i->name)<<' ';
     }
-    cout << '\n';
+    cout<<'\n';
     tab++;
-    for(auto i: (this->children)) {
+    for(auto i: (this->children)){
         i->print_tree(tab);
     }
 }
 
-void node::clean_tree() {  
+void node::clean_tree(){  
+
     // Removing semicolon (and other?) delimiters
-    // this->remove_lexeme_policy(";");
+    this->remove_lexeme_policy(";");
 
     // * Cleans the Parse tree to make an AST; Should necessarily be called from the root.
     // * Removing Nodes with a single child; Replaces them with the child
     node* v = NULL;
-    for(int x = 0; x < (this->children).size(); x++) {
+    for(int x = 0; x < (this->children).size(); x++){
         v = ((this->children)[x])->one_child_policy(x);
         if(v){
             delete v;
@@ -65,7 +61,7 @@ void node::remove_lexeme_policy(string lex) {
     }
 }
 
-node* node::one_child_policy(int idx) {     
+node* node::one_child_policy(int idx){     
     // Ensures that each Node in the AST with one child is replaced by the child; deletes the parent afterwards
     // idx is the index of the current node in its parent's list. The node's child shall occupy this index after killing its parent
     if(this->parent == NULL) {
@@ -73,25 +69,25 @@ node* node::one_child_policy(int idx) {
         exit(1);
     }
     if((this->children).size() == 1){
-        if(this->name != "Expression" && this->name != "VariableDeclarator" && this->name != "Assignment" && this->name != "Block" && this->name != "VariableDeclaratorId" && this->name != "ReturnStatement" && this->name != "ArrayCreationExpression" && this->name != "ForInit" && this->name != "ForUpdate") {
+        if(this->name != "Expression" && this->name != "VariableDeclarator" && this->name != "Assignment" && this->name != "Block" && this->name != "VariableDeclaratorId" && this->name != "ReturnStatement" && this->name != "ArrayCreationExpression" && this->name != "ForInit" && this->name != "ForUpdate"){
             this->kill_parent(idx);
             return this;
-        } else {
+        }else{
             node* v = NULL;
-            while((this->children).size() == 1) {
+            while((this->children).size() == 1){
                 v = (this->children)[0]->one_child_policy(0);
-                if(v) {
+                if(v){
                     delete v;
-                } else {
+                }else{
                     break;
                 }
             }
         }
-    } else {
+    }else{
         node* v = NULL;
-        for(int x = 0; x < (this->children).size(); x++) {
+        for(int x = 0; x < (this->children).size(); x++){
             v = ((this->children)[x])->one_child_policy(x);
-            if(v) {
+            if(v){
                 delete v;
                 x--;
             }
@@ -100,114 +96,82 @@ node* node::one_child_policy(int idx) {
     return NULL;
 }
 
-void node::kill_parent(int idx, int child_idx /*= 0*/) {
+void node::kill_parent(int idx, int child_idx /*= 0*/){
     node* child = this->children[child_idx];
     child->parent = this->parent;
     ((child->parent)->children)[idx] = child;
 }
 
-// void node::expression_policy(){
-//     if(this->exp_applicable){            
-//         if((this->children).size() == 2) {
-//             node* child = (this->children)[0];
-//             if(this->name == "Expression" || this->name == "Assignment"){
-//                 child->add_child((this->children)[1]);
-//                 this->children.clear();
-//                 this->add_child(child);
-//             }else{
-//                 this->copy(*child);
-//                 (this->children).erase((this->children).begin() + 0, (this->children).begin() + 1);  
-//                 delete child;
-//             }
-            
-//             // this->name = child->name;
-//             // this->type = child->type;
-//             // this->terminal = child->terminal;
-//             // this->exp_applicable = child->exp_applicable;
-//             // (this->children).erase((this->children).begin(), (this->children).begin() + 1);  
-//         } else if((this->children).size() == 3){
-//             node* child = (this->children)[1];
-//             if(this->name == "Expression" || this->name == "Assignment"){
-//                 child->add_child((this->children)[0]);
-//                 child->add_child((this->children)[2]);
-//                 this->children.clear();
-//                 this->add_child(child);
-//             }else{
-//                 this->copy(*child);
-//                 (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
-//                 delete child;
-//             }
-//             // this->name = child->name;
-//             // this->type = child->type;
-//             // this->terminal = child->terminal;
-//             // this->exp_applicable = child->exp_applicable;
-//             // (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
-//             // delete child;
-//         } else if((this->children).size() == 5){
-//             if(this->name == "Expression" || this->name == "Assignment"){
-//                 node* child = new node("?:", true, "OPERATOR");
-//                 child->add_child(this->children[0]);
-//                 child->add_child(this->children[2]);
-//                 child->add_child(this->children[4]);
-//                 delete this->children[1];
-//                 delete this->children[3];
-//                 this->children.clear();
-//                 this->add_child(child);
-//             }else{
-//                 node* child;
-//                 child = (this->children)[1];
-//                 this->name = "?:";
-//                 this->type = "OPERATOR";
-//                 this->terminal = child->terminal;
-//                 this->exp_applicable = child->exp_applicable;
-//                 child = (this->children)[3];
-//                 (this->children).erase((this->children).begin() + 3, (this->children).begin() + 4);  
-//                 delete child;
-//                 child = (this->children)[1];
-//                 (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
-//                 delete child;
-//             }
-//         }
-//     }
-
-//     for(int x = 0; x < (this->children).size(); x++) {
-//         (this->children)[x] -> expression_policy();
-//     }
-// }
-
-
-/*
- * Ye apna operator shift h..
- * Python wala
-*/
-
-void node::expression_policy() {
-    int op_index = -1;
-    for(int i = 0; i < this->children.size(); i++) {
-        if(isop(this->children[i]->name)) {
-            op_index = i;
-            break;
-        }
-    }   
-    if(op_index != -1) {
-        this->name = this->children[op_index]->name;
-        this->terminal = this->children[op_index]->terminal;
-        this->type = this->children[op_index]->type;
-        this->line_no = this->children[op_index]->line_no;
-        vector<node *> new_children;
-        for(int i = 0; i < this->children.size(); i++) {
-            if(i != op_index) {  
-                new_children.push_back(this->children[i]);
+void node::expression_policy(){
+    if(this->exp_applicable){            
+        if((this->children).size() == 2) {
+            node* child = (this->children)[0];
+            if(this->name == "Expression" || this->name == "Assignment"){
+                child->add_child((this->children)[1]);
+                this->children.clear();
+                this->add_child(child);
+            }else{
+                this->copy(*child);
+                (this->children).erase((this->children).begin() + 0, (this->children).begin() + 1);  
+                delete child;
             }
-        }   
-        this->children = new_children;
+            
+            // this->name = child->name;
+            // this->type = child->type;
+            // this->terminal = child->terminal;
+            // this->exp_applicable = child->exp_applicable;
+            // (this->children).erase((this->children).begin(), (this->children).begin() + 1);  
+        } else if((this->children).size() == 3){
+            node* child = (this->children)[1];
+            if(this->name == "Expression" || this->name == "Assignment"){
+                child->add_child((this->children)[0]);
+                child->add_child((this->children)[2]);
+                this->children.clear();
+                this->add_child(child);
+            }else{
+                this->copy(*child);
+                (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
+                delete child;
+            }
+            // this->name = child->name;
+            // this->type = child->type;
+            // this->terminal = child->terminal;
+            // this->exp_applicable = child->exp_applicable;
+            // (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
+            // delete child;
+        } else if((this->children).size() == 5){
+            if(this->name == "Expression" || this->name == "Assignment"){
+                node* child = new node("?:", true, "OPERATOR");
+                child->add_child(this->children[0]);
+                child->add_child(this->children[2]);
+                child->add_child(this->children[4]);
+                delete this->children[1];
+                delete this->children[3];
+                this->children.clear();
+                this->add_child(child);
+            }else{
+                node* child;
+                child = (this->children)[1];
+                this->name = "?:";
+                this->type = "OPERATOR";
+                this->terminal = child->terminal;
+                this->exp_applicable = child->exp_applicable;
+                child = (this->children)[3];
+                (this->children).erase((this->children).begin() + 3, (this->children).begin() + 4);  
+                delete child;
+                child = (this->children)[1];
+                (this->children).erase((this->children).begin() + 1, (this->children).begin() + 2);  
+                delete child;
+            }
+        }
     }
-    for(int i = 0; i < this->children.size(); i++) {
-        this->children[i]->expression_policy();
+
+    for(int x = 0; x < (this->children).size(); x++) {
+        (this->children)[x] -> expression_policy();
     }
 }
 
-void node::make_dot(string filename /*= "tree.gv"*/) {
+void node::make_dot(string filename /*= "tree.gv"*/){
     unsigned long long node_num = 0;
 
     string dot_code = "digraph ast {\n";
@@ -223,11 +187,11 @@ void node::make_dot(string filename /*= "tree.gv"*/) {
     }
 }
 
-void node::add_nodes(unsigned long long (&node_num), string (&dot_code)) {
+void node::add_nodes(unsigned long long (&node_num), string (&dot_code)){
     node_num++;
     this->node_number = node_num;
     
-    if(this->terminal) {
+    if(this->terminal){
         dot_code += "node" + to_string(this->node_number) + "[label = \"" + this->type + '\n' + this->name + " (L" + to_string(this->line_no) +  ")\", shape = rectangle, color = ";
         if(this->type == "ID"){
             dot_code += "purple";
@@ -265,7 +229,7 @@ void node::add_child(node* child) {
 
 string node::get_name(node* v){
     // Only for UnannType-like nodes
-    if(v->name == "Name" || (v->type == "ID" && v->terminal)){
+    if(v->name == "#Name#" || (v->type == "ID" && v->terminal)){
         // For Name-like nodes
         if(v->children.size() == 3){
             return get_name(v->children[0]) + "." + (v->children[2]->name);
@@ -281,6 +245,24 @@ string node::get_name(node* v){
     }
     return "ERROR.\n";
 }
+
+// int node::calc_dims(node* v){
+//     // to calculate memory needed for an array
+//     if(v && v->name == "DimExprs"){
+//         if(v->children.size()==1){
+
+//         }
+//     }
+//     if(v){
+//         if(v->name == "DimExpr"){
+//             node* curr = v->children[1];
+//             while(curr->children.size()){
+//                 curr = curr->children[0];
+//             }
+//             return atoi(curr->name);
+//         }
+//     }
+// }
 
 int node::get_dims(node* v){
     // Only for qDims-like nodes
@@ -312,24 +294,58 @@ int node::get_dims(node* v){
 
 symbol_table* node::get_symbol_table() {
     node* temp_node = this;
+    
     while(temp_node && !(temp_node -> sym_tab)) {
         temp_node = temp_node->parent;
     }
     if(temp_node == NULL) {
         return NULL;
     }
+    
     return temp_node -> sym_tab;
+}
+
+symbol_table* node::get_scope() {
+    node* tmp = this;
+    while(tmp && !tmp -> sym_tab) {
+        tmp = tmp -> parent;
+    }
+
+    if(!tmp) {
+        return NULL;
+    }
+    else {
+        return tmp -> sym_tab;
+    }
+}
+
+bool node::check_static() {
+    symbol_table* scope = this -> get_scope();
+    while(scope && scope -> parent_st && scope -> symbol_table_category != 'M') {
+        scope = scope -> parent_st;
+    }
+    if(scope == main_table) {       // if we go to the global table, exit
+        return false;
+    }
+    if(scope){
+        return ((symbol_table_func*) scope)->modifier_bv[M_STATIC];
+    }
+
+    return false;
 }
 
 symbol_table_class* node::get_symbol_table_class() {
     symbol_table* cnt = this -> get_symbol_table();
+
     while(cnt && cnt -> symbol_table_category != 'C') {
         cnt = cnt -> parent_st;
     }
+
     if(!cnt) {
         cout << "Class symbol table not found! Aborting..." << endl;
         exit(1);
     }
+
     return (symbol_table_class *)cnt;
 }
 
@@ -356,6 +372,7 @@ st_entry* node::get_and_look_up(string id) {
         cout << "Unknown error, symbol table not found! Aborting..." << endl;
         exit(1);
     }
+
     st_entry* tmp = cnt_table -> look_up(id);
     return tmp;
 }
@@ -455,8 +472,7 @@ void node::create_scope_hierarchy() {
 
 // BEFORE WALK 2 ADD DEFAULT CONSTRUCTORS TO ALL CLASSES AS NECESSARY
 // BEFORE WALK 2 CALCULATE ALL THE CLASS SIZES FROM FIELD MEMBERS
-
-/*void node::populate_default_constructors() {
+void node::populate_default_constructors() {
     for(auto &cls : main_table -> classes) {
         bool flag = false;
         for(auto &func : cls -> member_funcs) {
@@ -467,20 +483,22 @@ void node::create_scope_hierarchy() {
         
         if(flag) continue;                          // no need to add default constructor
         
+        vector<string> empty_params;
         vector<st_entry*> empty_formal_params;
-        if(!(cls -> look_up_function(cls->name))) {
+        if(!(cls -> look_up_function(cls->name, empty_params))) {
             cls -> add_func(new symbol_table_func(cls->name, empty_formal_params, cls->name));
         }
     }
-}*/
+}
 
-void node::calculate_class_offest() {
+void node::populate_class_sizes() {
     for(auto &cls : main_table -> classes) {
         int offset = 0;
         for(auto &entry : cls -> entries) {
             entry -> offset = offset;
             offset += entry -> size;
         }
+
         cls -> object_size = offset;
     }
 }
@@ -488,7 +506,7 @@ void node::calculate_class_offest() {
 // WALK 2
 
 void node::validate_expression() {
-    if(this->type == "ID") {
+    if(this->type == "ID"){
         symbol_table *cnt_table = this -> get_symbol_table();
         if(!cnt_table) {
             cout << "Unknown error, symbol table not found! Aborting..." << endl;
@@ -571,7 +589,7 @@ void node::validate_expression() {
             }
         }
     }
-    else if(this -> name == "Name") {
+    else if(this -> name == "#Name#") {
         this -> children[0] -> validate_expression();
         return;
     }
@@ -684,19 +702,15 @@ void node::populate_and_check() {
             cout << "Unknown error, symbol table not found! Aborting..." << endl;
             exit(1);
         }
-        
+
         isField = (this -> get_symbol_table() -> symbol_table_category == 'C');
 
         bool flag = false;
         string type_without_array = get_type_without_array(this -> sym_tab_entry -> type);
         if(primitive_types.find(type_without_array) == primitive_types.end()) {
-            for(auto &cls : main_table -> classes) {
-                if(cls -> name == type_without_array) {
-                    flag = true;
-                    break;
-                }
-            }
-            if(!flag) {
+            symbol_table_class* tmp_class = main_table -> look_up_class(type_without_array);    // try to find object type
+            
+            if(!tmp_class) {
                 cout << "ERROR: Unknown object type " << type_without_array << " at line number: " << this -> line_no << endl;
                 exit(1);
             }
@@ -737,6 +751,43 @@ void node::populate_and_check() {
 
     for(auto &child : this -> children) {
         child -> populate_and_check();
+    }
+}
+
+// WALK 2.5 - Modifier Checking
+
+void node::modifier_check() {
+    // if(this -> name == "#Name#") {
+    //     // @TODO
+    //     return;    
+    // }
+
+    if(this -> type == "ID") {     // reference using this.x from a static function
+        st_entry* tmp = this -> get_and_look_up(this -> name);
+
+        if(tmp && tmp -> table -> symbol_table_category == 'C' && !(tmp -> modifier_bv[M_STATIC]) && this -> check_static() && !(this -> parent && this -> parent -> name == "#Name#")) {
+            cout << "ERROR: Cannot reference field variable (" << this -> name << ") from static function. Line number " << this -> line_no << endl;  
+            exit(1);
+        }
+    }
+
+    else if(this -> name == "MethodInvocation") {
+        vector<string> params = this -> children[(int)(this -> children.size()) - 1] -> get_function_parameters();
+        symbol_table_class* cnt_class = this -> get_symbol_table_class();
+        if(!cnt_class){
+            cout << "Unknown error, symbol table not found! Aborting..." << endl;
+            exit(1);
+        }
+        symbol_table_func* cnt_func = cnt_class -> look_up_function(this -> children[0] -> name, params);
+
+        if(cnt_func && !(cnt_func -> modifier_bv[M_STATIC]) && this -> check_static()) {
+            cout << "ERROR: Cannot reference non-static function (" << this -> children[0] -> name << ") from static function. Line number: " << this -> line_no << endl;  
+            exit(1);
+        }
+    }
+
+    for(auto &child : this -> children) {
+        child -> modifier_check();
     }
 }
 
@@ -2007,7 +2058,9 @@ void node::calc_datatype(node* child1, node* child2, string op){
                 cout << "ERROR: Lossy conversion from (" << dt2 << ") to (" << dt1 << ") at line number: " << this -> line_no << endl;
                 exit(1); 
             }
-            child2 -> typecast_to = child1 -> datatype;
+            if(child1 -> datatype != child2 -> datatype) {
+                child2 -> typecast_to = child1 -> datatype;
+            }
         }
         else {
             if(dt1 != dt2) {
@@ -2018,54 +2071,80 @@ void node::calc_datatype(node* child1, node* child2, string op){
     }
     else if(op == "+=") {
         this -> calc_datatype(child1, child2, "+");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == "-=") {
         this -> calc_datatype(child1, child2, "-");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == "*=") {
         this -> calc_datatype(child1, child2, "*");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == "/=") {
         this -> calc_datatype(child1, child2, "/");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == "%=") {
         this -> calc_datatype(child1, child2, "%");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == "<<=") {
         this -> calc_datatype(child1, child2, "<<");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == ">>=") {
         this -> calc_datatype(child1, child2, ">>");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == ">>>=") {
         this -> calc_datatype(child1, child2, ">>>");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }   
     else if(op == "&=") {
         this -> calc_datatype(child1, child2, "&");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == "^=") {
         this -> calc_datatype(child1, child2, "^");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
     else if(op == "|=") {
         this -> calc_datatype(child1, child2, "|");
-        child2 -> typecast_to = child1 -> datatype;
+        if(child1 -> datatype != child2 -> datatype) {
+            child2 -> typecast_to = child1 -> datatype;
+        }
     }
 }
 
 void node::obtain_function_parameters(vector<string> &params) {
     for(auto &child : this -> children) {
         if(this -> name == "Expression") {
-            params.push_back(this -> datatype);
+            if(this -> typecast_to != "UNNEEDED"){
+                params.push_back(this -> typecast_to);
+            }else{
+                params.push_back(this -> datatype);
+            }
             return;
         }
         else {
@@ -2085,7 +2164,7 @@ vector<string> node::get_function_parameters() {  // should only be called from 
     return params;
 }
 
-void node::chill_traversal() {
+void node::chill_traversal(){
     for(auto (&child) : this -> children){
         if(child -> name == "Block" || child -> name == "ClassBody"){
             child -> type_check();
@@ -2113,7 +2192,7 @@ void node::type_check() {
             this -> datatype = tmp -> type;
         }
     }
-    else if(this -> name == "Name") {
+    else if(this -> name == "#Name#") {
         symbol_table_class* cls = NULL;
         st_entry* entry = NULL;
 
@@ -2136,6 +2215,7 @@ void node::type_check() {
                     cout << "ERROR: (" << this -> children[idx] -> name << ") does not have (" << this -> children[idx + 2] -> name << ") as a member. Line number: " << this -> children[idx] -> line_no << endl;
                     exit(1);
                 }
+                type_without_array = get_type_without_array(entry -> type);
                 cls = main_table -> look_up_class(type_without_array);
                 if(!cls){
                     cout << "Unknown type error occurred due to ";
@@ -2147,16 +2227,66 @@ void node::type_check() {
                 }
                 this -> children[idx + 2] -> datatype = entry -> type;
             }else{
-                if(this -> parent -> name == "MethodInvocation") {
+                if(this -> parent -> name == "MethodInvocation"){
                     this -> parent -> children[1] -> type_check();
-                    vector<string> params = this -> parent -> children[1] ->get_function_parameters();
+                    vector<string> func_params = this -> parent -> children[1] ->get_function_parameters();
+                    string func_name = this -> children[this -> children.size() - 1] -> name;
+                    symbol_table_func* sfunc = ((symbol_table_class* ) cls) -> look_up_function(this -> children[idx + 2] -> name, func_params);
                     
-                    symbol_table_func* func = ((symbol_table_class* ) cls) -> look_up_function(this -> children[idx + 2] -> name);
-                    if(!func) {
+                    // first check for exact match, then castable matching
+                    bool match_found = false;
+                    for(auto &func : cls -> member_funcs) {
+                        bool flag = true;
+                        if(func -> name == func_name && func_params.size() == func -> params.size()) {
+                            flag = false;
+                            for(int idx = 0; idx < func_params.size(); idx++) {
+                                if(func_params[idx] != func -> params[idx] -> type) {
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(!flag) {
+                            match_found = true;
+                            sfunc = func;
+                            break;
+                        }
+                    }
+
+                    // now check for castable matching
+                    if(!match_found){
+                        for(auto &func : cls -> member_funcs) {
+                            bool flag = true;
+                            if(func -> name == func_name && func_params.size() == func -> params.size()) {
+                                flag = false;
+                                for(int idx = 0; idx < func_params.size(); idx++) {
+                                    if((this -> get_datatype_category(func_params[idx]) == 'I' || this -> get_datatype_category(func_params[idx]) == 'D') && (this -> get_datatype_category(func -> params[idx] -> type) == 'I' || this -> get_datatype_category(func -> params[idx] -> type) == 'D')) {
+                                        if(this -> get_maxtype(func_params[idx], func -> params[idx] -> type) != func -> params[idx] -> type) {
+                                            flag = true;
+                                            break;
+                                        }
+                                    }
+                                    else {
+                                        if(func_params[idx] != func -> params[idx] -> type) {
+                                            flag = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if(!flag) {
+                                match_found = true;
+                                sfunc = func;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if(!sfunc){
                         cout << "ERROR: (" << this -> children[idx] -> name << ") does not have (" << this -> children[idx + 2] -> name << ") as a member. Line number: " << this -> children[idx] -> line_no << endl;
                         exit(1);
                     }
-                    this -> children[idx + 2] -> datatype = func -> return_type;
+                    this -> children[idx + 2] -> datatype = sfunc -> return_type;
                 }
                 else{
                     entry = cls -> look_up(this -> children[idx + 2] -> name);
@@ -2172,6 +2302,37 @@ void node::type_check() {
 
         this -> datatype = this -> children[idx + 2] -> datatype;
         return;
+    }
+    else if(this -> name == "FieldAccess") {        // invocations of the form this.var
+        for(auto &child : this -> children) {
+            if(child -> type == "ID") {              // get the field name
+                symbol_table* cnt_table = this -> get_symbol_table();
+                if(!cnt_table) {
+                    cout << "Unknown Error! Symbol table does not exist for field access node..." << endl;
+                    exit(1);
+                }
+
+                while(cnt_table && cnt_table -> symbol_table_category != 'C') {
+                    cnt_table = cnt_table -> parent_st;
+                }
+
+                cnt_table = (symbol_table_class *) cnt_table;
+                bool flag = false;
+                for(auto &entry : cnt_table -> entries) {
+                    if(entry -> name == child -> name) {
+                        flag = true;
+                        this -> datatype = entry -> type; 
+                        break;
+                    }
+                } 
+
+                if(!flag) {
+                    cout << "ERROR: Unknown field access (" + child -> name + ") at line number " << child -> line_no << endl;
+                    exit(1);
+                }
+
+            } 
+        }
     }
     else if(this -> name == "ArrayAccess") {        // checking array accesses
         for(auto &child : this -> children) {
@@ -2240,18 +2401,18 @@ void node::type_check() {
         
         if(this -> children.size() == 1){
             if(return_type != "void") {
-                cout << "ERROR: Non-void function has return type (" << return_type << ") at line number: " << this -> children[0] -> line_no << endl;
+                cout << "ERROR: Non-void function returns nothing at line number: " << this -> children[0] -> line_no << endl;
                 exit(1);
             }
         }else if(this -> children.size() == 2){
             if(return_type != this -> children[1] -> datatype){
-                cout << "ERROR: Function (" << tmp->name << ") returns (" << return_type << ") type at line number (" << this -> children[1] -> line_no << "), but expected (" << this -> children[1] -> datatype << ")" << endl;
+                cout << "ERROR: Function (" << tmp->name << ") returns (" << this -> children[1] -> datatype << ") type at line number (" << this -> children[1] -> line_no << "), but expected (" << return_type << ")" << endl;
                 exit(1);
             }
         }
     }
     else if(this -> name == "PreIncrementExpression" || this -> name == "PreDecrementExpression") {
-        if(!(this -> children[1] -> type == "ID" || this -> children[1] -> name == "Name")) {
+        if(!(this -> children[1] -> type == "ID" || this -> children[1] -> name == "#Name#")) {
             cout << "ERROR: '"<< this -> children[0] -> name <<"' can only operate on variables at line number: " << this -> children[0] -> line_no << endl;
             exit(1);
         }
@@ -2260,7 +2421,7 @@ void node::type_check() {
         this -> type = "LITERAL";
     }
     else if(this -> name == "PostIncrementExpression" || this -> name == "PostDecrementExpression") {
-        if(!(this -> children[0] -> type == "ID" || this -> children[0] -> name == "Name")) {
+        if(!(this -> children[0] -> type == "ID" || this -> children[0] -> name == "#Name#")) {
             cout << "ERROR: '"<< this -> children[1] -> name <<"' can only operate on variables at line number: " << this -> children[0] -> line_no << endl;
             exit(1);
         }
@@ -2288,7 +2449,7 @@ void node::type_check() {
             if(child -> name == "BracketArgumentList") {
                 func_params = child -> get_function_parameters();
             }
-            else if(child -> name == "Name") {
+            else if(child -> name == "#Name#") {
                 // Assuming that it is valid, just need to get the function's return type
 
                 class_table = main_table -> look_up_class(child -> children[0] -> datatype);
@@ -2397,7 +2558,7 @@ void node::type_check() {
             if(child -> name == "BracketArgumentList") {
                 constructor_params = child -> get_function_parameters();
             }
-            else if(child -> name == "Name") {
+            else if(child -> name == "#Name#") {
                 // @TODO Tanwar
             }
             else if(child -> type == "ID") {
@@ -2528,7 +2689,7 @@ void node::type_check() {
     }
 }
 
-void node::copy(const node other) {
+void node::copy(const node other){
     this -> name = other.name;
     this -> terminal = other.terminal;
     this -> exp_applicable = other.exp_applicable;
@@ -2537,36 +2698,37 @@ void node::copy(const node other) {
 
 // WALK 4 : GENERATE 3AC
 
-string node::get_var_from_node() {
-    if(this -> name == "atom") {
+string node::get_var_from_node(){
+    /*
+    if(this -> name == "#Name#"){
         string s = "";
-        for(auto (&child) : this -> children) {
+        for(auto (&child) : this -> children){
             s += child -> name;
         }
         return s;
     }
-    if(this -> type == "ID" || (this -> type == "LITERAL" && this -> children.size() == 0)) {
+    else*/ if(this -> type == "ID" || (this -> type == "LITERAL" && this -> children.size() == 0)){
         return this -> name;
     }
     
-    return "__t" + to_string(this -> node_number);
+    return "##t" + to_string(this -> node_number);
 }
 
-void node::append_tac(vector<quad> (&tacs)) {
+void node::append_tac(vector<quad> (&tacs)){
     for(auto (&tac) : tacs){
         this -> ta_codes.push_back(tac);
     }
     tacs.clear();
 }
 
-void node::append_tac(node* v) {
-    for(auto (&tac) : v -> ta_codes) {
+void node::append_tac(node* v){
+    for(auto (&tac) : v -> ta_codes){
         this -> ta_codes.push_back(tac);
     }
     v -> ta_codes.clear();
 }
 
-vector<string> node::get_func_args_tac() {
+vector<string> node::get_func_args_tac(){
     vector<string> args;
     if(this -> name == "Expression"){
         args.push_back(this -> get_var_from_node());
@@ -2581,457 +2743,1001 @@ vector<string> node::get_func_args_tac() {
     return args;
 }
 
-void node::generate_tac() {}
+string node::get_mangled_name() {
+    if(this -> name != "UnqualifiedClassInstanceCreationExpression" && this -> name != "MethodInvocation" && this -> name != "MethodDeclaration" && this -> name != "ConstructorDeclaration") {
+        cout << "Unknown error! Mangled name called from unknown name. Aborting...";
+        exit(1);
+    }
 
-// void node::generate_tac() {
-//     for(auto (&child) : this -> children) {
-//         child -> generate_tac();
-//     }
+    string mangled_name = "";
+    if(this -> name == "UnqualifiedClassInstanceCreationExpression" || this -> name == "MethodInvocation") {
+        vector<string> func_params;
+        string func_name;
+        string class_name;
 
-//     if(this -> type == "ID" || (this -> type == "LITERAL" && this -> children.size() == 0) || this -> name == "Name") {
-//         // Do not need to handle these unless they need to be cast
-//         if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
-//             string op = this -> typecast_to;
-//             string result = this -> get_var_from_node();
-//             string arg1 = this -> get_var_from_node();
-//             quad q(result, arg1, op, "");
-//             q.make_code_from_cast();
-//             this -> ta_codes.push_back(q);
-//         }
-//         return;
-//     }
-//     else if(this -> name == "Expression") {
-//         string op = "=";
-//         string result = this -> get_var_from_node();
-//         string arg1 = this -> children[0] -> get_var_from_node();
-//         quad q(result, arg1, op, "");
-//         q.make_code_from_assignment();
+        for(auto &child : this -> children) {
+            if(child -> name == "BracketArgumentList") {
+                func_params = child -> get_function_parameters();
+            }
+            else if(child -> type == "ID") {
+                func_name = child -> name;
+                class_name = this -> get_symbol_table_class() -> name;
+            }
+            else if(child -> name == "#Name#") {
+                func_name = child -> children[child -> children.size() - 1] -> name;        // last child of name is the function name
+                class_name = child -> children[child -> children.size() - 3] -> datatype;
+            }
+        }
 
-//         this -> append_tac(this -> children[0]);
-//         this -> ta_codes.push_back(q);
+        for(int i = func_params.size() - 1; i >= 0; i--) {
+            mangled_name = "@" + func_params[i] + mangled_name; 
+        }
+        mangled_name = func_name + mangled_name;
+        mangled_name = class_name + "." + mangled_name;
+    }
+    else {
+        for(int i = this -> entry_list.size() - 1; i >= 0; i--) {
+            mangled_name = "@" + this -> entry_list[i] -> type + mangled_name;
+        }
+        mangled_name = this -> sym_tab_entry -> name + mangled_name;
 
-//         if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
-//             string op = this -> typecast_to;
-//             string result = this -> get_var_from_node();
-//             string arg1 = this -> get_var_from_node();
-//             quad q(result, arg1, op, "");
-//             q.make_code_from_cast();
-//             this -> ta_codes.push_back(q);
-//         }
-//         return;
-//     }
-//     else if(this -> name == "IfThenStatement") {
-//         this -> append_tac(this -> children[2]);
+        mangled_name = this -> sym_tab -> parent_st -> name + "." + mangled_name;
+    }
 
-//         string op = "if_false";
-//         string arg1 = this -> children[2] -> get_var_from_node();
-//         string arg2 = "J+" + to_string(this -> children[4] -> ta_codes.size() + 1);
-//         quad q("", arg1, op, arg2);
-//         q.make_code_from_conditional();
 
-//         this -> ta_codes.push_back(q);      // add the jump statement
-//         this -> append_tac(this -> children[4]);
-//     }
-//     else if(this -> name == "IfThenElseStatement" || this -> name == "IfThenElseStatementNoShortIf") {
-//         this -> append_tac(this -> children[2]);
+    return mangled_name;
+}
 
-//         string op = "if_false";
-//         string arg1 = this -> children[2] -> get_var_from_node();
-//         string arg2 = "J+" + to_string(this -> children[4] -> ta_codes.size() + 2);
-//         quad q("", arg1, op, arg2);
-//         q.make_code_from_conditional();
+void node::generate_tac(){
+    for(auto (&child) : this -> children){
+        child -> generate_tac();
+    }
 
-//         this -> ta_codes.push_back(q);
-//         this -> append_tac(this -> children[4]);
+    if(this -> type == "ID" || (this -> type == "LITERAL" && this -> children.size() == 0)) {        
+        // Add typecast if need be
+        if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
+            string op = this -> typecast_to;
+            string result = this -> get_var_from_node();
+            string arg1 = this -> get_var_from_node();
+            quad q(result, arg1, op, "");
+            q.make_code_from_cast();
+            this -> ta_codes.push_back(q);
+        }
+        return;
+    }
+    else if(this -> name == "#Name#"){
+        quad q("", "", "", "");
+        int isMethodInvocation = 0;
 
-//         op = "goto";
-//         arg1 = "J+" + to_string(this -> children[6] -> ta_codes.size() + 1);
-//         quad q2("", arg1, op, "");
-//         q2.make_code_from_goto();
+        // Check if this is a method invocation, if so, skip the last access
+        if(this -> parent -> name == "MethodInvocation") isMethodInvocation = 1;
 
-//         this -> ta_codes.push_back(q2);
-//         this -> append_tac(this -> children[6]); 
-//     }
-//     else if(this -> name == "WhileStatement" || this -> name == "WhileStatementNoShortIf") {
-//         int exp_size = this -> children[2] -> ta_codes.size();
-//         int stat_size = this -> children[4] -> ta_codes.size();
+        // Assign address of first object
+        q.result = this -> get_var_from_node();
+        q.arg1 = this -> children[0] -> get_var_from_node();
+        q.op = "=";
+        q.make_code_from_assignment();
+        this -> ta_codes.push_back(q);
 
-//         this -> append_tac(this -> children[2]);
-
-//         string op = "if_false";
-//         string arg1 = this -> children[2] -> get_var_from_node();
-//         string arg2 = "J+" + to_string(stat_size + 2);
-//         quad q("", arg1, op, arg2);
-//         q.make_code_from_conditional();
-
-//         this -> ta_codes.push_back(q);
-//         this -> append_tac(this -> children[4]);
-
-//         op = "goto";
-//         arg1 = "J-" + to_string(stat_size + exp_size + 1);
-//         quad q2("", arg1, op, "");
-//         q2.make_code_from_goto();
-
-//         this -> ta_codes.push_back(q2);
-//     }
-//     else if(this -> name == "DoStatement") {
-//         int exp_size = this -> children[4] -> ta_codes.size();
-//         int stat_size = this -> children[1] -> ta_codes.size();
-
-//         this -> append_tac(this -> children[1]);
-//         this -> append_tac(this -> children[4]);
-//         string op = "if_true";
-//         string arg1 = this -> children[4] -> get_var_from_node();
-//         string arg2 = "J-" + to_string(stat_size + exp_size + 1);
-//         quad q("", arg1, op, arg2);
-//         q.make_code_from_conditional();
-
-//         this -> ta_codes.push_back(q);
-//     }
-//     else if(this -> name == "BasicForStatement" || this -> name == "BasicForStatementNoShortIf"){
-//         int init_size = 0;
-//         int exp_size = 0;
-//         int updt_size = 0;
+        symbol_table_class* prev_class = NULL;
+        symbol_table_class* cnt_class = NULL;
         
-//         int last_child = (int)(this -> children.size()) - 1;
-//         int stmt_size = this -> children[last_child] -> ta_codes . size();
+        for(int cur = 0; cur + 2 < this -> children.size() - isMethodInvocation; cur += 2){
+            int nxt = cur + 2;
+
+            st_entry* cur_obj;
+            if(!prev_class) {
+                cur_obj = this -> get_and_look_up(this -> children[cur] -> name);
+            }
+            else {
+                cur_obj = prev_class -> look_up(this -> children[cur] -> name);    
+            }
+            cnt_class = main_table -> look_up_class(cur_obj -> type);
+            st_entry *nxt_obj = cnt_class -> look_up(this -> children[nxt] -> name);
+
+            // Add offset of next object in current object
+            q.arg1 = q.result;
+            q.arg2 = to_string(nxt_obj -> offset);
+            q.op = "+";
+            q.make_code_from_binary();
+            this -> ta_codes.push_back(q);
+
+            // De-reference to get address of next object
+            q.arg2 = "";
+            q.op = "*()";
+            q.make_code_from_load();
+            this -> ta_codes.push_back(q);
+
+            prev_class = cnt_class;
+        }
+
+        // De-reference to obtain value of last object
+        q.make_code_from_load();
+        this -> ta_codes.push_back(q);
         
-//         string op = "";
-//         string arg1 = "", arg2 = "";
+        if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
+            string op = this -> typecast_to;
+            string result = this -> get_var_from_node();
+            string arg1 = this -> get_var_from_node();
+            quad q(result, arg1, op, "");
+            q.make_code_from_cast();
+            this -> ta_codes.push_back(q);
+        }
+    }
+    else if(this -> name == "continue" && this -> type == "KEYWORD") {
+        string op = "goto";
+        string arg1 = "CONTINUE";
+        quad q("", arg1, op, "");
 
-//         for(auto &(child) : this -> children){
-//             if(child -> name == "ForInit"){
-//                 init_size = child -> ta_codes . size();
-//                 this -> append_tac(child -> ta_codes);
-//             }
-//             else if(child -> name == "Expression") {
-//                 exp_size = child -> ta_codes . size();
-//             }
-//             else if(child -> name == "ForUpdate") {
-//                 updt_size = child -> ta_codes . size();
-//             }
-//         }
+        q.code = "\t\tgoto CONTINUE;\n";
+        q.made_from = quad::GOTO;
 
-//         for(auto &(child) : this -> children){
-//             if(child -> name == "Expression"){
-//                 exp_size = child -> ta_codes . size();
-//                 this -> append_tac(child -> ta_codes);
-//                 op = "if_false";
-//                 arg1 = child -> get_var_from_node();
-//                 arg2 = "J+" + to_string(updt_size + stmt_size + 2);
-//                 quad q("", arg1, op, arg2);
-//                 q.make_code_from_conditional();
+        this -> ta_codes.push_back(q);
+    }
+    else if(this -> name == "break" && this -> type == "KEYWORD") {
+        string op = "goto";
+        string arg1 = "BREAK";
+        quad q("", arg1, op, "");
 
-//                 this -> ta_codes . push_back(q);
-//             }
-//         }
+        q.code = "\t\tgoto BREAK;\n";
+        q.made_from = quad::GOTO;
 
-//         this -> append_tac(this -> children[last_child] -> ta_codes);
+        this -> ta_codes.push_back(q);
+    }
+    else if(this -> name == "Expression") {
+        string op = "=";
+        string result = this -> get_var_from_node();
+        string arg1 = this -> children[0] -> get_var_from_node();
+        quad q(result, arg1, op, "");
+        q.make_code_from_assignment();
 
-//         for(auto &(child) : this -> children){
-//             if(child -> name == "ForUpdate"){
-//                 updt_size = child -> ta_codes . size();
-//                 this -> append_tac(child -> ta_codes);
-//                 op = "goto";
-//                 arg1 = "J-" + to_string(updt_size + stmt_size + exp_size + 1);
-//                 quad q("", arg1, op, "");
-//                 q.make_code_from_goto();
+        this -> append_tac(this -> children[0]);
+        this -> ta_codes.push_back(q);
+
+        if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
+            string op = this -> typecast_to;
+            string result = this -> get_var_from_node();
+            string arg1 = this -> get_var_from_node();
+            quad q(result, arg1, op, "");
+            q.make_code_from_cast();
+            this -> ta_codes.push_back(q);
+        }
+        return;
+    }
+    else if(this -> name == "PrimaryNoNewArray") {
+        if(this -> children.size() == 1 && this -> children[0] -> type == "LITERAL"){
+            string op = "=";
+            string result = this -> get_var_from_node();
+            string arg1 = this -> children[0] -> get_var_from_node();
+            quad q(result, arg1, op, "");
+            q.make_code_from_assignment();
+            this -> ta_codes.push_back(q);
+        }
+        else if(this -> children.size() == 3 && this -> children[1] -> name == "Expression"){
+            this -> append_tac(this -> children[1]);
+
+            string op = "=";
+            string result = this -> get_var_from_node();
+            string arg1 = this -> children[1] -> get_var_from_node();
+            quad q(result, arg1, op, "");
+            q.make_code_from_assignment();
+            this -> ta_codes.push_back(q);
+        }
+    }
+    else if(this -> name == "IfThenStatement"){
+        this -> append_tac(this -> children[2]);
+
+        string op = "if_false";
+        string arg1 = this -> children[2] -> get_var_from_node();
+        string arg2 = "J+" + to_string(this -> children[4] -> ta_codes.size() + 1);
+        quad q("", arg1, op, arg2);
+        q.make_code_from_conditional();
+
+        this -> ta_codes.push_back(q);      // add the jump statement
+        this -> append_tac(this -> children[4]);
+    }
+    else if(this -> name == "IfThenElseStatement" || this -> name == "IfThenElseStatementNoShortIf") {
+        this -> append_tac(this -> children[2]);
+
+        string op = "if_false";
+        string arg1 = this -> children[2] -> get_var_from_node();
+        string arg2 = "J+" + to_string(this -> children[4] -> ta_codes.size() + 2);
+        quad q("", arg1, op, arg2);
+        q.make_code_from_conditional();
+
+        this -> ta_codes.push_back(q);
+        this -> append_tac(this -> children[4]);
+
+        op = "goto";
+        arg1 = "J+" + to_string(this -> children[6] -> ta_codes.size() + 1);
+        quad q2("", arg1, op, "");
+        q2.make_code_from_goto();
+
+        this -> ta_codes.push_back(q2);
+        this -> append_tac(this -> children[6]); 
+    }
+    else if(this -> name == "WhileStatement" || this -> name == "WhileStatementNoShortIf") {
+        int exp_size = this -> children[2] -> ta_codes.size();
+        int stat_size = this -> children[4] -> ta_codes.size();
+
+        this -> append_tac(this -> children[2]);
+
+        string op = "if_false";
+        string arg1 = this -> children[2] -> get_var_from_node();
+        string arg2 = "J+" + to_string(stat_size + 2);
+        quad q("", arg1, op, arg2);
+        q.make_code_from_conditional();
+
+        this -> ta_codes.push_back(q);
+
+        for(int i = 0; i < this -> children[4] -> ta_codes.size(); i++){
+            auto (&tac) = this -> children[4] -> ta_codes[i];
+            if(tac.code == "\t\tgoto CONTINUE;\n"){
+                int rel_jump = (i + this -> ta_codes.size());
+                tac = quad("", "J-" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+                tac.make_code_from_goto();
+            }
+            else if(tac.code == "\t\tgoto BREAK;\n") {
+                int rel_jump = (this -> children[4] -> ta_codes.size() - i) + 1;
+                tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+                tac.make_code_from_goto();
+            }
+        }
+        this -> append_tac(this -> children[4]);
+
+        op = "goto";
+        arg1 = "J-" + to_string(stat_size + exp_size + 1);
+        quad q2("", arg1, op, "");
+        q2.make_code_from_goto();
+
+        this -> ta_codes.push_back(q2);
+    }
+    else if(this -> name == "DoStatement") {
+        int exp_size = this -> children[4] -> ta_codes.size();
+        int stat_size = this -> children[1] -> ta_codes.size();
+
+        for(int i = 0; i < stat_size; i++){
+            auto (&tac) = this -> children[1] -> ta_codes[i];
+            if(tac.code == "\t\tgoto CONTINUE;\n"){
+                int rel_jump = (stat_size - i);
+                tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+                tac.make_code_from_goto();
+            }
+            else if(tac.code == "\t\tgoto BREAK;\n"){
+                int rel_jump = (stat_size - i) + (exp_size) + 2;
+                tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+                tac.make_code_from_goto();
+            }
+        }
+        this -> append_tac(this -> children[1]);
+        
+        this -> append_tac(this -> children[4]);
+
+        string op = "if_true";
+        string arg1 = this -> children[4] -> get_var_from_node();
+        string arg2 = "J-" + to_string(stat_size + exp_size + 1);
+        quad q("", arg1, op, arg2);
+        q.make_code_from_conditional();
+
+        this -> ta_codes.push_back(q);
+    }
+    else if(this -> name == "BasicForStatement" || this -> name == "BasicForStatementNoShortIf"){
+        int init_size = 0;
+        int exp_size = 0;
+        int updt_size = 0;
+        
+        int last_child = (int)(this -> children.size()) - 1;
+        int stmt_size = this -> children[last_child] -> ta_codes . size();
+        
+        string op = "";
+        string arg1 = "", arg2 = "";
+
+        for(auto &(child) : this -> children){
+            if(child -> name == "ForInit"){
+                init_size = child -> ta_codes . size();
+                this -> append_tac(child -> ta_codes);
+            }
+            else if(child -> name == "Expression") {
+                exp_size = child -> ta_codes . size();
+            }
+            else if(child -> name == "ForUpdate") {
+                updt_size = child -> ta_codes . size();
+            }
+        }
+
+        for(auto &(child) : this -> children){
+            if(child -> name == "Expression"){
+                exp_size = child -> ta_codes . size();
+                this -> append_tac(child -> ta_codes);
+                op = "if_false";
+                arg1 = child -> get_var_from_node();
+                arg2 = "J+" + to_string(updt_size + stmt_size + 2);
+                quad q("", arg1, op, arg2);
+                q.make_code_from_conditional();
+
+                this -> ta_codes . push_back(q);
+            }
+        }
+        
+        for(int i = 0; i < this -> children[last_child] -> ta_codes.size(); i++){
+            auto (&tac) = this -> children[last_child] -> ta_codes[i];
+            if(tac.code == "\t\tgoto CONTINUE;\n"){
+                int rel_jump = (this -> children[last_child] -> ta_codes.size() - i);
+                tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+                tac.make_code_from_goto();
+            }
+            else if(tac.code == "\t\tgoto BREAK;\n") {
+                int rel_jump = (this -> children[last_child] -> ta_codes.size() - i) + (updt_size) + 1;
+                tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+                tac.make_code_from_goto();
+            }
+        }
+
+        this -> append_tac(this -> children[last_child] -> ta_codes);
+
+        for(auto &(child) : this -> children){
+            if(child -> name == "ForUpdate"){
+                // updt_size = child -> ta_codes . size();
+                this -> append_tac(child -> ta_codes);
+                op = "goto";
+                arg1 = "J-" + to_string(updt_size + stmt_size + exp_size + 1);
+                quad q("", arg1, op, "");
+                q.make_code_from_goto();
                 
-//                 this -> ta_codes.push_back(q);
-//             }
-//         }
-//         return;
-//     }
-//     else if(this -> name == "ArrayCreationExpression") {
+                this -> ta_codes.push_back(q);
+            }
+        }
+        return;
+    }
+    else if(this -> name == "FieldAccess") {        // this.var type expressions
+        quad q("", "", "", "");
+        q.result = this -> get_var_from_node();
+        q.arg1 = "this";
+        q.op = "=";
+        q.make_code_from_assignment();
+        this -> ta_codes.push_back(q);
 
-//         quad q("", "", "", "");
-
-//         q = quad("", "allocmem", "callfunc", "");
-//         q.make_code_from_func_call();
-//         this -> ta_codes.push_back(q);
-
-//         q = quad(this -> get_var_from_node(), "pop_param *", "", "");
-//         q.make_code_from_assignment();
-//         this -> ta_codes.push_back(q);
-//     }
-//     else if(this -> name == "UnqualifiedClassInstanceCreationExpression") {
-//         quad q("", "", "", "");
-
-//         q = quad("", "allocmem", "callfunc", "");
-//         q.make_code_from_func_call();
-//         this -> ta_codes.push_back(q);
-
-//         q = quad(this -> get_var_from_node(), "pop_param *", "", "");
-//         q.make_code_from_assignment();
-//         this -> ta_codes.push_back(q);
-
-//         // 
-//         vector<string> args = this -> children[2] -> get_func_args_tac();
-//         this -> append_tac(this -> children[2]);
+        string id;
+        for(auto &child : this -> children) {
+            if(child -> type == "ID") {
+                id = child -> name;
+            }
+        }
+        symbol_table_class* cnt_class = this -> get_symbol_table_class();
+        st_entry* cnt_entry = cnt_class -> look_up(id);
         
-//         for(auto arg : args){
-//             q = quad("", arg, "push_param", "");
-//             q.make_code_from_param();
-//             this -> ta_codes.push_back(q);
-//         }
+        q.arg1 = q.result;
+        q.arg2 = to_string(cnt_entry -> offset);
+        q.op = "+";
+        q.make_code_from_binary();
+        this -> ta_codes.push_back(q);
+
+        q.arg2 = "";
+        q.op = "*()";
+        q.make_code_from_load();
+        this -> ta_codes.push_back(q);
+    }
+    else if(this -> name == "DimExpr") {
+        quad q("", "", "", "");
+
+        q.result = this -> get_var_from_node();
+        q.arg1 = this->children[1]->get_var_from_node();
+        q.op = "=";
+        q.make_code_from_assignment();
+
+        this -> append_tac(this -> children[1]);
+        this -> ta_codes.push_back(q);
+
+    }
+    else if(this -> name == "DimExprs"){
+        if(this -> children.size() == 1){
+            quad q("", "", "", "");
+
+            q.result = this -> get_var_from_node();
+            q.arg1 = this->children[0]->get_var_from_node();
+            q.op = "=";
+            q.make_code_from_assignment();
+
+            this -> append_tac(this -> children[0]);
+            this -> ta_codes.push_back(q);
+        }
+        else if(this -> children.size() == 2){
+            quad q("", "", "", "");
+
+            q.result = this -> get_var_from_node();
+            q.arg1 = this->children[0]->get_var_from_node();
+            q.arg2 = this->children[1]->get_var_from_node();
+            q.op = "*";
+            q.make_code_from_binary();
+
+            this -> append_tac(this -> children[0]);
+            this -> append_tac(this -> children[1]);
+            this -> ta_codes.push_back(q);            
+        }
+    }
+    else if(this -> name == "ArrayCreationExpression") {
+        if(this -> children.size() == 4) {
+            cout << "Error: Cannot allocate memory. Specify all dimensions, without array initializers please. To be supported later." << endl;
+            exit(1);
+        }
+
+        quad q("", "", "", "");
+
+        this -> append_tac(this -> children[this -> children.size() - 1]);      // Code of DimExprs
+
+        int datatype_size = 0;
+        if(primitive_types.find(this -> children[1] -> name) != primitive_types.end()) {
+            datatype_size = type_to_size[this -> children[1] -> name];
+        }
+        else {
+            datatype_size = address_size;
+        }
+
+        q = quad(this -> get_var_from_node(), this -> children[this -> children.size() - 1] -> get_var_from_node(), "*", to_string(datatype_size));        // size of array
+        q.make_code_from_binary();
+        this -> ta_codes.push_back(q);
         
-//         string arg = this -> children[1] -> get_var_from_node();
-//         q = quad("", arg, "call_func", "");
-//         q.make_code_from_func_call();
-//         this -> ta_codes.push_back(q);
+        q = quad("", this -> get_var_from_node(), "push_param", "");        // size of array
+        q.make_code_from_param();
+        this -> ta_codes.push_back(q);
 
-//         for(int idx = args.size() - 1; idx >= 0; idx--){
-//             arg = args[idx];
-//             q = quad("", arg, "pop_param", "");
-//             q.make_code_from_param();
-//             this -> ta_codes.push_back(q);
-//         }
-//     }
-//     else if(this -> name == "ArrayAccess"){        
-//         string res = this -> get_var_from_node();
-//         string arg1 = this -> children[2] -> get_var_from_node();
-//         string op = "*";
-//         string arg2;
+        q = quad("", "allocmem", "callfunc", "");
+        q.make_code_from_func_call();
+        this -> ta_codes.push_back(q);
+
+        q = quad("", this -> get_var_from_node(), "", "");
+        q.make_code_pop_param();
+        this -> ta_codes.push_back(q);
+    }
+    else if(this -> name == "UnqualifiedClassInstanceCreationExpression") {
+        quad q("", "", "", "");
+
+        string cls_name = "";
+        for(auto &child : this -> children) {
+            if(child -> type == "ID") {
+                cls_name = child -> name;
+                break;
+            }
+        }
+
+        symbol_table_class* cnt_class = main_table -> look_up_class(cls_name);
         
-//         quad q("", "", "", "");
-//         q = quad(res, arg1, op, "4");
-//         q.make_code_from_binary();
-//         this -> ta_codes.push_back(q);
+        q = quad("", to_string(cnt_class -> object_size), "push_param", "");
+        q.make_code_from_param();
+        this -> ta_codes.push_back(q);
+
+        q = quad("", "allocmem", "callfunc", "");
+        q.make_code_from_func_call();
+        this -> ta_codes.push_back(q);
+
+        q = quad("", this -> get_var_from_node(), "", "");
+        q.make_code_pop_param();
+        this -> ta_codes.push_back(q);
+
+        vector<string> args = this -> children[2] -> get_func_args_tac();
+        this -> append_tac(this -> children[2]);
         
-//         arg1 = this -> children[0] -> get_var_from_node();
-//         arg2 = res;
-//         op = "+";
-//         q = quad(res, arg1, op, arg2);
-//         q.make_code_from_binary();
-//         this -> ta_codes.push_back(q);
+        for(auto arg : args){                                           // pushing the other parameters
+            q = quad("", arg, "push_param", "");
+            q.make_code_from_param();
+            this -> ta_codes.push_back(q);
+        }
 
-//         arg1 = res;
-//         op = "*()";
-//         q = quad(res, arg1, op, "");
-//         q.make_code_from_deref();
-//         this -> ta_codes.push_back(q);
+        q = quad("", this -> get_var_from_node(), "push_param", "");    // pushing the this pointer into the constructor
+        q.make_code_from_param();
+        this -> ta_codes.push_back(q);
 
-//         this -> append_tac(this -> children[0] -> ta_codes);
-//         return;
-//     }
-//     else if(this -> name == "MethodInvocation") {
-//         vector<string> args = this -> children[1] -> get_func_args_tac();
-//         this -> append_tac(this -> children[1]);
-//         quad q("", "", "", "");
+        string mangled_name = this -> get_mangled_name();
+
+        q = quad("", mangled_name, "call_func", "");
+        q.make_code_from_func_call();
+        this -> ta_codes.push_back(q);
+    }
+    else if(this -> name == "ArrayAccess"){
+        for(auto (&child) : this -> children){
+            this -> append_tac(child);
+        }
         
-//         for(auto arg : args){
-//             q = quad("", arg, "push_param", "");
-//             q.make_code_from_param();
-//             this -> ta_codes.push_back(q);
-//         }
+        string res = this -> get_var_from_node();
+        string arg1 = this -> children[2] -> get_var_from_node();
+        string op = "*";
+        string arg2;
         
-//         string arg = this -> children[0] -> get_var_from_node();
-//         q = quad("", arg, "call_func", "");
-//         q.make_code_from_func_call();
-//         this -> ta_codes.push_back(q);
+        quad q("", "", "", "");
 
-//         for(int idx = args.size() - 1; idx >= 0; idx--){
-//             arg = args[idx];
-//             q = quad("", arg, "pop_param", "");
-//             q.make_code_from_param();
-//             this -> ta_codes.push_back(q);
-//         }
-//     }    
-//     else if(this -> name == "MethodDeclaration" || this -> name == "ConstructorDeclaration") {
-//         quad q("", "xxx", "", "");
-//         q.make_code_begin_func();
-//         this -> ta_codes.push_back(q);
+        //get the array access datatype
+        int datatype_size = 0;
+        if(primitive_types.find(this -> datatype) != primitive_types.end()) {
+            datatype_size = type_to_size[this -> datatype];
+        }
+        else {
+            datatype_size = address_size;
+        }
         
-//         this -> append_tac(this -> children[(int)this -> children.size() - 1]);
+        q = quad(res, arg1, op, to_string(datatype_size));
+        q.make_code_from_binary();
+        this -> ta_codes.push_back(q);
+        
+        arg1 = this -> children[0] -> get_var_from_node();
+        arg2 = res;
+        op = "+";
+        q = quad(res, arg1, op, arg2);
+        q.make_code_from_binary();
+        this -> ta_codes.push_back(q);
 
-//         q.make_code_end_func();
-//         this -> ta_codes.push_back(q);
-//     }
-//     else if(this -> name == "VariableDeclarator") {
-//         if(this -> children.size() == 2) {
-//             this -> append_tac(this -> children[1]);
-//             quad q(this -> sym_tab_entry -> name, this -> children[1] -> get_var_from_node(), "", "");
-//             q.make_code_from_assignment();
-//             this -> ta_codes.push_back(q);
-//         }
-//         else{
-//             for(auto &(child) : this -> children){
-//                 this -> append_tac(child);
-//             }
-//         }
-//     }
-//     else if(this -> name == "CastExpression") {
-//         string op = this -> children[1] -> name;
-//         string result = this -> get_var_from_node();
-//         string arg1 = this -> children[3] -> get_var_from_node();
-//         quad q(result, arg1, op, "");
-//         q.make_code_from_cast();
-//         this -> ta_codes.push_back(q);
-//         return; 
-//     }
-//     else if(this -> name == "ReturnStatement") {
-//         string arg1 = "";
-//         for(auto &child : this -> children) {
-//             if(child -> name == "Expression") {
-//                 arg1 = child -> get_var_from_node();
-//                 this -> append_tac(child);
-//             }
-//         }
+        if(this -> parent -> name != "="){
+            arg1 = res;
+            op = "*()";
+            q = quad(res, arg1, op, "");
+            q.make_code_from_load();
+            this -> ta_codes.push_back(q);
+        }
 
-//         quad q("", arg1, "", "");
-//         q.make_code_from_return();
-//         this -> ta_codes.push_back(q);
-//     }
-//     else if(this -> name == "PreIncrementExpression" || this -> name == "PreDecrementExpression" || this -> name == "PostIncrementExpression" || this -> name == "PostDecrementExpression") {
-//         string result = this -> get_var_from_node();
-//         string arg1, op;
-//         quad q("", "", "", "");
+        this -> append_tac(this -> children[0] -> ta_codes);
+        return;
+    }
+    else if(this -> name == "MethodInvocation") {
+        vector<string> args = this -> children[this -> children.size() - 1] -> get_func_args_tac();
+        this -> append_tac(this -> children[this -> children.size() - 1]);
+        quad q("", "", "", "");
+        
 
-//         if(this -> name[1] == 'r'){     //Pre has r
-//             arg1 = this -> children[1] -> get_var_from_node();
-//             if(this -> name[3] == 'I'){     //Increment has I
-//                 op = "+";
-//             }
-//             else if(this -> name[3] == 'D'){    //Decrement has D
-//                 op = "-";
-//             }
+        for(auto arg : args){
+            q = quad("", arg, "push_param", "");
+            q.make_code_from_param();
+            this -> ta_codes.push_back(q);
+        }
 
-//             q = quad(arg1, arg1, op, "1");
-//             q.make_code_from_binary();
-//             this -> ta_codes.push_back(q);
+        vector<string> func_params;
+        string func_name;
+        symbol_table_class* class_table = this -> get_symbol_table_class();
 
-//             q = quad(result, arg1, "", "");
-//             q.make_code_from_assignment();
-//             this -> ta_codes.push_back(q);
-//         }
-//         else if(this -> name[1] == 'o'){   //Post has o
-//             arg1 = this -> children[0] -> get_var_from_node();
-//             if(this -> name[4] == 'I'){     //Increment has I
-//                 op = "+";
-//             }
-//             else if(this -> name[4] == 'D'){    //Decrement has D
-//                 op = "-";
-//             }
+        bool qualified_function_call = false;
+        
+        for(auto &child : this -> children) {
+            if(child -> name == "BracketArgumentList") {
+                func_params = child -> get_function_parameters();
+            }
+            else if(child -> type == "ID") {
+                func_name = child -> name;
+            }
+            else if(child -> name == "#Name#") {
+                func_name = child -> children[child -> children.size() - 1] -> name;        // last child of name is the function name
+                qualified_function_call = true;
+            }
+        }
 
-//             q = quad(result, arg1, "", "");
-//             q.make_code_from_assignment();
-//             this -> ta_codes.push_back(q);
+        symbol_table_func* func_table = class_table -> look_up_function(func_name, func_params);
+        if(!func_table -> modifier_bv[M_STATIC]) {
+            if(!qualified_function_call) {
+                q = quad("", "this", "push_param", "");
+            }
+            else {
+                this -> append_tac(this -> children[0]);
+                this -> ta_codes.pop_back();
+                q  = quad("", this -> children[0] -> get_var_from_node(), "push_param", "");
+            }
+            q.make_code_from_param();
+            this -> ta_codes.push_back(q);
+        }
+
+        int old_pointer_space = address_size;
+        string return_type = func_table -> return_type;
+        
+        int datatype_size = 0;
+        if(primitive_types.find(this -> children[1] -> name) != primitive_types.end()) {
+            datatype_size = type_to_size[this -> children[1] -> name];
+        }
+        else {
+            datatype_size = address_size;
+        }
+        
+        int return_type_space = address_size + datatype_size; 
+        int total_frame_space = old_pointer_space + return_type_space + (func_table -> get_localspace_size());
+        
+        q = quad("", "-" + to_string(total_frame_space), "", "");
+        q.make_code_shift_pointer();
+        this -> ta_codes.push_back(q);
+
+        string arg = this -> get_mangled_name();
+        q = quad("", arg, "call_func", "");
+        q.make_code_from_func_call();
+        this -> ta_codes.push_back(q);
+
+        q = quad("", "+" + to_string(total_frame_space), "", "");
+        q.make_code_shift_pointer();
+        this -> ta_codes.push_back(q);
+    }    
+    else if(this -> name == "MethodDeclaration" || this -> name == "ConstructorDeclaration") {   
+        
+
+        string mangled_name = this -> get_mangled_name();
+        quad q("", mangled_name, "", "");
+        q.make_code_begin_func();
+        this -> ta_codes.push_back(q);
+        
+        // popping the this keyword if the function is non static
+        if(!this -> sym_tab_entry -> modifier_bv[M_STATIC]) {
+            q = quad("", "this", "", "");
+            q.make_code_pop_param();
+            this -> ta_codes.push_back(q);
+        }
+
+        // get the formal parameters
+        symbol_table_func* func = (symbol_table_func*) this -> sym_tab;                                           
+        
+        for(int idx = func -> params . size() - 1; idx >= 0; idx--){
+            q = quad("", func -> params[idx] -> name, "", "");
+            q.make_code_pop_param();
+            this -> ta_codes.push_back(q);
+        }
+
+        this -> append_tac(this -> children[(int)this -> children.size() - 1]);
+        
+        q.make_code_end_func();
+        this -> ta_codes.push_back(q);
+    }
+    else if(this -> name == "VariableDeclarator") {
+        if(this -> children.size() == 2) {
+            this -> append_tac(this -> children[1]);
+            quad q(this -> sym_tab_entry -> name, this -> children[1] -> get_var_from_node(), "=", "");
+            q.make_code_from_assignment();
+            this -> ta_codes.push_back(q);
+        }
+        else{
+            for(auto &(child) : this -> children){
+                this -> append_tac(child);
+            }
+        }
+    }
+    else if(this -> name == "CastExpression") {
+        string op = this -> children[1] -> name;
+        string result = this -> get_var_from_node();
+        string arg1 = this -> children[3] -> get_var_from_node();
+        quad q(result, arg1, op, "");
+        q.make_code_from_cast();
+        this -> ta_codes.push_back(q);
+        return; 
+    }
+    else if(this -> name == "ReturnStatement") {
+        string arg1 = "", op = "return";
+
+        for(auto &child : this -> children) {
+            if(child -> name == "Expression") {
+                arg1 = child -> get_var_from_node();
+                this -> append_tac(child);
+            }
+        }
+
+        if(this -> children .size() == 1){
+            quad q("", "", op, "");
+            q.make_code_from_return();
+            this -> ta_codes.push_back(q);
+        }
+        else{
+            arg1 = this -> children[1] -> get_var_from_node();
+            quad q("", arg1, op, "");
+            q.make_code_from_return();
+            this -> ta_codes.push_back(q);
+        }
+    }
+    else if(this -> name == "PreIncrementExpression" || this -> name == "PreDecrementExpression" || this -> name == "PostIncrementExpression" || this -> name == "PostDecrementExpression") {
+        string result = this -> get_var_from_node();
+        string arg1, op;
+        quad q("", "", "", "");
+
+        if(this -> name[1] == 'r'){     //Pre has r
+            arg1 = this -> children[1] -> get_var_from_node();
+            if(this -> name[3] == 'I'){     //Increment has I
+                op = "+";
+            }
+            else if(this -> name[3] == 'D'){    //Decrement has D
+                op = "-";
+            }
+
+            q = quad(arg1, arg1, op, "1");
+            q.make_code_from_binary();
+            this -> ta_codes.push_back(q);
+
+            q = quad(result, arg1, "=", "");
+            q.make_code_from_assignment();
+            this -> ta_codes.push_back(q);
+        }
+        else if(this -> name[1] == 'o'){   //Post has o
+            arg1 = this -> children[0] -> get_var_from_node();
+            if(this -> name[4] == 'I'){     //Increment has I
+                op = "+";
+            }
+            else if(this -> name[4] == 'D'){    //Decrement has D
+                op = "-";
+            }
+
+            q = quad(result, arg1, "=", "");
+            q.make_code_from_assignment();
+            this -> ta_codes.push_back(q);
             
-//             q = quad(arg1, arg1, op, "1");
-//             q.make_code_from_binary();
-//             this -> ta_codes.push_back(q);
-//         }
+            q = quad(arg1, arg1, op, "1");
+            q.make_code_from_binary();
+            this -> ta_codes.push_back(q);
+        }
 
-//         if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
-//             string op = this -> typecast_to;
-//             string result = this -> get_var_from_node();
-//             string arg1 = this -> get_var_from_node();
-//             quad q(result, arg1, op, "");
-//             q.make_code_from_cast();
-//             this -> ta_codes.push_back(q);
-//         }
-//         return;
-//     }
-//     else if(this -> type == "OPERATOR") {
-//         string op = this -> name;
-//         if(op == "+" || op == "-" || op == "*" || op == "/" || op == "%" || op == "<<" || op == ">>" || op == ">>>" || op == ">" || op == "<" || op == ">=" || op == "<=" || op == "==" || op == "!=" || op == "&" || op == "|" || op == "^" || op == "&&" || op == "||") {
-//             string result = this -> get_var_from_node();
-//             string arg1 = this -> children[0] -> get_var_from_node();
-//             string arg2 = this -> children[1] -> get_var_from_node();
-//             quad q(result, arg1, op, arg2);
-//             q.make_code_from_binary();
+        if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
+            string op = this -> typecast_to;
+            string result = this -> get_var_from_node();
+            string arg1 = this -> get_var_from_node();
+            quad q(result, arg1, op, "");
+            q.make_code_from_cast();
+            this -> ta_codes.push_back(q);
+        }
+        return;
+    }
+    else if(this -> type == "OPERATOR") {
+        string op = this -> name;
+        if(op == "+" || op == "-" || op == "*" || op == "/" || op == "%" || op == "<<" || op == ">>" || op == ">>>" || op == ">" || op == "<" || op == ">=" || op == "<=" || op == "==" || op == "!=" || op == "&" || op == "|" || op == "^" || op == "&&" || op == "||") {
+            string result = this -> get_var_from_node();
+            string arg1 = this -> children[0] -> get_var_from_node();
+            string arg2 = this -> children[1] -> get_var_from_node();
+            quad q(result, arg1, op, arg2);
+            q.make_code_from_binary();
     
-//             this -> append_tac(this -> children[0]);
-//             this -> append_tac(this -> children[1]);
-//             this -> ta_codes.push_back(q);
-//         }
-//         else if(op == "++" || op == "--") {     // Don't need to handle these
-//             // dealt at the parent level
-//         }
-//         else if(op == "~" || op == "!") {
-//             string result = this -> get_var_from_node();
-//             string arg1 = this -> children[0] -> get_var_from_node();
-//             quad q(result, arg1, op, "");
-//             q.make_code_from_unary();
+            this -> append_tac(this -> children[0]);
+            this -> append_tac(this -> children[1]);
+            this -> ta_codes.push_back(q);
+        }
+        else if(op == "++" || op == "--") {     // Don't need to handle these
+            // dealt at the parent level
+        }
+        else if(op == "~" || op == "!") {
+            string result = this -> get_var_from_node();
+            string arg1 = this -> children[0] -> get_var_from_node();
+            quad q(result, arg1, op, "");
+            q.make_code_from_unary();
     
-//             this -> append_tac(this -> children[0]);
-//             this -> ta_codes.push_back(q);
-//         }
-//         else if(op == "=") {
-//             if(this -> children.size() == 2) {
-//                 string arg1 = this -> children[0] -> get_var_from_node();
-//                 string arg2 = this -> children[1] -> get_var_from_node();
+            this -> append_tac(this -> children[0]);
+            this -> ta_codes.push_back(q);
+        }
+        else if(op == "=") {
+            if(this -> children.size() == 2) {
+                quad q("", "", "", "");
 
-//                 quad q(arg1, arg2, "", "");
-//                 q.make_code_from_assignment();
+                string result = this -> children[0] -> get_var_from_node();
+                string arg1 = this -> children[1] -> get_var_from_node();
         
-//                 this -> append_tac(this -> children[0]);
-//                 this -> append_tac(this -> children[1]);
-//                 this -> ta_codes.push_back(q);
-//             }
-//             else if(this -> children.size() == 1) {
-//                 this -> append_tac(this -> children[0]);
-//                 quad q(this->get_var_from_node(), this ->children[0]->get_var_from_node(), "", "");
-//                 q.make_code_from_assignment();
-//                 this -> ta_codes.push_back(q);
-//             }
-//         }
-//         else if(op == "+=" || op == "-=" || op == "*=" || op == "/=" || op == "%=" || op == "<<=" || op == ">>=" || op == ">>>=" || op == "&=" || op == "^=" || op == "|=") {
-//             string result = this -> get_var_from_node();
-//             string arg1 = this -> children[0] -> get_var_from_node();
-//             string arg2 = this -> children[1] -> get_var_from_node();
-//             op = op.substr(0, op.size() - 1);
+                q = quad(result, arg1, "=", "");
+                if(this -> children[0] -> name == "ArrayAccess"){
+                    q.make_code_from_store();
+                }
+                else if(this -> children[0] -> name == "FieldAccess" || this -> children[0] -> name == "#Name#"){
+                    q.make_code_from_store();
+                    this -> children[0] -> ta_codes.pop_back();
+                }
+                else{
+                    q.make_code_from_assignment();
+                }
+                
+                this -> append_tac(this -> children[0]);
+                this -> append_tac(this -> children[1]);
+                this -> ta_codes.push_back(q);
+            }
+            else if(this -> children.size() == 1) {
+                this -> append_tac(this -> children[0]);
+                quad q(this->get_var_from_node(), this ->children[0]->get_var_from_node(), "=", "");
+                q.make_code_from_assignment();
+                this -> ta_codes.push_back(q);
+            }
+        }
+        else if(op == "+=" || op == "-=" || op == "*=" || op == "/=" || op == "%=" || op == "<<=" || op == ">>=" || op == ">>>=" || op == "&=" || op == "^=" || op == "|=") {
+            string result = this -> get_var_from_node();
+            string arg1 = this -> children[0] -> get_var_from_node();
+            string arg2 = this -> children[1] -> get_var_from_node();
+            op = op.substr(0, op.size() - 1);
     
-//             this -> append_tac(this -> children[0]);
-//             this -> append_tac(this -> children[1]);
-//             {
-//                 quad q(arg1, arg1, op, arg2);
-//                 q.make_code_from_binary();
-//                 this -> ta_codes.push_back(q);
-//             }
-//             {
-//                 quad q(result, arg1, "", "");
-//                 q.make_code_from_assignment();
-//                 this -> ta_codes.push_back(q);
-//             }
-//         }
+            this -> append_tac(this -> children[0]);
+            this -> append_tac(this -> children[1]);
+            {
+                quad q(arg1, arg1, op, arg2);
+                q.make_code_from_binary();
+                this -> ta_codes.push_back(q);
+            }
+            {
+                quad q(result, arg1, "=", "");
+                q.make_code_from_assignment();
+                this -> ta_codes.push_back(q);
+            }
+        }
 
-//         if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
-//             string op = this -> typecast_to;
-//             string result = this -> get_var_from_node();
-//             string arg1 = this -> get_var_from_node();
-//             quad q(result, arg1, op, "");
-//             q.make_code_from_cast();
-//             this -> ta_codes.push_back(q);
-//         }
-//     }else{
-//         for(auto &(child) : this -> children){
-//             this -> append_tac(child);
-//         }
-//     }
-// }
+        if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
+            string op = this -> typecast_to;
+            string result = this -> get_var_from_node();
+            string arg1 = this -> get_var_from_node();
+            quad q(result, arg1, op, "");
+            q.make_code_from_cast();
+            this -> ta_codes.push_back(q);
+        }
+    }else{
+        for(auto &(child) : this -> children){
+            this -> append_tac(child);
+        }
+    }
+}
 
-// void node::print_tac(string filename) {
-//     ofstream out(filename);
+void node::optimize_tac(){
+    map<string, set<int> > lhs_apps, rhs_apps;
+    set<int> jumped_to;
 
-//     // int ins_count = 1;
-//     // for(auto q : this -> ta_codes) {
-//     //     if(q.code != "") {
-//     //         q.check_jump(ins_count);
+    int ins_count = 1;
+    for(auto (&q) : this -> ta_codes){
+        if(q.code != ""){
+            q.check_jump(ins_count);        // Sets ins_line and abs_jump of q
 
-//     //         if(filename == "") {
-//     //             cout << ins_count << ": " << q.code;
-//     //         }
-//     //         else {
-//     //             out << ins_count << ": " << q.code;
-//     //         }
-//     //         ins_count++;
-//     //     }
-//     // }
+            lhs_apps[q.result].insert(ins_count);
+            rhs_apps[q.arg1].insert(ins_count);
+            rhs_apps[q.arg2].insert(ins_count);
+            jumped_to.insert(q.abs_jump);
 
-//     out.close();
-// }
+            ins_count++;
+        }
+    }
 
+    // Remove redundant temporaries
+    {
+        bool optimizing = true;
+        while(optimizing){
+            optimizing = false;
+            for(int i = 0; i < (this -> ta_codes).size(); i++){
+                quad (&q) = this -> ta_codes[i];
+                if(q.code != ""){
+                    if(jumped_to.find(q.ins_line) == jumped_to.end() && lhs_apps[q.result].size() == 1 && q.result.size() > 2 && q.result[0] == '#' && q.result[1] == '#'){
+
+                        if(q.made_from == quad::ASSIGNMENT){    
+                            /*
+                                Looking for cases like
+                                    t1 = a1;
+                                    t2 = t1 + t3;
+                                    ...
+                            */ 
+
+                            bool green_light = false;
+                            set<int> tmp = rhs_apps[q.result];
+                            for(int j = i + 1; j < (this -> ta_codes).size(); j++){
+                                quad (&p) = this -> ta_codes[j];
+                                if(tmp.find(p.ins_line) == tmp.end() && jumped_to.find(p.ins_line) == jumped_to.end()){
+                                    green_light = (tmp.size() == 0);
+                                    break;
+                                }
+                                if(p.arg1 == q.result || p.arg2 == q.result){
+                                    tmp.erase(p.ins_line);
+                                }
+                            }
+                            
+                            if(green_light){
+                                optimizing = true;
+                                q.code = "";
+                                for(int j = i + 1; j < (this -> ta_codes).size(); j++){
+                                    if(rhs_apps[q.result].size() == 0){
+                                        break;
+                                    }
+                                    quad (&p) = this -> ta_codes[j];
+                                    if(p.arg1 == q.result || p.arg2 == q.result){
+                                        q.code = "";    
+                                        if(p.arg1 == q.result){
+                                            p.arg1 = q.arg1;
+                                        }
+                                        if(p.arg2 == q.result){
+                                            p.arg2 = q.arg1;
+                                        }
+                                        rhs_apps[q.arg1].insert(p.ins_line);
+                                        rhs_apps[q.result].erase(p.ins_line);
+                                        p.make_code();
+                                    }
+                                }       
+                            }
+                        }
+                        else if(q.made_from == quad::BINARY || q.made_from == quad::UNARY || q.made_from == quad::LOAD || q.made_from == quad::CAST){
+                            /*
+                                Looking for cases like
+                                    t1 = a1 + a2;
+                                    t2 = t1;
+                                    ...
+                            */
+
+                            bool green_light = false;
+                            set<int> tmp = rhs_apps[q.result];
+                            for(int j = i + 1; j < (this -> ta_codes).size(); j++){
+                                quad (&p) = this -> ta_codes[j];
+                                if(tmp.find(p.ins_line) == tmp.end() || jumped_to.find(p.ins_line) != jumped_to.end()){
+                                    green_light = (tmp.size() == 0);
+                                    break;
+                                }
+                                if(p.made_from == quad::ASSIGNMENT && (p.arg1 == q.result || p.arg2 == q.result)){
+                                    tmp.erase(p.ins_line);
+                                }
+                            }
+
+                            if(green_light){
+                                optimizing = true;
+                                q.code = "";
+                                for(int j = i + 1; j < (this -> ta_codes).size(); j++){
+                                    quad (&p) = this -> ta_codes[j];
+                                    if(rhs_apps[q.result].size() == 0){
+                                        break;
+                                    }
+                                    if(p.made_from == quad::ASSIGNMENT && (p.arg1 == q.result || p.arg2 == q.result)){
+                                        p.op = q.op;
+                                        p.arg1 = q.arg1;
+                                        p.arg2 = q.arg2;
+                                        p.made_from = q.made_from;
+                                        rhs_apps[q.arg1].insert(p.ins_line);
+                                        rhs_apps[q.arg2].insert(p.ins_line);
+                                        rhs_apps[q.result].erase(p.ins_line);
+                                        p.make_code();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Rename temporaries
+    {
+        map<string, int> order_of_appearance;
+        int temporaries_seen = 0;
+        for(auto (&q) : this -> ta_codes){
+            if(q.code != ""){
+                if(q.result.size() > 2 && q.result[0] == '#' && q.result[1] == '#'){
+                    if(order_of_appearance[q.result] == 0){
+                        temporaries_seen++;
+                        order_of_appearance[q.result] = temporaries_seen;
+                    }
+                    q.result = "##t" + to_string(order_of_appearance[q.result]);
+                }
+                if(q.arg1.size() > 2 && q.arg1[0] == '#' && q.arg1[1] == '#'){
+                    if(order_of_appearance[q.arg1] == 0){
+                        temporaries_seen++;
+                        order_of_appearance[q.arg1] = temporaries_seen;
+                    }
+                    q.arg1 = "##t" + to_string(order_of_appearance[q.arg1]);
+                }
+                if(q.arg2.size() > 2 && q.arg2[0] == '#' && q.arg2[1] == '#'){
+                    if(order_of_appearance[q.arg2] == 0){
+                        temporaries_seen++;
+                        order_of_appearance[q.arg2] = temporaries_seen;
+                    }
+                    q.arg2 = "##t" + to_string(order_of_appearance[q.arg2]);
+                }
+                q.make_code();   
+            }
+        }
+    }
+
+    // Update ins_line and abs_jump
+    {
+        ins_count = 1;
+        map<int, int> new_ins_count;
+        for(auto (&q) : this -> ta_codes){      // Update q's ins_line
+            if(q.code != ""){
+                new_ins_count[q.ins_line] = ins_count;
+                q.ins_line = new_ins_count[q.ins_line];     // q.ins_line = ins_count 
+                ins_count++;
+            }
+        }
+
+        ins_count = 1;
+        for(auto (&q) : this -> ta_codes){      // Update q's abs_jump
+            if(q.code != ""){
+                if(q.rel_jump){
+                    q.abs_jump = new_ins_count[q.abs_jump];
+                    q.make_code();
+                    q.rel_jump = q.abs_jump - q.ins_line;
+                }
+                ins_count++;
+            }
+        }
+    }
+}
 
 void node::print_tac(string filename){
     ofstream out(filename);

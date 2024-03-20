@@ -173,4 +173,16 @@
 
 
 # a:list[int] = ["123", 2.4, 3]
-x:int = 203
+flag: bool = True
+x:int = 1
+a: float = 1.35
+b: str = 'asdfasd'
+
+if flag:
+    print(x)
+elif flag:
+    print(a)
+elif flag:
+    print(b)
+else:
+    print(flag)

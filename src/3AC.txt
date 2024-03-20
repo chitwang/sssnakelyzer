@@ -1,0 +1,5 @@
+1:			if_false flag goto 3;
+2:			goto 6;
+3:			if_false flag goto 5;
+4:			goto 6;
+5:			if_false flag goto 6;
