@@ -31,3 +31,5 @@ Doubt in semantics:
     confirm name resolution method from sir 
     self.a:int = 3 in a fn except init ?
     3AC for typecasting ? 
+    empty list
+    return type of init ?

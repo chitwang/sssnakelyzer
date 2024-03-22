@@ -2796,7 +2796,12 @@ void node::generate_tac(){
     if(this -> type == "ID" || (this -> type == "LITERAL" && this -> children.size() == 0)) {        
         // Add typecast if need be
         if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
-            string op = this -> typecast_to;
+            
+            
+            
+            
+            
+             op = this -> typecast_to;
             string result = this -> get_var_from_node();
             string arg1 = this -> get_var_from_node();
             quad q(result, arg1, op, "");

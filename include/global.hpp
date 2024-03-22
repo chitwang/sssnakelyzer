@@ -14,7 +14,8 @@ extern symbol_table_global *global_table;
 extern map<string, int> type_to_size;
 extern set<string> primitive_types;
 extern vector<node *> all_nodes;
-extern vector<quad> all_quads; 
+extern vector<quad> all_quads;
+extern int temp_count;
 
 extern node *root_node;     // contains the root node of the parse tree
 

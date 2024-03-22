@@ -173,16 +173,41 @@
 
 
 # a:list[int] = ["123", 2.4, 3]
-flag: bool = True
-x:int = 1
-a: float = 1.35
-b: str = 'asdfasd'
+# flag: bool = True
+# x:int = 1
+# a: float = 1.35
+# b: str = 'asdfasd'
 
-if flag:
+# if flag:
+#     print(x)
+# elif flag:
+#     print(a)
+# elif flag:
+#     print(b)
+# else:
+#     print(flag)
+
+
+class A():
+    def __init__(self) -> None:
+        self.a:int = 4
+        self.b:bool = True
+
+    def printa(self) -> None:
+        print(self.a)
+
+class B():
+    def __init__(self) -> None:
+        self.d: str = 'abcd'
+        self.obj : A = A()
+        self.c : float = 6
+
+    def add(self, a: int) -> int:
+        return a + self.obj.b
+
+def main():
+    b: B = B()
+    print(b.obj.a)
+    x : int = b.add(4)
     print(x)
-elif flag:
-    print(a)
-elif flag:
-    print(b)
-else:
-    print(flag)
+    

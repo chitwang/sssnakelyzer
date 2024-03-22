@@ -11,6 +11,7 @@ public:
     // One entry of a symbol table
     // From assignment: Type, source file, line number, size, offset
     string name;
+    string mangled_name;
     string type;
     symbol_table* table;
     int line_no;
@@ -31,7 +32,7 @@ public:
 class symbol_table {
 public:
     vector <st_entry *> entries;
-    string scope, name;
+    string scope, name, mangled_name;
     symbol_table* parent_st = NULL;
     vector <symbol_table *> children_st;
     int sub_scopes = 0;

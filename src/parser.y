@@ -18,6 +18,7 @@ vector <quad> all_quads;
 
 symbol_table *current_table;
 symbol_table *temp_table;
+int temp_count = 0;
 
 void debug_insert() {
     cout << "PRODUCTION:\t";
@@ -192,6 +193,7 @@ void make_new_class_symbtab(string s, string parent = "") {
         }
         else {
             ((symbol_table_class *)temp_table) -> parent_class = par;
+            ((symbol_table_class *)temp_table) -> object_size = par -> object_size;
         }
     }
     current_table->add_scope(temp_table);
@@ -200,9 +202,9 @@ void make_new_class_symbtab(string s, string parent = "") {
     // cout<<current_table->symbol_table_category<<endl;
 }
 
-string check_predefined_functions(string func_name, vector<string> &params) {
+symbol_table_func *check_predefined_functions(string func_name, vector<string> &params) {
     if(func_name == "print") {
-        if(params.size() != 1){
+        if(params.size() != 1) {
             cout << "Invalid arguments for print at line " << yylineno << endl;
             exit(1);
         }
@@ -210,27 +212,32 @@ string check_predefined_functions(string func_name, vector<string> &params) {
             cout << "Invalid arguments for print at line " << yylineno << endl;
             exit(1);
         }
-        return "None";
-    }
-    else if(func_name == "range"){
-        if(params.size() == 1) {
-            if(params[0] != "int") {
-                cout << "Invalid arguments for range at line " << yylineno << endl;
-                exit(1);
+        for(int i = 0; i < global_table->functions.size(); i++) {
+            if(global_table->functions[i]->name == "print" && global_table->functions[i]->params[0]->type == params[0]) {
+                return global_table->functions[i];
             }
         }
-        else if(params.size() == 2) {
-            if(params[0] != "int" || params[1] != "int") {
-                cout << "Invalid arguments for range at line " << yylineno << endl;
-                exit(1);
-            }
-        }    
-        else{
-            cout << "Invalid arguments for range at line " << yylineno << endl;
-            exit(1);
-        }
-        return "int";
+        return NULL;
     }
+    // else if(func_name == "range"){
+    //     if(params.size() == 1) {
+    //         if(params[0] != "int") {
+    //             cout << "Invalid arguments for range at line " << yylineno << endl;
+    //             exit(1);
+    //         }
+    //     }
+    //     else if(params.size() == 2) {
+    //         if(params[0] != "int" || params[1] != "int") {
+    //             cout << "Invalid arguments for range at line " << yylineno << endl;
+    //             exit(1);
+    //         }
+    //     }    
+    //     else{
+    //         cout << "Invalid arguments for range at line " << yylineno << endl;
+    //         exit(1);
+    //     }
+    //     return "int";
+    // }
     else if(func_name == "len"){
         if(params.size() != 1) {
             cout << "Invalid arguments for len at line " << yylineno << endl;
@@ -240,12 +247,12 @@ string check_predefined_functions(string func_name, vector<string> &params) {
             cout << "Invalid arguments for len at line " << yylineno << endl;
             exit(1);
         }
-        return "int";
+        return global_table->look_up_func(func_name);
     }
-    return "UNDEFINED";
+    return NULL;
 }
 
-void make_new_func_symbtab(string func_name, vector<st_entry *> &params, string ret_type) {
+symbol_table_func *make_new_func_symbtab(string func_name, vector<st_entry *> &params, string ret_type) {
     int sz = params.size();
     for(int i = 0; i < sz - 1; i++) {
         for(int j = i + 1; j < sz; j++) {
@@ -262,6 +269,7 @@ void make_new_func_symbtab(string func_name, vector<st_entry *> &params, string 
             cout << "Redeclaration of function in same class at line " << yylineno << endl;
             exit(1);
         }
+        temp_table -> mangled_name = current_table -> name + "@" + temp_table -> name;
         ((symbol_table_class *) current_table)->add_func((symbol_table_func *) temp_table);
     } else if(current_table->symbol_table_category == 'G') {
         symbol_table_func *if_exist = global_table -> look_up_func(func_name);
@@ -269,6 +277,7 @@ void make_new_func_symbtab(string func_name, vector<st_entry *> &params, string 
             cout << "Redeclaration of function in global scope at line " << yylineno << endl;
             exit(1);
         }
+        temp_table -> mangled_name = temp_table -> name;
         ((symbol_table_global *) current_table)->add_entry((symbol_table_func *) temp_table);
     }
     else {
@@ -278,6 +287,7 @@ void make_new_func_symbtab(string func_name, vector<st_entry *> &params, string 
     current_table->add_scope(temp_table);
     current_table->children_st.push_back(temp_table);
     current_table = temp_table;
+    return (symbol_table_func *)temp_table;
 }
 
 void is_compatible(string type1, string type2 = "bool") {
@@ -309,6 +319,22 @@ void is_compatible(string type1, string type2 = "bool") {
     return;
 }
 
+void break_continue(int n1, int n2){
+    for(int i = 0; i < all_nodes[n1]->ta_codes.size(); i++) {
+        auto (&tac) = all_nodes[n1]->ta_codes[i];
+        if(tac.code == "\t\tgoto CONTINUE;\n"){
+            int rel_jump = (i + all_nodes[n2] -> ta_codes.size());
+            tac = quad("", "J-" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+            tac.make_code_from_goto();
+        }
+        else if(tac.code == "\t\tgoto BREAK;\n") {
+            int rel_jump = (all_nodes[n1] -> ta_codes.size() - i) + 1;
+            tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+            tac.make_code_from_goto();
+        }
+    }
+}
+
 string check_decl_before_use(string name , node *current_node) {
     st_entry *existing_entry = current_table->look_up(name);
     if(!existing_entry) {
@@ -321,6 +347,7 @@ string check_decl_before_use(string name , node *current_node) {
             }
             else {
                 current_node->is_class = true;
+                current_node->var = st_class -> name;
                 return name;
             }
         }
@@ -328,18 +355,20 @@ string check_decl_before_use(string name , node *current_node) {
             // cout << name << endl;
             current_node->is_func = true;
             current_node->sym_tab_func = st_func;
+            current_node->var = st_func -> mangled_name;
             return st_func -> return_type;
         }
     }
     else {
         // cout << "existing entry at line " << yylineno << endl;
         current_node->is_var = true;
+        current_node->var = existing_entry->mangled_name;
         current_node->sym_tab_entry = existing_entry;
         return existing_entry -> type;
     }
 }
 
-string check_attribute_in_class(symbol_table_class* symtab, string &name, node *current_node) {
+string check_attribute_in_class(symbol_table_class* symtab, string &name, node *current_node, string b = "") {
     st_entry* existing_entry = symtab -> look_up_attribute_in_class_hierarchy(name);
     if(!existing_entry) {
         symbol_table_func *function_entry = symtab -> look_up_function_in_class_hierarchy(name);
@@ -348,16 +377,19 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
             exit(1);
         }
         else {
+            current_node -> var = function_entry->mangled_name;
             current_node -> is_func = true;
             current_node -> sym_tab_func = function_entry;
             return function_entry -> return_type;
         }
     }
     else {
+        current_node->var = "*( " + b + " + " + to_string(existing_entry->offset) + " )";
         if(!is_not_class(existing_entry -> type)) {
             current_node -> is_class = true;
         } else {
             current_node -> is_var = true;
+            current_node->var = existing_entry->mangled_name;
             current_node -> sym_tab_entry = existing_entry;
         }
         return existing_entry -> type;    
@@ -399,7 +431,8 @@ string check_constructor(string class_name, vector<string> actual_params) {
     return cl_tb -> name;
 }
 
-string set_trailer_type_compatibility(node *current_node, node *leftnode, string typeLeft, string typeRight, string attribute_name = "", vector<string> actual_params = {}) {
+string set_trailer_type_compatibility(int node_num,  node *leftnode, string typeLeft, string typeRight, string attribute_name = "", vector<string> actual_params = {}) {
+    node* current_node = all_nodes[node_num];
     if(typeRight == "list_subs") {
         if(typeLeft.length() >= 4 && typeLeft.substr(0, 4) == "list") 
             return typeLeft.substr(6, typeLeft.length() - 8);
@@ -419,11 +452,30 @@ string set_trailer_type_compatibility(node *current_node, node *leftnode, string
             cout << "Object error \n";
             exit(1);
         }
-        return (check_attribute_in_class(if_class, attribute_name, current_node));
+        return (check_attribute_in_class(if_class, attribute_name, current_node, leftnode->var));
     }
     if(typeRight == "functrailer") {
         if(!(leftnode -> is_func)) {
             if(leftnode -> is_class) {
+                leftnode -> var = typeLeft + "@__init__";
+                quad q0("", to_string(type_to_size[typeLeft]) , "push_param", "");
+                q0.make_code_from_param();
+                current_node->ta_codes.push_back(q0);    
+                string temp = "__t" + to_string(temp_count);
+                temp_count++;
+                quad q("", "allocmem", "call", "");
+                q.make_code_from_func_call();
+                current_node->ta_codes.push_back(q);  
+                // quad q(all_nodes[$$]->var, "allocmem", "=", "");
+                // q.make_code_from_assignment();
+                // all_nodes[$$]->ta_codes.push_back(q);
+                quad q1(temp, "#retval#", "=", "");
+                q1.make_code_from_assignment();
+                current_node->ta_codes.push_back(q1);
+
+                quad q2("", temp , "push_param", "");
+                q2.make_code_from_param();
+                current_node->ta_codes.push_back(q2);
                 return check_constructor(typeLeft, actual_params); 
             }
             else{
@@ -442,7 +494,9 @@ string set_trailer_type_compatibility(node *current_node, node *leftnode, string
         int flag = 0;
         symbol_table_func *func_table = leftnode -> sym_tab_func;
         if(func_table -> name == "print" || func_table -> name == "len" || func_table -> name == "range"){
-            return check_predefined_functions(func_table -> name, actual_params);
+            symbol_table_func *f = check_predefined_functions(func_table -> name, actual_params);
+            leftnode->var = f->mangled_name;
+            return f->return_type;
         }
         if(func_table -> parent_st -> symbol_table_category == 'C') {
             flag = 1;
@@ -471,17 +525,20 @@ void check_return_type(string type1) {
 void make_binary_threeac(int n1, int n2, string op, int n3) {
     string arg1 = all_nodes[n1]->var;
     string arg2 = all_nodes[n2]->var;
-    string res = "__t" + to_string(n3);
+    string res = "__t" + to_string(temp_count);
+    temp_count++;
     all_nodes[n3]->var = res;
     
     quad q(res, arg1, op, arg2);
+    q.make_code_from_binary();
     all_nodes[n3]->append_tac(all_nodes[n1]);
     all_nodes[n3]->append_tac(all_nodes[n2]);
     all_nodes[n3]->ta_codes.push_back(q);
 }
 
 void make_unary_threeac(int n1, string op, int n2) {
-    string res = "__t" + to_string(n2);
+    string res = "__t" + to_string(temp_count);
+    temp_count++;
     all_nodes[n2]->var = res;
     quad q(res, all_nodes[n1]->var, op, "");
     q.make_code_from_unary();
@@ -501,7 +558,7 @@ void yyerror(const char*);
     int intval;
 }
 
-%token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK KEY_IN KEY_TRUE KEY_CLASS  KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_DEF KEY_WHILE KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER  INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST SELF_DOT
+%token<strval> KEY_FALSE KEY_ELSE  KEY_NONE KEY_BREAK KEY_IN KEY_TRUE KEY_CLASS  KEY_RETURN KEY_AND KEY_CONTINUE KEY_FOR KEY_DEF KEY_WHILE KEY_GLOBAL KEY_NOT KEY_ELIF KEY_IF KEY_OR KEY_RANGE OP_ADD OP_SUBTRACT OP_MULTIPLY OP_POWER OP_DIVIDE OP_FLOOR_DIVIDE OP_MODULO OP_LEFT_SHIFT OP_RIGHT_SHIFT OP_BITWISE_AND OP_BITWISE_OR OP_BITWISE_XOR OP_BITWISE_NOT OP_LESS_THAN OP_GREATER_THAN OP_LESS_THAN_EQUAL OP_GREATER_THAN_EQUAL OP_EQUAL OP_NOT_EQUAL DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET DELIM_COMMA DELIM_COLON DELIM_DOT DELIM_SEMICOLON DELIM_ASSIGN DELIM_ARROW DELIM_ASSIGN_ADD DELIM_ASSIGN_SUBTRACT DELIM_ASSIGN_MULTIPLY DELIM_ASSIGN_DIVIDE DELIM_ASSIGN_FLOOR_DIVIDE DELIM_ASSIGN_MODULO DELIM_ASSIGN_BITWISE_AND DELIM_ASSIGN_BITWISE_OR DELIM_ASSIGN_BITWISE_XOR DELIM_ASSIGN_RIGHT_SHIFT DELIM_ASSIGN_LEFT_SHIFT DELIM_ASSIGN_POWER DELIM_ELLIPSIS NAME INDENT DEDENT NEWLINE FLOAT_NUMBER  INTEGER STRING_LITERAL DUNDER_NAME DUNDER_MAIN TYPE_INT TYPE_FLOAT TYPE_STRING TYPE_BOOL TYPE_LIST SELF_DOT
 
 %type<intval> start_symbol single_stmt compound_stmt blocks parameters func_body_suite test typedarglist tfpdef testlist small_stmt expr_stmt flow_stmt global_stmt semicolon_stmt break_stmt continue_stmt return_stmt names classdef if_stmt while_stmt funcdef for_stmt namedexpr_test elif_plus or_test suite stmt_plus and_test not_test comparison expr comp_op xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom argument  number arglist types newline_plus file_input file_plus program_start augassign type_list type_declaration func_header class_header type_or_name trailored_atom
 
@@ -521,15 +578,13 @@ file_input: file_plus {node_attr = {"file_input"};  node_numbers = {$1}; insert_
 | newline_plus file_plus {node_attr = {"file_input"}; node_numbers = {$2}; insert_node();  $$ = node_count; node_count += 1;
     all_nodes[$$]->append_tac(all_nodes[$2]);
 } 
-| newline_plus {node_attr = {"file_input"}; node_numbers = {}; insert_node();  $$ = node_count; node_count += 1;
-    // all_nodes[$$]->append_tac(all_nodes[$1]);
-}
+| newline_plus {node_attr = {"file_input"}; node_numbers = {}; insert_node();  $$ = node_count; node_count += 1;}
 
 file_plus: file_plus blocks {$$ = $1; /* adj[$$].push_back($2);*/  all_nodes[$$]->add_child(all_nodes[$2]);
-    all_nodes[$$]->append_tac(all_nodes[$1]);
+    // all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$2]); 
 } 
-         | blocks {$$ = $1; all_nodes[$$]->append_tac(all_nodes[$1]);}
+         | blocks {$$ = $1; /*all_nodes[$$]->append_tac(all_nodes[$1]);*/}
 
 newline_plus: newline_plus NEWLINE {}
             | NEWLINE {}
@@ -545,6 +600,9 @@ funcdef: func_header func_body_suite {node_attr = {"funcdef"}; node_numbers = {$
     current_table = current_table->parent_st;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$2]);
+    quad q("", "", "", "");
+    q.make_code_end_func();
+    all_nodes[$$]->ta_codes.push_back(q);
 } 
 
 func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
@@ -553,12 +611,18 @@ func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
     insert_node();
     $$ = node_count + 4;
     node_count += 5;
-    make_new_func_symbtab(strdup($2), all_nodes[$3]->entry_list, all_nodes[$5]->datatype);
-    quad q("", strdup($2), "", "");
+    symbol_table_func *newf = make_new_func_symbtab(strdup($2), all_nodes[$3]->entry_list, all_nodes[$5]->datatype);
+    quad q("", newf->mangled_name, "", "");
     q.make_code_begin_func();
     all_nodes[$$]->ta_codes.push_back(q);
-    for(auto entry : all_nodes[$3]->entry_list) {
-        quad q1("", entry->name, "", "");
+    for(auto &entry : all_nodes[$3]->entry_list) {
+        if(entry->name == "self") {
+            entry -> mangled_name = "self";
+        }
+        else {
+            entry -> mangled_name = newf -> mangled_name + "@" + entry->name;
+        }
+        quad q1("", entry -> mangled_name , "", "");
         q1.make_code_pop_param();
         all_nodes[$$]->ta_codes.push_back(q1);
     }
@@ -569,12 +633,18 @@ func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
     insert_node();
     $$ = node_count + 3; 
     node_count += 4;
-    make_new_func_symbtab(strdup($2), all_nodes[$3]->entry_list, "None");
-    quad q("", strdup($2), "", "");
+    symbol_table_func *newf = make_new_func_symbtab(strdup($2), all_nodes[$3]->entry_list, "None");
+    quad q("", newf -> mangled_name, "", "");
     q.make_code_begin_func();
     all_nodes[$$]->ta_codes.push_back(q);
-    for(auto entry : all_nodes[$3]->entry_list) {
-        quad q1("", entry->name, "", "");
+    for(auto &entry : all_nodes[$3]->entry_list) {
+        if(entry->name == "self") {
+            entry -> mangled_name = "self";
+        }
+        else {
+            entry -> mangled_name = newf -> mangled_name + "@" + entry->name;
+        }
+        quad q1("", entry -> mangled_name , "", "");
         q1.make_code_pop_param();
         all_nodes[$$]->ta_codes.push_back(q1);
     }
@@ -680,7 +750,7 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
 }
 | type_declaration DELIM_ASSIGN test {node_attr = {"=", "expr_stmt"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
-    quad q(all_nodes[$1]->var, all_nodes[$3]->var, "", "");
+    quad q(all_nodes[$1]->var, all_nodes[$3]->var, "=", "");
     q.make_code_from_assignment();
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
@@ -724,8 +794,14 @@ type_declaration: NAME DELIM_COLON type_or_name {
         exit(1);
     }
     st_entry *new_entry = new st_entry(strdup($1), yylineno, yylineno, all_nodes[$3]->datatype);
+    if(current_table -> symbol_table_category == 'M') {
+        new_entry ->mangled_name = ((symbol_table_func *)current_table) -> mangled_name + "@" + strdup($1);
+    }
+    else {
+        new_entry -> mangled_name = strdup($1);
+    }
     all_nodes[node_count]->datatype = all_nodes[$3]->datatype;
-    if(all_nodes[$3]->datatype.length() >= 4 && all_nodes[$3]->datatype.substr(0,4) == "list"){
+    if(all_nodes[$3]->datatype.length() >= 4 && all_nodes[$3]->datatype.substr(0,4) == "list") {
         new_entry->dimensions = 1;
     }
     new_entry -> table = current_table;
@@ -753,7 +829,6 @@ type_declaration: NAME DELIM_COLON type_or_name {
         exit(1);
     }
     st_entry *new_entry = new st_entry(strdup($2), yylineno, yylineno, all_nodes[$4]->datatype);
-    // all_nodes[$$]->entry_list = {new_entry};
     all_nodes[node_count]->datatype = all_nodes[$4]->datatype;
     if(all_nodes[$4]->datatype.length() >= 4 && all_nodes[$4]->datatype.substr(0,4) == "list") {
         new_entry->dimensions = 1;
@@ -762,7 +837,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     current_table -> parent_st -> add_entry(new_entry);
     node_count += 4;
     all_nodes[$$]->datatype = all_nodes[$4]->datatype;
-    all_nodes[$$]->var = string("* (self + ") + to_string(((symbol_table_class *)(current_table->parent_st))->object_size) + " )";
+    all_nodes[$$]->var = string("*( self + ") + to_string(((symbol_table_class *)(current_table->parent_st))->object_size) + " )";
     new_entry -> offset = ((symbol_table_class *)(current_table->parent_st))->object_size;
     ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$4]->datatype];
 }
@@ -1008,19 +1083,7 @@ while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite {node_attr = {"while",":"
     quad q("", arg1, op, arg2);
     q.make_code_from_conditional();
     all_nodes[$$] -> ta_codes.push_back(q);
-    for(int i = 0; i < all_nodes[$4]->ta_codes.size(); i++) {
-        auto (&tac) = all_nodes[$4]->ta_codes[i];
-        if(tac.code == "\t\tgoto CONTINUE;\n"){
-            int rel_jump = (i + all_nodes[$$] -> ta_codes.size());
-            tac = quad("", "J-" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
-            tac.make_code_from_goto();
-        }
-        else if(tac.code == "\t\tgoto BREAK;\n") {
-            int rel_jump = (all_nodes[$4] -> ta_codes.size() - i) + 1;
-            tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
-            tac.make_code_from_goto();
-        }
-    }
+    break_continue($4, $$);
     all_nodes[$$] -> append_tac(all_nodes[$4]);
     op = "goto";
     arg1 = "J-" + to_string(stat_size + exp_size + 1);
@@ -1029,19 +1092,80 @@ while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite {node_attr = {"while",":"
     all_nodes[$$] -> ta_codes.push_back(q2);
 }
 
-for_stmt: KEY_FOR expr KEY_IN testlist DELIM_COLON suite {node_attr = {"for","in", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, $6}; insert_node(); $$ = node_count + 3;
-    node_count += 4;
-    if(all_nodes[$2]->datatype != "int" || all_nodes[$4]->datatype != "int") {
+for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"for","in", "range", "(", ")", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, node_count + 2, node_count + 3, $6, node_count + 4 ,node_count + 5, $9}; insert_node(); $$ = node_count + 6;
+    node_count += 7;
+    if(all_nodes[$2]->datatype != "int" || all_nodes[$6]->datatype != "int") {
         cout << "Invalid for loop at line " << yylineno << endl;
         exit(1);
     }
+    all_nodes[$$]->append_tac(all_nodes[$2]);
+    all_nodes[$$]->append_tac(all_nodes[$6]);
+    quad q(all_nodes[$2]->var, "0", "=", "");
+    q.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q);
+    string tmp_var = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q1(tmp_var, all_nodes[$2]->var, "<", all_nodes[$6]->var);
+    q1.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q1);
+    string op = "if_false";
+    string arg1 = tmp_var;
+    string arg2 = "J+" + to_string(all_nodes[$9]->ta_codes.size() + 2);
+    quad q2("", arg1, op, arg2);
+    q2.make_code_from_conditional();
+    all_nodes[$$] -> ta_codes.push_back(q2);
+    break_continue($9, $$);
+    all_nodes[$$] -> append_tac(all_nodes[$9]);
+    quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
+    q4.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q4);
+    op = "goto";
+    arg1 = "J-" + to_string(all_nodes[$9]->ta_codes.size() + 4);
+    quad q3("", arg1, op, "");
+    q3.make_code_from_goto();
+    all_nodes[$$] -> ta_codes.push_back(q3);
 }
 
-stmt_plus : blocks {$$ = $1; all_nodes[$$]->append_tac(all_nodes[$1]);}
+| KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_COMMA test DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"for","in", "range", "(" , ",", ")", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, node_count + 2, node_count + 3, $6, node_count+4, $8, node_count + 5, node_count + 6, $11}; insert_node(); $$ = node_count + 7;
+    node_count += 8;
+    if(all_nodes[$2]->datatype != "int" || all_nodes[$6]->datatype != "int" || all_nodes[$8] -> datatype != "int") {
+        cout << "Invalid for loop at line " << yylineno << endl;
+        exit(1);
+    }
+    all_nodes[$$]->append_tac(all_nodes[$2]);
+    all_nodes[$$]->append_tac(all_nodes[$6]);
+    all_nodes[$$]->append_tac(all_nodes[$8]);
+    quad q(all_nodes[$2]->var, all_nodes[$6]->var, "=", "");
+    q.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q);
+    string temp_var = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q1(temp_var, all_nodes[$2]->var, "<", all_nodes[$8]->var);
+    q1.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q1);
+    string op = "if_false";
+    string arg1 = temp_var;
+    string arg2 = "J+" + to_string(all_nodes[$11]->ta_codes.size() + 2);
+    quad q2("", arg1, op, arg2);
+    q2.make_code_from_conditional();
+    all_nodes[$$]->ta_codes.push_back(q2);
+    break_continue($11, $$);
+    all_nodes[$$] -> append_tac(all_nodes[$11]);
+    quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
+    q4.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q4);
+    op = "goto";
+    arg1 = "J-" + to_string(all_nodes[$11]->ta_codes.size() + 4);
+    quad q3("", arg1, op, "");
+    q3.make_code_from_goto();
+    all_nodes[$$] -> ta_codes.push_back(q3);
+}
+
+stmt_plus : blocks {$$ = $1; /*all_nodes[$$]->append_tac(all_nodes[$1]);*/}
 | stmt_plus blocks {$$ = $1; all_nodes[$$]->add_child(all_nodes[$2]);
     all_nodes[$$]->append_tac(all_nodes[$2]);
 }
-        
+
 suite: single_stmt {node_attr = {"suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->append_tac(all_nodes[$1]);
 }
@@ -1274,7 +1398,7 @@ atom_expr: atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node();
 
 trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     // cout << "BEFORE\n";
-    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$],all_nodes[$1], all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
+    all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1], all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
     all_nodes[$$]->append_tac(all_nodes[$3]);
     for(int i=0;i<all_nodes[$3]->var_list.size();i++){
@@ -1285,16 +1409,38 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     quad q("", all_nodes[$1]->var, "call", "");
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
-    all_nodes[$$]->var = all_nodes[$1]->var + "()";
+    if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
+        string temp = "__t" + to_string(temp_count);
+        temp_count++;
+        quad q1(temp, "#retval#", "=", "");
+        q1.make_code_from_assignment();
+        all_nodes[$$]->ta_codes.push_back(q1);
+        all_nodes[$$]->var = temp;
+    }
+    else {
+        string temp = "__t" + to_string(temp_count - 1);
+        all_nodes[$$]->var = temp;
+    }
 }
 
 | atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2; 
-    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
+    all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
     quad q("", all_nodes[$1]->var, "call", "");
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
-    all_nodes[$$]->var = all_nodes[$1]->var + "()";
+    if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)) {
+        string temp = "__t" + to_string(temp_count);
+        temp_count++;
+        quad q1(temp, "#retval#", "=", "");
+        q1.make_code_from_assignment();
+        all_nodes[$$]->ta_codes.push_back(q1);
+        all_nodes[$$]->var = temp;
+    }
+    else {
+        string temp = "__t" + to_string(temp_count - 1);
+        all_nodes[$$]->var = temp;
+    }
 }
 
 | atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
@@ -1302,15 +1448,62 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         cout << "Index at line " << yylineno << " should be an integer\n";
         exit(1);
     }
-    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[$1],all_nodes[$1]->datatype, "list_subs");
+    all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "list_subs");
     node_count += 3;
+    all_nodes[$$]->append_tac(all_nodes[$1]);
+    all_nodes[$$]->append_tac(all_nodes[$3]);
+    string temp = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q(temp, all_nodes[$1]->var, "=", "");
+    q.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q);
+    string temp1 = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q1(temp1, "*( " + temp + " ) ", "=", "");
+    q1.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q1);
+    string temp2 = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q2(temp2, all_nodes[$3]->var, "<", temp1);
+    q2.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q2);
+    
+    string op = "if_false";
+    string arg2 = "J+2";
+    quad q3("", temp2, op, arg2);
+    q3.make_code_from_conditional();
+    all_nodes[$$]->ta_codes.push_back(q3);
+    quad q4("", "", "", "");
+    q4.code = "\t\texit_out_of_bound\n";
+    q4.made_from = quad::EXIT;
+    all_nodes[$$]->ta_codes.push_back(q4);
+    // temp is the base address excluding size; temp1 is useless at this point
+    string type = all_nodes[$1]->datatype.substr(6, all_nodes[$1]->datatype.size() - 8);
+    int size = type_to_size[type];
+    quad q5(temp1, all_nodes[$3]->var , "*", to_string(size));   // [4i] => 4*i
+    q5.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q5);
+    quad q6(temp1, temp1 , "+", "8");  // bypassing the size thing   + 8
+    q6.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q6);  
+    quad q7(temp1, temp , "+", temp1);   // base + 8 + 4 * i
+    q7.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q7);
+    string t = "__t" + to_string(temp_count);
+    temp_count++;
+    all_nodes[$$]->var = t;
+    quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
+    q8.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q8); 
 }
+
 | atom DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailored_atom"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2;
-    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[$1],all_nodes[$1]->datatype, "objattribute", strdup($3));
+    all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "objattribute", strdup($3));
     node_count += 3;
+    // done in set trailer type
 }
 | trailored_atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
-    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[$1],all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
+    all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
     for(int i=0;i<all_nodes[$3]->var_list.size();i++){
         quad q("", all_nodes[$3]->var_list[i], "push_param", "");
@@ -1320,27 +1513,97 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     quad q("", all_nodes[$1]->var, "call", "");
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
-    all_nodes[$$]->var = all_nodes[$1]->var + "()";
+    
+    if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
+        string temp = "__t" + to_string(temp_count);
+        temp_count++;
+        quad q1(temp, "#retval#", "=", "");
+        q1.make_code_from_assignment();
+        all_nodes[$$]->ta_codes.push_back(q1);
+        all_nodes[$$]->var = temp;
+    }
+    else {
+        string temp = "__t" + to_string(temp_count - 1);
+        all_nodes[$$]->var = temp;
+    }
 }
 | trailored_atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count+1}; insert_node(); $$ = node_count + 2;
-    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
+    all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
     quad q("", all_nodes[$1]->var, "call", "");
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
-    all_nodes[$$]->var = all_nodes[$1]->var + "()";
+    if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
+        string temp = "__t" + to_string(temp_count);
+        temp_count++;
+        quad q1(temp, "#retval#", "=", "");
+        q1.make_code_from_assignment();
+        all_nodes[$$]->ta_codes.push_back(q1);
+        all_nodes[$$]->var = temp;
+    }
+    else {
+        string temp = "__t" + to_string(temp_count - 1);
+        all_nodes[$$]->var = temp;
+    }
 }
 | trailored_atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     if(all_nodes[$3]->datatype != "int") {
         cout << "Index at line " << yylineno << " should be an integer\n";
         exit(1);
     }
-    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[$1],all_nodes[$1]->datatype, "list_subs");
+    all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "list_subs");
     node_count += 3;
+    all_nodes[$$]->append_tac(all_nodes[$1]);
+    all_nodes[$$]->append_tac(all_nodes[$3]);
+    string temp = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q(temp, all_nodes[$1]->var, "=", "");
+    q.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q);
+    string temp1 = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q1(temp1, "*( " + temp + " ) ", "=", "");
+    q1.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q1);
+    string temp2 = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q2(temp2, all_nodes[$3]->var, "<", temp1);
+    q2.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q2);
+    
+    string op = "if_false";
+    string arg2 = "J+2";
+    quad q3("", temp2, op, arg2);
+    q3.make_code_from_conditional();
+    all_nodes[$$]->ta_codes.push_back(q3);
+    quad q4("", "", "", "");
+    q4.code = "exit";
+    q4.made_from = quad::EXIT;
+    all_nodes[$$]->ta_codes.push_back(q4);
+    // temp is the base address excluding size; temp1 is useless at this point
+    string type = all_nodes[$1]->datatype.substr(6, all_nodes[$1]->datatype.size() - 8);
+    int size = type_to_size[type];
+    quad q5(temp1, all_nodes[$3]->var , "*", to_string(size));   // [4i] => 4*i
+    q5.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q5);
+    quad q6(temp1, temp1 , "+", "8");  // bypassing the size thing   + 8
+    q6.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q6);  
+    quad q7(temp1, temp , "+", temp1);   // base + 8 + 4 * i
+    q7.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q7);
+    string t = "__t" + to_string(temp_count);
+    temp_count++;
+    all_nodes[$$]->var = t;
+    quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
+    q8.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q8); 
 }
+
 | trailored_atom DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailored_atom"}; node_numbers = {$1 ,node_count, node_count + 1}; insert_node(); $$ = node_count + 2;
-    all_nodes[$$]->datatype = set_trailer_type_compatibility(all_nodes[$$], all_nodes[$1],all_nodes[$1]->datatype, "objattribute", strdup($3));
+    all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "objattribute", strdup($3));
     node_count += 3;
+    // done in set trailer type
 }
 
 atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; node_numbers = {node_count, $2, node_count + 1}; insert_node(); $$ = node_count + 2;
@@ -1351,14 +1614,56 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
 }
 | DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
     node_count += 3;
+    int size = type_to_size[all_nodes[$2]->datatype];
     all_nodes[$$]->datatype = "list[ " + all_nodes[$2]->datatype + " ]";
+    all_nodes[$$]->var = "__t" + to_string(temp_count);
+    temp_count ++;
+    quad q0("", to_string(all_nodes[$2]->var_list.size() * size + 8) , "push_param", "");
+    q0.make_code_from_param();
+    all_nodes[$$]->ta_codes.push_back(q0);  
+    quad q("", "allocmem", "call", "");
+    q.make_code_from_func_call();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    // quad q(all_nodes[$$]->var, "allocmem", "=", "");
+    // q.make_code_from_assignment();
+    // all_nodes[$$]->ta_codes.push_back(q);
+    quad q2(all_nodes[$$]->var, "#retval#", "=", "");
+    q2.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q2);
+    
+    quad q1(string("*( " + all_nodes[$$]->var + " )"), to_string(all_nodes[$2]->var_list.size()), "=", "");
+    q1.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q1);
+    for(int i = 0; i < all_nodes[$2]->var_list.size(); i++) {
+        quad q(string("*( " + all_nodes[$$]->var) + "+" + to_string(8 + size * i) + " )", all_nodes[$2]->var_list[i], "=", "");
+        q.make_code_from_assignment();
+        all_nodes[$$]->ta_codes.push_back(q);
+    }
 }
-| DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3;}
+
+| DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3; 
+    all_nodes[$$]->var = "__t" + to_string(temp_count);
+    temp_count ++;
+    quad q0("", "8", "push_param", "");
+    q0.make_code_from_param();
+    all_nodes[$$]->ta_codes.push_back(q0);    
+    quad q("", "allocmem", "call", "");
+    q.make_code_from_func_call();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    // quad q(all_nodes[$$]->var, "allocmem", "=", "");
+    // q.make_code_from_assignment();
+    // all_nodes[$$]->ta_codes.push_back(q);
+    quad q2(all_nodes[$$]->var, "#retval#", "=", "");
+    q2.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q2);
+    quad q1(string("*( " + all_nodes[$$]->var + " )"), "0", "=", "");
+    q1.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q1);
+}
 
 | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; 
     all_nodes[$$]->datatype = check_decl_before_use(strdup($1), all_nodes[$$]);
     node_count += 2;
-    all_nodes[$$]->var = strdup($1);
 }
 
 | number {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
@@ -1368,7 +1673,9 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
 
 | STRING_LITERAL {node_attr = {string("STR ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = "str";
+    all_nodes[$$]->var = strdup($1);
 }
+
 | DELIM_ELLIPSIS {node_attr = {"...", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
 
 | KEY_NONE {node_attr = {"None", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
@@ -1389,7 +1696,7 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     all_nodes[$$]->datatype = check_self_decl_before_use(strdup($2), all_nodes[$$]);
     string name = strdup($2);
     st_entry *curr_entry = ((symbol_table_class *)(current_table->parent_st)) -> look_up_attribute_in_class_hierarchy(name);
-    all_nodes[$$]->var = string("* (self + ") + to_string(curr_entry->offset) + " )";
+    all_nodes[$$]->var = "*( self + " + to_string(curr_entry->offset) + " )";
 }
 
 number: INTEGER {
@@ -1413,13 +1720,21 @@ number: INTEGER {
 
 testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
+    all_nodes[$$] -> var_list = {all_nodes[$1] -> var};
+    all_nodes[$$]->append_tac(all_nodes[$1]);
 }
 | test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$1] -> datatype, all_nodes[$3] -> datatype);
     all_nodes[$$] -> datatype = max_type(all_nodes[$1] -> datatype, all_nodes[$3] -> datatype);
+    all_nodes[$$]->var_list = {all_nodes[$1]->var};
+    all_nodes[$$]->var_list.insert(all_nodes[$$]->var_list.end(), all_nodes[$3]->var_list.begin(), all_nodes[$3]->var_list.end());
+    all_nodes[$$]->append_tac(all_nodes[$1]);
+    all_nodes[$$]->append_tac(all_nodes[$3]);
 }
 | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
+    all_nodes[$$]->var_list.push_back(all_nodes[$1]->var);
+    all_nodes[$$]->append_tac(all_nodes[$1]);
 }
 
 classdef: class_header suite {
@@ -1428,9 +1743,9 @@ classdef: class_header suite {
     insert_node();
     $$ =  node_count;
     node_count += 1;
-    if(((symbol_table_class *)current_table) -> parent_class) {
-        ((symbol_table_class *)current_table) -> object_size += ((symbol_table_class *)current_table) -> parent_class -> object_size;
-    }
+    // if(((symbol_table_class *)current_table) -> parent_class) {
+    //     ((symbol_table_class *)current_table) -> object_size += ((symbol_table_class *)current_table) -> parent_class -> object_size;
+    // }
     type_to_size[current_table -> name] = ((symbol_table_class *)current_table) -> object_size;
     current_table = current_table->parent_st;
     all_nodes[$$] -> append_tac(all_nodes[$1]);
@@ -1444,7 +1759,6 @@ class_header: KEY_CLASS NAME DELIM_LEFT_PAREN NAME DELIM_RIGHT_PAREN DELIM_COLON
     $$ = node_count + 6;
     node_count += 7;
     make_new_class_symbtab(strdup($2), strdup($4));
-    
 }
 | KEY_CLASS NAME DELIM_LEFT_PAREN DELIM_RIGHT_PAREN DELIM_COLON {
     node_attr = {"class", string("NAME ( ") + strdup($2) + " )", "(", ")", ":", "class_header"};
@@ -1651,7 +1965,7 @@ int main(int argc, char* argv[]) {
     yyparse();
     root_node = all_nodes.back();
     root_node->clean_tree();
-    root_node -> make_dot();
+    /* root_node -> make_dot(); */
     global_table->make_csv_wrapper("st.csv");
     
     ins_count = 1; 

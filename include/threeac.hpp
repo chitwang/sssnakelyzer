@@ -28,7 +28,8 @@ struct quad{
         END_FUNC,
         RETURN,
         SHIFT_POINTER,
-        POP_PARAM
+        POP_PARAM,
+        EXIT
     };
 
     quad();

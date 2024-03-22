@@ -1,5 +1,48 @@
-1:			if_false flag goto 3;
-2:			goto 6;
-3:			if_false flag goto 5;
-4:			goto 6;
-5:			if_false flag goto 6;
+1:	
+	begin_func A@__init__
+2:			self = pop_param;
+3:			*( self + 0 ) = 4;
+4:			*( self + 8 ) = True;
+5:	end_func
+6:	
+	begin_func A@printa
+7:			self = pop_param;
+8:			push_param *( self + 0 );
+9:			call print_int;
+10:	end_func
+11:	
+	begin_func B@__init__
+12:			self = pop_param;
+13:			*( self + 0 ) = 'abcd';
+14:			push_param 9;
+15:			call allocmem;
+16:			__t0 = #retval#;
+17:			push_param __t0;
+18:			call A@__init__;
+19:			*( self + 4 ) = __t0;
+20:			*( self + 13 ) = 6;
+21:	end_func
+22:	
+	begin_func B@add
+23:			self = pop_param;
+24:			B@add@a = pop_param;
+25:			__t1 = B@add@a + ;
+26:			return __t1;
+27:	end_func
+28:	
+	begin_func main
+29:			push_param 21;
+30:			call allocmem;
+31:			__t2 = #retval#;
+32:			push_param __t2;
+33:			call B@__init__;
+34:			b = __t2;
+35:			push_param ;
+36:			call print_int;
+37:			push_param 4;
+38:			call B@add;
+39:			__t3 = #retval#;
+40:			x = __t3;
+41:			push_param main@x;
+42:			call print_int;
+43:	end_func

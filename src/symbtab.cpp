@@ -408,6 +408,7 @@ void symbol_table_global::add_Print() {
     st_entry *arg = new st_entry("print_str", 0, 0, "str");
     args.push_back(arg);
     symbol_table_func *print_str = new symbol_table_func("print", args, "None");
+    print_str->mangled_name = "print_str";
     global_table -> functions.push_back(print_str);
     global_table -> add_scope((symbol_table *)print_str);
     global_table -> children_st.push_back((symbol_table *)print_str);
@@ -415,6 +416,7 @@ void symbol_table_global::add_Print() {
     arg = new st_entry("print_int", 0, 0, "int");
     args = {arg};
     symbol_table_func *print_int = new symbol_table_func("print", args, "None");
+    print_int->mangled_name = "print_int";
     global_table -> functions.push_back(print_int);
     global_table -> add_scope((symbol_table *)print_int);
     global_table -> children_st.push_back((symbol_table *)print_int);
@@ -422,6 +424,7 @@ void symbol_table_global::add_Print() {
     arg = new st_entry("print_flt", 0, 0, "float");
     args = {arg};
     symbol_table_func *print_float = new symbol_table_func("print", args, "None");
+    print_float->mangled_name = "print_flt";
     global_table -> functions.push_back(print_float);
     global_table -> add_scope((symbol_table *)print_float);
     global_table -> children_st.push_back((symbol_table *)print_float);
@@ -429,6 +432,7 @@ void symbol_table_global::add_Print() {
     arg = new st_entry("print_bol", 0, 0, "bool");
     args = {arg};
     symbol_table_func *print_bool = new symbol_table_func("print", args, "None");
+    print_bool->mangled_name = "print_bol";
     global_table -> functions.push_back(print_bool);
     global_table -> add_scope((symbol_table *)print_bool);
     global_table -> children_st.push_back((symbol_table *)print_bool);
@@ -443,12 +447,14 @@ void symbol_table_global::add_Range() {
     args.push_back(end);
 
     symbol_table_func *range_start_end = new symbol_table_func("range", args, "int");
+    range_start_end->mangled_name = "range_start_end";
     global_table -> functions.push_back(range_start_end);
     global_table -> add_scope((symbol_table *)range_start_end);
     global_table -> children_st.push_back((symbol_table *)range_start_end);
 
     args = {end};
     symbol_table_func *range_end = new symbol_table_func("range", args, "int");
+    range_end->mangled_name = "range_end";
     global_table -> functions.push_back(range_end);
     global_table -> add_scope((symbol_table *)range_end);
     global_table -> children_st.push_back((symbol_table *)range_end);
@@ -460,6 +466,7 @@ void symbol_table_global::add_Len() {
     st_entry *list = new st_entry("list_var", 0, 0, "list");
     args.push_back(list);
     symbol_table_func *len = new symbol_table_func("len", args, "int");
+    len->mangled_name = "len";
     global_table -> functions.push_back(len);
     global_table -> add_scope((symbol_table *)len);
     global_table -> children_st.push_back((symbol_table *)len);

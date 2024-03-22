@@ -210,6 +210,11 @@ COMMENT                         [\t ]*#[^\n]*
     return FLOAT_NUMBER;
 }
 
+"range" {
+    yylval.strval = strdup(yytext);
+    return KEY_RANGE;
+}
+
 "False" {
     yylval.strval = strdup(yytext);
     return KEY_FALSE;
