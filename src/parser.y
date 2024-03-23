@@ -554,9 +554,9 @@ void make_unary_threeac(int n1, string op, int n2) {
     all_nodes[n2]->var = res;
     quad q(res, all_nodes[n1]->var, op, "");
     q.make_code_from_unary();
-    cout<<q.code<<endl;
-    all_nodes[n2]->append_tac(all_nodes[n1]);
+    // cout<<q.code<<endl;
     all_nodes[n2]->ta_codes.push_back(q);
+    all_nodes[n2]->append_tac(all_nodes[n1]);
 }
 
 extern int yylex(void);
@@ -1137,12 +1137,13 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     q2.make_code_from_conditional();
     all_nodes[$$] -> ta_codes.push_back(q2);
     break_continue($9, $$);
-    all_nodes[$$] -> append_tac(all_nodes[$9]);
     quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
     q4.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q4);
     op = "goto";
-    arg1 = "J-" + to_string(all_nodes[$9]->ta_codes.size() + 4);
+    arg1 = "J-" + to_string(all_nodes[$9]->ta_codes.size() + 3);   // chitwan -- yha size+4 ki jgh 3 hoga as per examples check this once by running public1.py
+    // cout << "suite size yylineno: "<<yylineno << "    size = "<<all_nodes[$9]->ta_codes.size()<<endl;
+    all_nodes[$$] -> append_tac(all_nodes[$9]);
     quad q3("", arg1, op, "");
     q3.make_code_from_goto();
     all_nodes[$$] -> ta_codes.push_back(q3);
@@ -1640,6 +1641,7 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
 | DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
     node_count += 3;
     int size = type_to_size[all_nodes[$2]->datatype];
+    all_nodes[$$]->append_tac(all_nodes[$2]);   // chitwan -- ye missing tha
     all_nodes[$$]->datatype = "list[ " + all_nodes[$2]->datatype + " ]";
     all_nodes[$$]->var = "__t" + to_string(temp_count);
     temp_count ++;
@@ -1757,6 +1759,7 @@ testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$
     all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
     all_nodes[$$] -> var_list = {all_nodes[$1] -> var};
     all_nodes[$$]->append_tac(all_nodes[$1]);
+    // cout << "Var1 "<<all_nodes[$1] -> var <<endl;
 }
 | test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$1] -> datatype, all_nodes[$3] -> datatype);
@@ -1765,12 +1768,13 @@ testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$
     all_nodes[$$]->var_list.insert(all_nodes[$$]->var_list.end(), all_nodes[$3]->var_list.begin(), all_nodes[$3]->var_list.end());
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
-    // cout << "Var "<<all_nodes[$1] -> var <<endl;
+    // cout << "Var2 "<<all_nodes[$1] -> var <<endl;
 }
 | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
     all_nodes[$$]->var_list.push_back(all_nodes[$1]->var);
     all_nodes[$$]->append_tac(all_nodes[$1]);
+    // cout << "Var3 "<<all_nodes[$1] -> var <<endl;
 }
 
 classdef: class_header suite {

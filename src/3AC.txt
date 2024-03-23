@@ -1,63 +1,130 @@
 1:	
-	begin_func A@__init__
-2:			self = pop_param;
-3:			__t0 = self + 0;
-4:			*__t0 = 2;
-5:			__t1 = self + 8;
-6:			*__t1 = 15.324;
-7:	end_func
-8:	
-	begin_func A@add
-9:			self = pop_param;
-10:			A@add@x = pop_param;
-11:			__t2 = self + 0;
-12:			__t3 = A@add@x + *__t2;
-13:			return __t3;
-14:	end_func
-15:	
-	begin_func B@__init__
-16:			self = pop_param;
-17:			B@__init__@num = pop_param;
-18:			__t4 = self + 0;
-19:			*__t4 = 5;
-20:			__t5 = self + 16;
-21:			*__t5 = "Hey!";
-22:			__t6 = self + 8;
-23:			*__t6 = 132.132;
-24:			__t7 = self + 20;
-25:			push_param 16;
-26:			call allocmem;
-27:			__t8 = #retval#;
-28:			push_param __t8;
-29:			call A@__init__;
-30:			*__t7 = __t8;
-31:			__t9 = self + 36;
-32:			*__t9 = B@__init__@num;
-33:	end_func
-34:	
-	begin_func C@__init__
-35:			self = pop_param;
-36:			__t10 = self + 44;
-37:			*__t10 = False;
-38:	end_func
-39:	
+	begin_func bubbleSort
+2:			bubbleSort@array = pop_param;
+3:			i = 0;
+4:			push_param bubbleSort@array;
+5:			call len;
+6:			__t0 = #retval#;
+7:			bubbleSort@i = 0;
+8:			__t34 = bubbleSort@i < __t0;
+9:			if_false __t34 goto 89;
+10:			bubbleSort@i = bubbleSort@i + 1;
+11:			swapped = False;
+12:			j = 0;
+13:			push_param bubbleSort@array;
+14:			call len;
+15:			__t1 = #retval#;
+16:			__t2 = __t1 - bubbleSort@i;
+17:			__t3 = __t2 - 1;
+18:			bubbleSort@j = 0;
+19:			__t32 = bubbleSort@j < __t3;
+20:			if_false __t32 goto 85;
+21:			__t4 = bubbleSort@array;
+22:			__t5 = *( __t4 ) ;
+23:			__t6 = bubbleSort@j < __t5;
+24:			if_false __t6 goto 26;
+25:			exit_out_of_bound
+26:			__t5 = bubbleSort@j * 8;
+27:			__t5 = __t5 + 8;
+28:			__t5 = __t4 + __t5;
+29:			__t7 = *( __t5 );
+30:			__t8 = bubbleSort@j + 1;
+31:			__t9 = bubbleSort@array;
+32:			__t10 = *( __t9 ) ;
+33:			__t11 = __t8 < __t10;
+34:			if_false __t11 goto 36;
+35:			exit_out_of_bound
+36:			__t10 = __t8 * 8;
+37:			__t10 = __t10 + 8;
+38:			__t10 = __t9 + __t10;
+39:			__t12 = *( __t10 );
+40:			__t13 = __t7 > __t12;
+41:			if_false __t13 goto 84;
+42:			__t14 = bubbleSort@array;
+43:			__t15 = *( __t14 ) ;
+44:			__t16 = bubbleSort@j < __t15;
+45:			if_false __t16 goto 47;
+46:			exit_out_of_bound
+47:			__t15 = bubbleSort@j * 8;
+48:			__t15 = __t15 + 8;
+49:			__t15 = __t14 + __t15;
+50:			__t17 = *( __t15 );
+51:			temp = __t17;
+52:			__t18 = bubbleSort@array;
+53:			__t19 = *( __t18 ) ;
+54:			__t20 = bubbleSort@j < __t19;
+55:			if_false __t20 goto 57;
+56:			exit_out_of_bound
+57:			__t19 = bubbleSort@j * 8;
+58:			__t19 = __t19 + 8;
+59:			__t19 = __t18 + __t19;
+60:			__t21 = *( __t19 );
+61:			__t22 = bubbleSort@j + 1;
+62:			__t23 = bubbleSort@array;
+63:			__t24 = *( __t23 ) ;
+64:			__t25 = __t22 < __t24;
+65:			if_false __t25 goto 67;
+66:			exit_out_of_bound
+67:			__t24 = __t22 * 8;
+68:			__t24 = __t24 + 8;
+69:			__t24 = __t23 + __t24;
+70:			__t26 = *( __t24 );
+71:			__t21 = __t26;
+72:			__t27 = bubbleSort@j + 1;
+73:			__t28 = bubbleSort@array;
+74:			__t29 = *( __t28 ) ;
+75:			__t30 = __t27 < __t29;
+76:			if_false __t30 goto 78;
+77:			exit_out_of_bound
+78:			__t29 = __t27 * 8;
+79:			__t29 = __t29 + 8;
+80:			__t29 = __t28 + __t29;
+81:			__t31 = *( __t29 );
+82:			__t31 = bubbleSort@temp;
+83:			bubbleSort@swapped = True;
+84:			bubbleSort@j = bubbleSort@j + 1;
+85:			goto 81;
+86:			__t33 = !(bubbleSort@swapped);
+87:			if_false __t33 goto 89;
+88:			goto 90;
+89:			goto 7;
+90:	end_func
+91:	
 	begin_func main
-40:			push_param 45;
-41:			call allocmem;
-42:			__t11 = #retval#;
-43:			push_param __t11;
-44:			call C@__init__;
-45:			obj = __t11;
-46:			__t12 = main@obj + 20;
-47:			__t13 = __t12 + 0;
-48:			push_param *__t13;
-49:			call print_int;
-50:			push_param 3;
-51:			call A@add;
-52:			__t14 = #retval#;
-53:			x = __t14;
-54:			push_param main@x;
-55:			call print_int;
-56:	end_func
-57:	program start: 
-58:			call main;
+92:			__t35 = -(2);
+93:			__t36 = -(9);
+94:			push_param 48;
+95:			call allocmem;
+96:			__t37 = #retval#;
+97:			*( __t37 ) = 5;
+98:			*( __t37+8 ) = __t35;
+99:			*( __t37+16 ) = 45;
+100:		*( __t37+24 ) = 0;
+101:		*( __t37+32 ) = 11;
+102:		*( __t37+40 ) = __t36;
+103:		data = __t37;
+104:		push_param main@data;
+105:		call bubbleSort;
+106:		i = 0;
+107:		push_param main@data;
+108:		call len;
+109:		__t38 = #retval#;
+110:		main@i = 0;
+111:		__t43 = main@i < __t38;
+112:		if_false __t43 goto 125;
+113:		main@i = main@i + 1;
+114:		__t39 = main@data;
+115:		__t40 = *( __t39 ) ;
+116:		__t41 = main@i < __t40;
+117:		if_false __t41 goto 119;
+118:		exit_out_of_bound
+119:		__t40 = main@i * 8;
+120:		__t40 = __t40 + 8;
+121:		__t40 = __t39 + __t40;
+122:		__t42 = *( __t40 );
+123:		push_param __t42;
+124:		call print_int;
+125:		goto 110;
+126:end_func
+127:program start: 
+128:		call main;
