@@ -26,7 +26,6 @@ public:
     int line_no = 0;                    // Stores where the node body **ENDS**, i.e., where the production rule is completed
     vector <quad> ta_codes;
     bool type_checked = false;          // Tracks if type_checked is called or not
-
     long long int exp_int_val = 0;
     double exp_dob_val = 0.0;
     string exp_str_val = ""; 

@@ -369,6 +369,7 @@ string check_decl_before_use(string name , node *current_node) {
 }
 
 string check_attribute_in_class(symbol_table_class* symtab, string &name, node *current_node, string b = "") {
+    // cout<<"variable of left node at "<<yylineno<<"  " << b << endl;
     st_entry* existing_entry = symtab -> look_up_attribute_in_class_hierarchy(name);
     if(!existing_entry) {
         symbol_table_func *function_entry = symtab -> look_up_function_in_class_hierarchy(name);
@@ -384,12 +385,23 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
         }
     }
     else {
-        current_node->var = "*( " + b + " + " + to_string(existing_entry->offset) + " )";
+        //  chitwan -- resolving no var for object attributes
+        string tmp = "__t" + to_string(temp_count);
+        temp_count++;
+        quad q(tmp, b , "+", to_string(existing_entry->offset));
+        q.make_code_from_binary();
+        current_node->ta_codes.push_back(q);
+        quad q1(tmp, "*"+tmp, "=", "");
+        q1.make_code_from_assignment();
+        current_node->ta_codes.push_back(q1);
+        current_node->var = (tmp);
+        /* chitwan */
+        // current_node->var = "*( " + b + " + " + to_string(existing_entry->offset) + " )";
         if(!is_not_class(existing_entry -> type)) {
             current_node -> is_class = true;
         } else {
             current_node -> is_var = true;
-            current_node->var = existing_entry->mangled_name;
+            // current_node->var = existing_entry->mangled_name;
             current_node -> sym_tab_entry = existing_entry;
         }
         return existing_entry -> type;    
@@ -398,10 +410,10 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
 
 string check_self_decl_before_use(string name, node *current_node) {
     if(current_table->symbol_table_category == 'M') {
-        return check_attribute_in_class((symbol_table_class *)(current_table -> parent_st), name, current_node);
+        return check_attribute_in_class((symbol_table_class *)(current_table -> parent_st), name, current_node, "self");
     }
     else if(current_table -> symbol_table_category == 'C') {
-        return check_attribute_in_class(((symbol_table_class *)current_table), name, current_node);
+        return check_attribute_in_class(((symbol_table_class *)current_table), name, current_node, "self");
     }
     else {
         cout << "Class has no attribute " << name << " at line " << yylineno << endl;
@@ -838,6 +850,18 @@ type_declaration: NAME DELIM_COLON type_or_name {
     node_count += 4;
     all_nodes[$$]->datatype = all_nodes[$4]->datatype;
     all_nodes[$$]->var = string("*( self + ") + to_string(((symbol_table_class *)(current_table->parent_st))->object_size) + " )";
+
+    /*  chitwan  -- 3ac minor correctness assign *(self + offt) to some temporary first */
+    string tmp = "__t" + to_string(temp_count);
+    temp_count++;
+    quad q(tmp, "self" , "+", to_string(((symbol_table_class *)(current_table->parent_st))->object_size));
+    q.make_code_from_binary();
+    all_nodes[$$]->ta_codes.push_back(q);
+    quad q1(tmp, "*"+tmp, "=", "");
+    q1.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q1);
+    all_nodes[$$]->var = (tmp);
+    /* chitwan --*/
     new_entry -> offset = ((symbol_table_class *)(current_table->parent_st))->object_size;
     ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$4]->datatype];
 }
@@ -1498,8 +1522,10 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
 }
 
 | atom DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailored_atom"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2;
+    all_nodes[$$]->append_tac(all_nodes[$1]);   // chitwan -- 
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "objattribute", strdup($3));
     node_count += 3;
+
     // done in set trailer type
 }
 | trailored_atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
@@ -1601,6 +1627,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
 }
 
 | trailored_atom DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailored_atom"}; node_numbers = {$1 ,node_count, node_count + 1}; insert_node(); $$ = node_count + 2;
+    all_nodes[$$]->append_tac(all_nodes[$1]);   // chitwan ---
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "objattribute", strdup($3));
     node_count += 3;
     // done in set trailer type
@@ -1696,7 +1723,17 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     all_nodes[$$]->datatype = check_self_decl_before_use(strdup($2), all_nodes[$$]);
     string name = strdup($2);
     st_entry *curr_entry = ((symbol_table_class *)(current_table->parent_st)) -> look_up_attribute_in_class_hierarchy(name);
-    all_nodes[$$]->var = "*( self + " + to_string(curr_entry->offset) + " )";
+    //  chitwan -- resolving no var for object attributes
+    // all_nodes[$$]->var = "*( self + " + to_string(curr_entry->offset) + " )";
+    // string tmp = "__t" + to_string(temp_count);
+    // temp_count++;
+    // quad q(tmp, "self", "+", to_string(curr_entry->offset));
+    // q.make_code_from_binary();
+    // all_nodes[$$]->ta_codes.push_back(q);
+    // quad q1(tmp, "*"+tmp, "=", "");
+    // q1.make_code_from_assignment();
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // all_nodes[$$]->var = (tmp);
 }
 
 number: INTEGER {

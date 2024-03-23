@@ -1,48 +1,74 @@
 1:	
 	begin_func A@__init__
 2:			self = pop_param;
-3:			*( self + 0 ) = 4;
-4:			*( self + 8 ) = True;
-5:	end_func
-6:	
-	begin_func A@printa
-7:			self = pop_param;
-8:			push_param *( self + 0 );
-9:			call print_int;
-10:	end_func
-11:	
+3:			__t0 = self + 0;
+4:			__t0 = *__t0;
+5:			__t0 = 2;
+6:			__t1 = self + 8;
+7:			__t1 = *__t1;
+8:			__t1 = 15.324;
+9:	end_func
+10:	
+	begin_func A@add
+11:			self = pop_param;
+12:			A@add@x = pop_param;
+13:			__t2 = self + 0;
+14:			__t2 = *__t2;
+15:			__t3 = A@add@x + __t2;
+16:			return __t3;
+17:	end_func
+18:	
 	begin_func B@__init__
-12:			self = pop_param;
-13:			*( self + 0 ) = 'abcd';
-14:			push_param 9;
-15:			call allocmem;
-16:			__t0 = #retval#;
-17:			push_param __t0;
-18:			call A@__init__;
-19:			*( self + 4 ) = __t0;
-20:			*( self + 13 ) = 6;
-21:	end_func
-22:	
-	begin_func B@add
-23:			self = pop_param;
-24:			B@add@a = pop_param;
-25:			__t1 = B@add@a + ;
-26:			return __t1;
-27:	end_func
-28:	
+19:			self = pop_param;
+20:			B@__init__@num = pop_param;
+21:			__t4 = self + 0;
+22:			__t4 = *__t4;
+23:			__t4 = 5;
+24:			__t5 = self + 16;
+25:			__t5 = *__t5;
+26:			__t5 = "Hey!";
+27:			__t6 = self + 8;
+28:			__t6 = *__t6;
+29:			__t6 = 132.132;
+30:			__t7 = self + 20;
+31:			__t7 = *__t7;
+32:			push_param 16;
+33:			call allocmem;
+34:			__t8 = #retval#;
+35:			push_param __t8;
+36:			call A@__init__;
+37:			__t7 = __t8;
+38:			__t9 = self + 36;
+39:			__t9 = *__t9;
+40:			__t9 = B@__init__@num;
+41:	end_func
+42:	
+	begin_func C@__init__
+43:			self = pop_param;
+44:			__t10 = self + 44;
+45:			__t10 = *__t10;
+46:			__t10 = False;
+47:	end_func
+48:	
 	begin_func main
-29:			push_param 21;
-30:			call allocmem;
-31:			__t2 = #retval#;
-32:			push_param __t2;
-33:			call B@__init__;
-34:			b = __t2;
-35:			push_param ;
-36:			call print_int;
-37:			push_param 4;
-38:			call B@add;
-39:			__t3 = #retval#;
-40:			x = __t3;
-41:			push_param main@x;
-42:			call print_int;
-43:	end_func
+49:			push_param 45;
+50:			call allocmem;
+51:			__t11 = #retval#;
+52:			push_param __t11;
+53:			call C@__init__;
+54:			obj = __t11;
+55:			__t12 = main@obj + 20;
+56:			__t12 = *__t12;
+57:			__t13 = __t12 + 0;
+58:			__t13 = *__t13;
+59:			push_param __t13;
+60:			call print_int;
+61:			push_param 3;
+62:			call A@add;
+63:			__t14 = #retval#;
+64:			x = __t14;
+65:			push_param main@x;
+66:			call print_int;
+67:	end_func
+68:	program start: 
+69:			call main;

@@ -188,26 +188,55 @@
 #     print(flag)
 
 
-class A():
-    def __init__(self) -> None:
-        self.a:int = 4
-        self.b:bool = True
+# class A():
+#     def __init__(self) -> None:
+#         self.a:int = 4
+#         self.b:bool = True
 
-    def printa(self) -> None:
-        print(self.a)
+#     def printa(self) -> None:
+#         print(self.a)
 
-class B():
-    def __init__(self) -> None:
-        self.d: str = 'abcd'
-        self.obj : A = A()
-        self.c : float = 6
+# class B():
+#     def __init__(self) -> None:
+#         self.d: str = 'abcd'
+#         self.obj : A = A()
+#         self.c : float = 6
 
-    def add(self, a: int) -> int:
-        return a + self.obj.b
+#     def add(self, a: int) -> int:
+#         return a + self.obj.b
+
+# def main():
+#     b: B = B()
+#     print(b.obj.a)
+#     x : int = b.add(4)
+#     print(x)
+    
+
+class A:
+    def __init__(self):
+        self.a: int = 2
+        self.b: float = 15.324
+
+    def add(self, x: int) -> int:
+        return x + self.a
+    
+class B(A):
+    def __init__(self, num: int):
+        self.a = 5
+        self.c: str = "Hey!"
+        self.b = 132.132
+        self.obj: A = A()
+        self.num: int = num
+    
+class C(B):
+    def __init__(self):
+        self.x: bool = False
 
 def main():
-    b: B = B()
-    print(b.obj.a)
-    x : int = b.add(4)
+    obj: C = C()
+    print(obj.obj.a)
+    x: int = obj.add(3)
     print(x)
-    
+
+if __name__ == "__main__":
+    main()
