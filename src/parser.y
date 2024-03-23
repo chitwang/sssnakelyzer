@@ -388,13 +388,13 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
         //  chitwan -- resolving no var for object attributes
         string tmp = "__t" + to_string(temp_count);
         temp_count++;
+        if(b[0] == '*'){
+            b = b.substr(1);
+        }
         quad q(tmp, b , "+", to_string(existing_entry->offset));
         q.make_code_from_binary();
         current_node->ta_codes.push_back(q);
-        quad q1(tmp, "*"+tmp, "=", "");
-        q1.make_code_from_assignment();
-        current_node->ta_codes.push_back(q1);
-        current_node->var = (tmp);
+        current_node->var = "*"+(tmp);
         /* chitwan */
         // current_node->var = "*( " + b + " + " + to_string(existing_entry->offset) + " )";
         if(!is_not_class(existing_entry -> type)) {
@@ -554,6 +554,7 @@ void make_unary_threeac(int n1, string op, int n2) {
     all_nodes[n2]->var = res;
     quad q(res, all_nodes[n1]->var, op, "");
     q.make_code_from_unary();
+    cout<<q.code<<endl;
     all_nodes[n2]->append_tac(all_nodes[n1]);
     all_nodes[n2]->ta_codes.push_back(q);
 }
@@ -857,10 +858,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     quad q(tmp, "self" , "+", to_string(((symbol_table_class *)(current_table->parent_st))->object_size));
     q.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q);
-    quad q1(tmp, "*"+tmp, "=", "");
-    q1.make_code_from_assignment();
-    all_nodes[$$]->ta_codes.push_back(q1);
-    all_nodes[$$]->var = (tmp);
+    all_nodes[$$]->var = "*"+(tmp);
     /* chitwan --*/
     new_entry -> offset = ((symbol_table_class *)(current_table->parent_st))->object_size;
     ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$4]->datatype];
@@ -1767,6 +1765,7 @@ testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$
     all_nodes[$$]->var_list.insert(all_nodes[$$]->var_list.end(), all_nodes[$3]->var_list.begin(), all_nodes[$3]->var_list.end());
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
+    // cout << "Var "<<all_nodes[$1] -> var <<endl;
 }
 | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
