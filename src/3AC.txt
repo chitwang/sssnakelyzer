@@ -1,130 +1,32 @@
-1:	
-	begin_func bubbleSort
-2:			bubbleSort@array = pop_param;
-3:			i = 0;
-4:			push_param bubbleSort@array;
-5:			call len;
-6:			__t0 = #retval#;
-7:			bubbleSort@i = 0;
-8:			__t34 = bubbleSort@i < __t0;
-9:			if_false __t34 goto 89;
-10:			bubbleSort@i = bubbleSort@i + 1;
-11:			swapped = False;
-12:			j = 0;
-13:			push_param bubbleSort@array;
-14:			call len;
-15:			__t1 = #retval#;
-16:			__t2 = __t1 - bubbleSort@i;
-17:			__t3 = __t2 - 1;
-18:			bubbleSort@j = 0;
-19:			__t32 = bubbleSort@j < __t3;
-20:			if_false __t32 goto 85;
-21:			__t4 = bubbleSort@array;
-22:			__t5 = *( __t4 ) ;
-23:			__t6 = bubbleSort@j < __t5;
-24:			if_false __t6 goto 26;
-25:			exit_out_of_bound
-26:			__t5 = bubbleSort@j * 8;
-27:			__t5 = __t5 + 8;
-28:			__t5 = __t4 + __t5;
-29:			__t7 = *( __t5 );
-30:			__t8 = bubbleSort@j + 1;
-31:			__t9 = bubbleSort@array;
-32:			__t10 = *( __t9 ) ;
-33:			__t11 = __t8 < __t10;
-34:			if_false __t11 goto 36;
-35:			exit_out_of_bound
-36:			__t10 = __t8 * 8;
-37:			__t10 = __t10 + 8;
-38:			__t10 = __t9 + __t10;
-39:			__t12 = *( __t10 );
-40:			__t13 = __t7 > __t12;
-41:			if_false __t13 goto 84;
-42:			__t14 = bubbleSort@array;
-43:			__t15 = *( __t14 ) ;
-44:			__t16 = bubbleSort@j < __t15;
-45:			if_false __t16 goto 47;
-46:			exit_out_of_bound
-47:			__t15 = bubbleSort@j * 8;
-48:			__t15 = __t15 + 8;
-49:			__t15 = __t14 + __t15;
-50:			__t17 = *( __t15 );
-51:			temp = __t17;
-52:			__t18 = bubbleSort@array;
-53:			__t19 = *( __t18 ) ;
-54:			__t20 = bubbleSort@j < __t19;
-55:			if_false __t20 goto 57;
-56:			exit_out_of_bound
-57:			__t19 = bubbleSort@j * 8;
-58:			__t19 = __t19 + 8;
-59:			__t19 = __t18 + __t19;
-60:			__t21 = *( __t19 );
-61:			__t22 = bubbleSort@j + 1;
-62:			__t23 = bubbleSort@array;
-63:			__t24 = *( __t23 ) ;
-64:			__t25 = __t22 < __t24;
-65:			if_false __t25 goto 67;
-66:			exit_out_of_bound
-67:			__t24 = __t22 * 8;
-68:			__t24 = __t24 + 8;
-69:			__t24 = __t23 + __t24;
-70:			__t26 = *( __t24 );
-71:			__t21 = __t26;
-72:			__t27 = bubbleSort@j + 1;
-73:			__t28 = bubbleSort@array;
-74:			__t29 = *( __t28 ) ;
-75:			__t30 = __t27 < __t29;
-76:			if_false __t30 goto 78;
-77:			exit_out_of_bound
-78:			__t29 = __t27 * 8;
-79:			__t29 = __t29 + 8;
-80:			__t29 = __t28 + __t29;
-81:			__t31 = *( __t29 );
-82:			__t31 = bubbleSort@temp;
-83:			bubbleSort@swapped = True;
-84:			bubbleSort@j = bubbleSort@j + 1;
-85:			goto 81;
-86:			__t33 = !(bubbleSort@swapped);
-87:			if_false __t33 goto 89;
-88:			goto 90;
-89:			goto 7;
-90:	end_func
-91:	
-	begin_func main
-92:			__t35 = -(2);
-93:			__t36 = -(9);
-94:			push_param 48;
-95:			call allocmem;
-96:			__t37 = #retval#;
-97:			*( __t37 ) = 5;
-98:			*( __t37+8 ) = __t35;
-99:			*( __t37+16 ) = 45;
-100:		*( __t37+24 ) = 0;
-101:		*( __t37+32 ) = 11;
-102:		*( __t37+40 ) = __t36;
-103:		data = __t37;
-104:		push_param main@data;
-105:		call bubbleSort;
-106:		i = 0;
-107:		push_param main@data;
-108:		call len;
-109:		__t38 = #retval#;
-110:		main@i = 0;
-111:		__t43 = main@i < __t38;
-112:		if_false __t43 goto 125;
-113:		main@i = main@i + 1;
-114:		__t39 = main@data;
-115:		__t40 = *( __t39 ) ;
-116:		__t41 = main@i < __t40;
-117:		if_false __t41 goto 119;
-118:		exit_out_of_bound
-119:		__t40 = main@i * 8;
-120:		__t40 = __t40 + 8;
-121:		__t40 = __t39 + __t40;
-122:		__t42 = *( __t40 );
-123:		push_param __t42;
-124:		call print_int;
-125:		goto 110;
-126:end_func
-127:program start: 
-128:		call main;
+1:			i = 0;
+2:			i = 0;
+3:			__t1 = i < 10;
+4:			if_false __t1 goto 18;
+5:			j = 10;
+6:			j = 69;
+7:			__t0 = j < 420;
+8:			if_false __t0 goto 14;
+9:			push_param j;
+10:			call print_int;
+11:			j = j << i;
+12:			j = j + 1;
+13:			goto 7;
+14:			push_param i;
+15:			call print_int;
+16:			i = i + 1;
+17:			goto 3;
+18:			i = 0;
+19:			i = 69;
+20:			__t2 = i < 420;
+21:			if_false __t2 goto 27;
+22:			push_param i;
+23:			call print_int;
+24:			j = j // 10;
+25:			i = i + 1;
+26:			goto 20;
+27:			__t3 = i < 500;
+28:			if_false __t3 goto 32;
+29:			push_param j;
+30:			call print_int;
+31:			goto 27;
+32

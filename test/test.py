@@ -242,3 +242,20 @@
 #     main()
 
 # data:list[int] = [-2, 3]
+i: int = 0
+for i in range(10):
+  j:int = 10
+  for j in range(69, 420):
+    print(j)
+    j <<= i
+    # j = i
+  print(i)
+
+i = 0
+
+for i in range(69, 420):
+  print(i)
+  j //= 10
+
+while i < 500:
+  print(j)

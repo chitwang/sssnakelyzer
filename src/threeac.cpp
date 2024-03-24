@@ -68,12 +68,12 @@ void quad::check_jump(const int ins_line){
     
 void quad::make_code_begin_func() {
     made_from = BEGIN_FUNC;
-    code = "\n\tbegin_func " + arg1 + "\n";
+    code = "begin_func " + arg1 + "\n";
 }
 
 void quad::make_code_end_func() {
     made_from = END_FUNC;
-    code = "end_func\n";
+    code = "end_func\n\n";
 }
 
 void quad::make_code_from_return() {

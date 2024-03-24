@@ -3033,23 +3033,18 @@ void node::generate_tac() {}
 // }
 
 
-void node::print_tac(string filename){
+void node::print_tac(string filename) {
     ofstream out(filename);
 
     int ins_count = 1;
     for(auto (&q) : this -> ta_codes) {
         if(q.code != "") {
             q.check_jump(ins_count);    // Also sets q's ins_line
-
-            if(filename == "") {
-                cout << ins_count << (ins_count >= 100 ? ":" : ":\t") << q.code;
-            }
-            else {
-                out << ins_count << (ins_count >= 100 ? ":" : ":\t") << q.code;
-            }
+            out << ins_count << (ins_count >= 100 ? ":" : ":\t") << q.code;
             ins_count++;
         }
     }
+    out << ins_count << ":";
 
     out.close();
 }

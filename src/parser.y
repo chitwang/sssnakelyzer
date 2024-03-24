@@ -778,7 +778,8 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
         check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, op);
     }
     op = op.substr(0, op.size() - 1);
-    quad q(all_nodes[$1]->var, all_nodes[$1]->var, op, all_nodes[$3]->var);
+    /* shrey - all_nodes[$3] -> var doesn't exist changed to all_nodes[$3]->var_list[0] */
+    quad q(all_nodes[$1]->var, all_nodes[$1]->var, op, all_nodes[$3]->var_list[0]);
     q.make_code_from_binary();
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
@@ -821,7 +822,9 @@ type_declaration: NAME DELIM_COLON type_or_name {
     current_table -> add_entry(new_entry);
     node_count += 3;
     all_nodes[$$]->datatype = all_nodes[$3]->datatype;
-    all_nodes[$$] -> var = strdup($1);
+    /* shrey - declaration of variable is done by mangled name rather than only lexeme */
+    // all_nodes[$$] -> var = strdup($1);
+    all_nodes[$$] -> var = new_entry -> mangled_name;
     if(current_table->symbol_table_category == 'C') {
         new_entry -> offset = ((symbol_table_class *)(current_table->parent_st))->object_size;
         ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$3]->datatype];
@@ -1132,18 +1135,22 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     all_nodes[$$]->ta_codes.push_back(q1);
     string op = "if_false";
     string arg1 = tmp_var;
-    string arg2 = "J+" + to_string(all_nodes[$9]->ta_codes.size() + 2);
+    /* shrey - incorrect jump in for loop, change: size() + 2 -> size() + 3 */
+    string arg2 = "J+" + to_string(all_nodes[$9]->ta_codes.size() + 3);
     quad q2("", arg1, op, arg2);
     q2.make_code_from_conditional();
     all_nodes[$$] -> ta_codes.push_back(q2);
     break_continue($9, $$);
+    // quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
+    // q4.make_code_from_binary();
+    // all_nodes[$$]->ta_codes.push_back(q4);
+    op = "goto";
+    arg1 = "J-" + to_string(all_nodes[$9]->ta_codes.size() + 3);   // chitwan -- yha size+4 ki jgh 3 hoga as per examples check this once by running public1.py
+    all_nodes[$$] -> append_tac(all_nodes[$9]);
+    /* shrey - changing position of iterator count increment to after suite */
     quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
     q4.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q4);
-    op = "goto";
-    arg1 = "J-" + to_string(all_nodes[$9]->ta_codes.size() + 3);   // chitwan -- yha size+4 ki jgh 3 hoga as per examples check this once by running public1.py
-    // cout << "suite size yylineno: "<<yylineno << "    size = "<<all_nodes[$9]->ta_codes.size()<<endl;
-    all_nodes[$$] -> append_tac(all_nodes[$9]);
     quad q3("", arg1, op, "");
     q3.make_code_from_goto();
     all_nodes[$$] -> ta_codes.push_back(q3);
@@ -1168,7 +1175,8 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     all_nodes[$$]->ta_codes.push_back(q1);
     string op = "if_false";
     string arg1 = temp_var;
-    string arg2 = "J+" + to_string(all_nodes[$11]->ta_codes.size() + 2);
+    /* shrey - incorrect jump in for loop, change: size() + 2 -> size() + 3 */
+    string arg2 = "J+" + to_string(all_nodes[$11]->ta_codes.size() + 3);
     quad q2("", arg1, op, arg2);
     q2.make_code_from_conditional();
     all_nodes[$$]->ta_codes.push_back(q2);
@@ -1178,7 +1186,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     q4.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q4);
     op = "goto";
-    arg1 = "J-" + to_string(all_nodes[$11]->ta_codes.size() + 4);
+    arg1 = "J-" + to_string(all_nodes[$11]->ta_codes.size() + 6);   // shrey -- yha size+4 ki jgh 6 hoga as per examples check this once by running test.py
     quad q3("", arg1, op, "");
     q3.make_code_from_goto();
     all_nodes[$$] -> ta_codes.push_back(q3);
@@ -1937,7 +1945,7 @@ int main(int argc, char* argv[]) {
     /* int yydebug = 0; */
     bool help_flag = false;
     string input_file = "";
-    string output_file = "ast.dot";
+    string output_file = "3AC.txt";
     string op_color = "red";
     string delim_color = "forestgreen";
     string key_color = "blue";
@@ -2009,7 +2017,7 @@ int main(int argc, char* argv[]) {
     global_table->make_csv_wrapper("st.csv");
     
     ins_count = 1; 
-    root_node->print_tac("3AC.txt");
+    root_node->print_tac(output_file);
     return 0;
 }
 
