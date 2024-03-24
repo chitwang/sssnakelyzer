@@ -1496,7 +1496,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->ta_codes.push_back(q1);
     string temp2 = "__t" + to_string(temp_count);
     temp_count++;
-    quad q2(temp2, all_nodes[$3]->var, "<", temp1);
+    quad q2(temp2, all_nodes[$3]->var, ">=", temp1);   // chitwan -- pehle ye >= ki jgh < tha
     q2.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q2);
     
@@ -1601,7 +1601,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->ta_codes.push_back(q1);
     string temp2 = "__t" + to_string(temp_count);
     temp_count++;
-    quad q2(temp2, all_nodes[$3]->var, "<", temp1);
+    quad q2(temp2, all_nodes[$3]->var, ">=", temp1);  // chitwan -- pehle ye >= ki jgh < tha 
     q2.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q2);
     
