@@ -242,25 +242,57 @@
 #     main()
 
 # data:list[int] = [-2, 3]
-i: int = 0
-for i in range(10):
-  j:int = 10
-  for j in range(69, 420):
-    print(j)
-    if i:
-      i = 0
-    j <<= i
-    # j = i
-  print(i)
+# i: int = 0
+# for i in range(10):
+#   j:int = 10
+#   for j in range(69, 420):
+#     print(j)
+#     if i:
+#       i = 0
+#     j <<= i
+#     # j = i
+#   print(i)
 
-i = 69
+# i = 69
 
-for i in range(10):
-  j = 10
-  for j in range(420):
-    print(j)
-    if i:
-      i = 0
-    j <<= i
-    # j = i
-  print(i)
+# for i in range(10):
+#   j = 10
+#   for j in range(420):
+#     print(j)
+#     if i:
+#       i = 0
+#     j <<= i
+#     # j = i
+#   print(i)
+
+
+class C:
+    def __init__(self, c:int):
+        self.a: int = c
+
+    def printc(self):
+        print(self.a)
+
+class A:
+    def __init__(self, a:int, b:bool):
+        self.a : int = a
+        self.b: bool = b
+    
+    def printa(self, d:int) -> int:
+        print(self.a)
+        return self.a
+
+class B(A):
+    def __init__(self, a:int, b:bool, c:int ):
+        self.c:int = c
+        self.a = self.printa(4)
+        self.b = b
+        self.obj:C = C(c)
+
+def main():
+  b:B = B(4,True,1)  
+  (b.obj.printc())
+  b.printa(4)
+
+if __name__ == "__main__":
+    main()

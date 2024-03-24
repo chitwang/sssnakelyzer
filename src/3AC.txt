@@ -1,64 +1,81 @@
-1:	begin_func A@__init__
+1:	begin_func C@__init__
 2:			self = pop_param;
-3:			__t0 = self + 0;
-4:			*__t0 = 2;
-5:			__t1 = self + 8;
-6:			*__t1 = 15.324;
-7:	end_func
+3:			C@__init__@c = pop_param;
+4:			__t0 = self + 0;
+5:			*__t0 = C@__init__@c;
+6:	end_func
 
-8:	begin_func A@add
-9:			self = pop_param;
-10:			A@add@x = pop_param;
-11:			__t2 = self + 0;
-12:			__t3 = A@add@x + *__t2;
-13:			return __t3;
-14:	end_func
+7:	begin_func C@printc
+8:			self = pop_param;
+9:			__t1 = self + 0;
+10:			push_param *__t1;
+11:			call print_int;
+12:	end_func
 
-15:	begin_func B@__init__
-16:			self = pop_param;
-17:			B@__init__@num = pop_param;
-18:			__t4 = self + 0;
-19:			*__t4 = 5;
-20:			__t5 = self + 16;
-21:			*__t5 = "Hey!";
-22:			__t6 = self + 8;
-23:			*__t6 = 132.132;
-24:			__t7 = self + 20;
-25:			push_param 16;
-26:			call allocmem;
-27:			__t8 = #retval#;
-28:			push_param __t8;
-29:			call A@__init__;
-30:			*__t7 = __t8;
-31:			__t9 = self + 36;
-32:			*__t9 = B@__init__@num;
-33:	end_func
+13:	begin_func A@__init__
+14:			self = pop_param;
+15:			A@__init__@a = pop_param;
+16:			A@__init__@b = pop_param;
+17:			__t2 = self + 0;
+18:			*__t2 = A@__init__@a;
+19:			__t3 = self + 8;
+20:			*__t3 = A@__init__@b;
+21:	end_func
 
-34:	begin_func C@__init__
-35:			self = pop_param;
-36:			__t10 = self + 44;
-37:			*__t10 = False;
-38:	end_func
+22:	begin_func A@printa
+23:			self = pop_param;
+24:			A@printa@d = pop_param;
+25:			__t4 = self + 0;
+26:			push_param *__t4;
+27:			call print_int;
+28:			__t5 = self + 0;
+29:			return *__t5;
+30:	end_func
 
-39:	begin_func main
-40:			push_param 45;
-41:			call allocmem;
-42:			__t11 = #retval#;
-43:			push_param __t11;
-44:			call C@__init__;
-45:			main@obj = __t11;
-46:			__t12 = main@obj + 20;
-47:			__t13 = __t12 + 0;
-48:			push_param *__t13;
-49:			call print_int;
-50:			push_param 3;
-51:			call A@add;
-52:			__t14 = #retval#;
-53:			main@x = __t14;
-54:			push_param main@x;
-55:			call print_int;
-56:	end_func
+31:	begin_func B@__init__
+32:			self = pop_param;
+33:			B@__init__@a = pop_param;
+34:			B@__init__@b = pop_param;
+35:			B@__init__@c = pop_param;
+36:			__t6 = self + 9;
+37:			*__t6 = B@__init__@c;
+38:			__t7 = self + 0;
+39:			push_param self;
+40:			push_param 4;
+41:			call A@printa;
+42:			__t8 = #retval#;
+43:			*__t7 = __t8;
+44:			__t9 = self + 8;
+45:			*__t9 = B@__init__@b;
+46:			__t10 = self + 17;
+47:			push_param 8;
+48:			call allocmem;
+49:			__t11 = #retval#;
+50:			push_param __t11;
+51:			push_param B@__init__@c;
+52:			call C@__init__;
+53:			*__t10 = __t11;
+54:	end_func
 
-57:	program start: 
-58:			call main;
-59:
+55:	begin_func main
+56:			push_param 25;
+57:			call allocmem;
+58:			__t12 = #retval#;
+59:			push_param __t12;
+60:			push_param 4;
+61:			push_param True;
+62:			push_param 1;
+63:			call B@__init__;
+64:			main@b = __t12;
+65:			__t13 = main@b + 17;
+66:			push_param *__t13;
+67:			call C@printc;
+68:			push_param main@b;
+69:			push_param 4;
+70:			call A@printa;
+71:			__t14 = #retval#;
+72:	end_func
+
+73:	program start: 
+74:			call main;
+75:

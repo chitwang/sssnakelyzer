@@ -378,6 +378,10 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
             exit(1);
         }
         else {
+            /* chitwan -- in a call of the form a.foo(), the var for a should be pushed. implicit self*/
+            quad q0("", b , "push_param", "");
+            q0.make_code_from_param();
+            current_node->ta_codes.push_back(q0);
             current_node -> var = function_entry->mangled_name;
             current_node -> is_func = true;
             current_node -> sym_tab_func = function_entry;
@@ -505,6 +509,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
         
         int flag = 0;
         symbol_table_func *func_table = leftnode -> sym_tab_func;
+        // cout << "DEBUG "<<leftnode->var<<endl;
         if(func_table -> name == "print" || func_table -> name == "len" || func_table -> name == "range"){
             symbol_table_func *f = check_predefined_functions(func_table -> name, actual_params);
             leftnode->var = f->mangled_name;
@@ -1430,6 +1435,7 @@ atom_expr: atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node();
 
 trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     // cout << "BEFORE\n";
+    all_nodes[$$]->append_tac(all_nodes[$1]);  // chitwan -- missing tha ye
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1], all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
     all_nodes[$$]->append_tac(all_nodes[$3]);
@@ -1456,6 +1462,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
 }
 
 | atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2; 
+    all_nodes[$$]->append_tac(all_nodes[$1]); // chitwan -- ye missing tha
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
     quad q("", all_nodes[$1]->var, "call", "");
@@ -1537,6 +1544,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     // done in set trailer type
 }
 | trailored_atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
+    all_nodes[$$]->append_tac(all_nodes[$1]); // chitwan -- ye missing tha
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
     for(int i=0;i<all_nodes[$3]->var_list.size();i++){
@@ -1562,6 +1570,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     }
 }
 | trailored_atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count+1}; insert_node(); $$ = node_count + 2;
+    all_nodes[$$]->append_tac(all_nodes[$1]); // chitwan -- ye missing tha
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
     quad q("", all_nodes[$1]->var, "call", "");
