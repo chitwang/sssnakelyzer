@@ -247,15 +247,20 @@ for i in range(10):
   j:int = 10
   for j in range(69, 420):
     print(j)
+    if i:
+      i = 0
     j <<= i
     # j = i
   print(i)
 
-i = 0
+i = 69
 
-for i in range(69, 420):
+for i in range(10):
+  j = 10
+  for j in range(420):
+    print(j)
+    if i:
+      i = 0
+    j <<= i
+    # j = i
   print(i)
-  j //= 10
-
-while i < 500:
-  print(j)

@@ -822,7 +822,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     current_table -> add_entry(new_entry);
     node_count += 3;
     all_nodes[$$]->datatype = all_nodes[$3]->datatype;
-    /* shrey - declaration of variable is done by mangled name rather than only lexeme */
+    /* shrey - Declaration of variable is done by mangled name rather than only lexeme */
     // all_nodes[$$] -> var = strdup($1);
     all_nodes[$$] -> var = new_entry -> mangled_name;
     if(current_table->symbol_table_category == 'C') {
@@ -1135,7 +1135,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     all_nodes[$$]->ta_codes.push_back(q1);
     string op = "if_false";
     string arg1 = tmp_var;
-    /* shrey - incorrect jump in for loop, change: size() + 2 -> size() + 3 */
+    /* shrey - Incorrect jump in for loop, change: size() + 2 -> size() + 3 */
     string arg2 = "J+" + to_string(all_nodes[$9]->ta_codes.size() + 3);
     quad q2("", arg1, op, arg2);
     q2.make_code_from_conditional();
@@ -1147,7 +1147,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     op = "goto";
     arg1 = "J-" + to_string(all_nodes[$9]->ta_codes.size() + 3);   // chitwan -- yha size+4 ki jgh 3 hoga as per examples check this once by running public1.py
     all_nodes[$$] -> append_tac(all_nodes[$9]);
-    /* shrey - changing position of iterator count increment to after suite */
+    /* shrey - Changing position of iterator count increment to after suite */
     quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
     q4.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q4);
@@ -1175,18 +1175,19 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     all_nodes[$$]->ta_codes.push_back(q1);
     string op = "if_false";
     string arg1 = temp_var;
-    /* shrey - incorrect jump in for loop, change: size() + 2 -> size() + 3 */
+    /* shrey - Incorrect jump in for loop, change: size() + 2 -> size() + 3 */
     string arg2 = "J+" + to_string(all_nodes[$11]->ta_codes.size() + 3);
     quad q2("", arg1, op, arg2);
     q2.make_code_from_conditional();
     all_nodes[$$]->ta_codes.push_back(q2);
     break_continue($11, $$);
+    /* shrey - Fixed order of code. Made it same as above */
+    op = "goto";
+    arg1 = "J-" + to_string(all_nodes[$11]->ta_codes.size() + 3);   // shrey -- yha size+4 ki jgh 3 hoga as per examples check this once by running test.py
     all_nodes[$$] -> append_tac(all_nodes[$11]);
     quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
     q4.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q4);
-    op = "goto";
-    arg1 = "J-" + to_string(all_nodes[$11]->ta_codes.size() + 6);   // shrey -- yha size+4 ki jgh 6 hoga as per examples check this once by running test.py
     quad q3("", arg1, op, "");
     q3.make_code_from_goto();
     all_nodes[$$] -> ta_codes.push_back(q3);
