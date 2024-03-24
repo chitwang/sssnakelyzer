@@ -290,7 +290,7 @@ symbol_table_func *make_new_func_symbtab(string func_name, vector<st_entry *> &p
     return (symbol_table_func *)temp_table;
 }
 
-void is_compatible(string type1, string type2 = "bool") {
+void is_compatible(string type1, string type2 = "bool", bool stri = false) {
     if(type1 == "int") {
         if (!(type2 == "int" || type2 == "float" || type2 == "bool")){
             cout << "Incompatible types " << type1 << " and " << type2 << " on line " << yylineno << endl;
@@ -312,14 +312,14 @@ void is_compatible(string type1, string type2 = "bool") {
         }
         return;
     }
-    if(type1 != type2){
+    if(type1 != type2 || (stri && type1 != "str")){
         cout << "Incompatible types " << type1 << " and " << type2 << " on line " << yylineno << endl;
         exit(1);
     }
     return;
 }
 
-void break_continue(int n1, int n2){
+void break_continue(int n1, int n2) {
     for(int i = 0; i < all_nodes[n1]->ta_codes.size(); i++) {
         auto (&tac) = all_nodes[n1]->ta_codes[i];
         if(tac.code == "\t\tgoto CONTINUE;\n"){
@@ -347,6 +347,7 @@ string check_decl_before_use(string name , node *current_node) {
             }
             else {
                 current_node->is_class = true;
+              //  current_node -> is_var = true;
                 current_node->var = st_class -> name;
                 return name;
             }
@@ -404,10 +405,11 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
         if(!is_not_class(existing_entry -> type)) {
             current_node -> is_class = true;
         } else {
-            current_node -> is_var = true;
+            
             // current_node->var = existing_entry->mangled_name;
             current_node -> sym_tab_entry = existing_entry;
         }
+        current_node -> is_var = true;
         return existing_entry -> type;    
     }
 }
@@ -768,6 +770,7 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
 }
 | type_declaration DELIM_ASSIGN test {node_attr = {"=", "expr_stmt"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
+
     quad q(all_nodes[$1]->var, all_nodes[$3]->var, "=", "");
     q.make_code_from_assignment();
     all_nodes[$$]->append_tac(all_nodes[$1]);
@@ -776,12 +779,17 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
 }
 | test augassign testlist {node_attr = {"expr_stmt"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count; node_count += 1;
     string op = all_nodes[$2]->name.substr(9);
+    if(!all_nodes[$1]->is_var) {
+        cout << "Invalid left hand side of assignment at line " << yylineno << endl;
+        exit(1);
+    }
     if(op[0] == '+' || op[0] == '-' || op[0] == '*' || op[0] == '/') {
         check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, op);
     }
     else {
         check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, op);
     }
+    
     op = op.substr(0, op.size() - 1);
     /* shrey - all_nodes[$3] -> var doesn't exist changed to all_nodes[$3]->var_list[0] */
     quad q(all_nodes[$1]->var, all_nodes[$1]->var, op, all_nodes[$3]->var_list[0]);
@@ -791,6 +799,10 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
     all_nodes[$$]->ta_codes.push_back(q);
 }        
 | test DELIM_ASSIGN test {node_attr = {"=","expr_stmt"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
+    if(!all_nodes[$1]->is_var) {
+        cout << "Invalid left hand side of assignment at line " << yylineno << endl;
+        exit(1);
+    }
     is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
     quad q(all_nodes[$1]->var, all_nodes[$3]->var, "", "");
     q.make_code_from_assignment();
@@ -799,7 +811,7 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
     all_nodes[$$]->ta_codes.push_back(q);
 }
 | test {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
-     all_nodes[$$]->append_tac(all_nodes[$1]);
+    all_nodes[$$]->append_tac(all_nodes[$1]);
 }
 
 type_declaration: NAME DELIM_COLON type_or_name {
@@ -812,6 +824,36 @@ type_declaration: NAME DELIM_COLON type_or_name {
         cout << strdup($1) << " already declared at line" << entry->line_no << endl;
         exit(1);
     }
+    
+    if(current_table->symbol_table_category == 'M') {
+        // if(current_table->parent_st->symbol_table_category == 'C') {
+        //     symbol_table_func* fnc = ((symbol_table_class *)(current_table->parent_st))->look_up_function_in_class_hierarchy(strdup($1));
+        //     if(fnc) {
+        //         cout << strdup($1) << " already declared as function at line" << fnc->scope_start_line_no << endl;
+        //         exit(1);
+        //     }
+        // }
+        // else {
+        //     symbol_table_func* fnc =  global_table->look_up_func(strdup($1));
+        //     symbol_table_class* cl =  global_table->look_up_class(strdup($1));
+        //     if(func || class) {
+        //         cout << strdup($1) << " already declared as " << (func ? "function" : "") << (class ? "class" : "") << endl;
+        //     }
+        // }
+        if(current_table->name == strdup($1)) {
+            cout << "Illegal declaration of " << strdup($1) << " at line " << yylineno << "\n";
+        }
+    }
+    else if(current_table->symbol_table_category == 'G') {
+        string var_name = strdup($1);
+        symbol_table_func* fnc =  global_table->look_up_func(var_name);
+        symbol_table_class* cl =  global_table->look_up_class(var_name);
+        if(fnc || cl) { 
+            cout << strdup($1) << " already declared as " << (fnc ? "function" : "") << (cl ? "class" : "") << endl;
+            exit(1);
+        }
+    }
+    
     st_entry *new_entry = new st_entry(strdup($1), yylineno, yylineno, all_nodes[$3]->datatype);
     if(current_table -> symbol_table_category == 'M') {
         new_entry ->mangled_name = ((symbol_table_func *)current_table) -> mangled_name + "@" + strdup($1);
@@ -832,7 +874,9 @@ type_declaration: NAME DELIM_COLON type_or_name {
     all_nodes[$$] -> var = new_entry -> mangled_name;
     if(current_table->symbol_table_category == 'C') {
         new_entry -> offset = ((symbol_table_class *)(current_table->parent_st))->object_size;
-        ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$3]->datatype];
+        bool is_class = !is_not_class(all_nodes[$3]->datatype);
+        if(!is_class) ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$3]->datatype];
+        else ((symbol_table_class *)(current_table->parent_st))->object_size += 8;
     }
 }
 | SELF_DOT NAME DELIM_COLON type_or_name {
@@ -842,7 +886,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
         cout << "Invalid Declaration. Identifiers can only have letters, digits or _\n";
         exit(1);
     }
-    insert_node(); 
+    insert_node();
     $$ = node_count + 3;
     st_entry *entry = current_table -> parent_st -> look_up_local(strdup($2));
     if(entry) {
@@ -869,7 +913,9 @@ type_declaration: NAME DELIM_COLON type_or_name {
     all_nodes[$$]->var = "*"+(tmp);
     /* chitwan --*/
     new_entry -> offset = ((symbol_table_class *)(current_table->parent_st))->object_size;
-    ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$4]->datatype];
+    bool is_class = !is_not_class(all_nodes[$4]->datatype);
+    if(!is_class) ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$4]->datatype];
+    else ((symbol_table_class *)(current_table->parent_st))->object_size += 8;
 }
 
 augassign: DELIM_ASSIGN_ADD {node_attr = {"+=", "augassign+="}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -1222,13 +1268,16 @@ namedexpr_test: test {node_attr = {"namedexpr_test"}; node_numbers = {$1}; inser
 test: or_test {node_attr = {"test"}; node_numbers = {$1}; insert_node(); $$ = node_count;
     node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    
 }
 
 or_test: and_test {node_attr = {"or_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; 
     node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
 }
@@ -1237,10 +1286,12 @@ or_test: and_test {node_attr = {"or_test"}; node_numbers = {$1}; insert_node(); 
     is_compatible(all_nodes[$1]->datatype, "bool");
     is_compatible(all_nodes[$3]->datatype, "bool");
     all_nodes[$$]->datatype = "bool";
+    
     make_binary_threeac($1, $3, "||", $$);
 }
 
 and_test: not_test {node_attr = {"and_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1; all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
 }
@@ -1262,12 +1313,14 @@ not_test: KEY_NOT not_test {node_attr = {"not", "not_test"}; node_numbers = {nod
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
         
 comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 | expr comp_op comparison {node_attr = {"comparison"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count + 0;
     node_count += 1;
@@ -1282,6 +1335,7 @@ comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node()
         is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
     }
     all_nodes[$$]->datatype = "bool";
+    
     make_binary_threeac($1, $3, op , $$);
 }
 
@@ -1298,64 +1352,78 @@ expr: xor_expr {node_attr = {"expr"}; node_numbers = {$1}; insert_node(); $$ = n
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 | expr OP_BITWISE_OR xor_expr {node_attr = {"|", "expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2; 
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
+    
     make_binary_threeac($1, $3, "|", $$);
+    
 }
 
 xor_expr: and_expr {node_attr = {"xor_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 | xor_expr OP_BITWISE_XOR and_expr {node_attr = {"^", "xor_expr"}; node_numbers = {$1, node_count + 0, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
     make_binary_threeac($1, $3, "^", $$);
+    
 }
 
 and_expr: shift_expr {node_attr = {"and_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 | and_expr OP_BITWISE_AND shift_expr {node_attr = {"&", "and_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
     make_binary_threeac($1, $3, "&", $$);
+    
 }
         
 shift_expr: arith_expr {node_attr = {"shift_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 | shift_expr OP_LEFT_SHIFT arith_expr {node_attr = {"<<", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
+    
     make_binary_threeac($1, $3, "<<", $$);
 }
 | shift_expr OP_RIGHT_SHIFT arith_expr {node_attr = {">>", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
     make_binary_threeac($1, $3, ">>", $$);
+    
 }
 
 arith_expr: term {node_attr = {"arith_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 | arith_expr OP_ADD term {node_attr = {"+", "arith_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    
     make_binary_threeac($1, $3, "+", $$);
+    
 }
 | arith_expr OP_SUBTRACT term {node_attr = {"-", "arith_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    
     make_binary_threeac($1, $3, "-", $$);
 }
 
@@ -1363,22 +1431,28 @@ term: factor {node_attr = {"term"}; node_numbers = {$1}; insert_node(); $$ = nod
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 | term OP_MULTIPLY factor {node_attr = {"*", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    
+
     make_binary_threeac($1, $3, "*", $$);
 }
 | term OP_DIVIDE factor {node_attr = {"/", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    
     make_binary_threeac($1, $3, "/", $$);
 }
 | term OP_MODULO factor {node_attr = {"%", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    
     make_binary_threeac($1, $3, "%", $$);
 }
 | term OP_FLOOR_DIVIDE factor {node_attr = {"//", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
+    
     make_binary_threeac($1, $3, "//", $$);
 }
 
@@ -1388,18 +1462,21 @@ factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node
         exit(1);
     }
     all_nodes[$$]->datatype = "int";
+    
     make_unary_threeac($2, "~", $$);
 }
 
 | OP_ADD factor {node_attr = {"+", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$2]->datatype, "int");
     all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
+    
     make_unary_threeac($2, "+", $$);
 }
 
 | OP_SUBTRACT factor {node_attr = {"-", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$2]->datatype, "int");
     all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
+    
     make_unary_threeac($2, "-", $$);
 }
 
@@ -1407,17 +1484,20 @@ factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node
     all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 
 power: atom_expr {node_attr = {"power"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 
 | atom_expr OP_POWER factor {node_attr = {"**", "power"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
+    
     make_binary_threeac($1, $3, "**", $$);
 }
     
@@ -1425,12 +1505,14 @@ atom_expr: atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node();
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 
 | trailored_atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
+    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
 }
 
 trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
@@ -1459,6 +1541,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         string temp = "__t" + to_string(temp_count - 1);
         all_nodes[$$]->var = temp;
     }
+    
 }
 
 | atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2; 
@@ -1480,6 +1563,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         string temp = "__t" + to_string(temp_count - 1);
         all_nodes[$$]->var = temp;
     }
+    
 }
 
 | atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
@@ -1519,6 +1603,9 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     // temp is the base address excluding size; temp1 is useless at this point
     string type = all_nodes[$1]->datatype.substr(6, all_nodes[$1]->datatype.size() - 8);
     int size = type_to_size[type];
+    if(!is_not_class(type)) {
+        size = 8;
+    }
     quad q5(temp1, all_nodes[$3]->var , "*", to_string(size));   // [4i] => 4*i
     q5.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q5);
@@ -1534,6 +1621,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
     q8.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q8); 
+    all_nodes[$$]->is_var = true;
 }
 
 | atom DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailored_atom"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2;
@@ -1620,12 +1708,15 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q3.make_code_from_conditional();
     all_nodes[$$]->ta_codes.push_back(q3);
     quad q4("", "", "", "");
-    q4.code = "exit";
+    q4.code = "\t\texit_out_of_bound\n";
     q4.made_from = quad::EXIT;
     all_nodes[$$]->ta_codes.push_back(q4);
     // temp is the base address excluding size; temp1 is useless at this point
     string type = all_nodes[$1]->datatype.substr(6, all_nodes[$1]->datatype.size() - 8);
     int size = type_to_size[type];
+    if(!is_not_class(type)) {
+        size = 8;
+    }
     quad q5(temp1, all_nodes[$3]->var , "*", to_string(size));   // [4i] => 4*i
     q5.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q5);
@@ -1641,6 +1732,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
     q8.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q8); 
+    all_nodes[$$]->is_var = true;
 }
 
 | trailored_atom DELIM_DOT NAME {node_attr = {".", string("NAME ( ") + strdup($2) + " )", "trailored_atom"}; node_numbers = {$1 ,node_count, node_count + 1}; insert_node(); $$ = node_count + 2;
@@ -1655,10 +1747,14 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     all_nodes[$$]->datatype = all_nodes[$2]->datatype;
     all_nodes[$$]->var = all_nodes[$2]->var;
     all_nodes[$$]->append_tac(all_nodes[$2]);
+    all_nodes[$$]->is_var = all_nodes[$2]->is_var;
 }
 | DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
     node_count += 3;
     int size = type_to_size[all_nodes[$2]->datatype];
+    if(!is_not_class(all_nodes[$2]->datatype)) {
+        size = 8;
+    }
     all_nodes[$$]->append_tac(all_nodes[$2]);   // chitwan -- ye missing tha
     all_nodes[$$]->datatype = "list[ " + all_nodes[$2]->datatype + " ]";
     all_nodes[$$]->var = "__t" + to_string(temp_count);
@@ -1741,17 +1837,6 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     all_nodes[$$]->datatype = check_self_decl_before_use(strdup($2), all_nodes[$$]);
     string name = strdup($2);
     st_entry *curr_entry = ((symbol_table_class *)(current_table->parent_st)) -> look_up_attribute_in_class_hierarchy(name);
-    //  chitwan -- resolving no var for object attributes
-    // all_nodes[$$]->var = "*( self + " + to_string(curr_entry->offset) + " )";
-    // string tmp = "__t" + to_string(temp_count);
-    // temp_count++;
-    // quad q(tmp, "self", "+", to_string(curr_entry->offset));
-    // q.make_code_from_binary();
-    // all_nodes[$$]->ta_codes.push_back(q);
-    // quad q1(tmp, "*"+tmp, "=", "");
-    // q1.make_code_from_assignment();
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // all_nodes[$$]->var = (tmp);
 }
 
 number: INTEGER {
@@ -1805,6 +1890,7 @@ classdef: class_header suite {
     //     ((symbol_table_class *)current_table) -> object_size += ((symbol_table_class *)current_table) -> parent_class -> object_size;
     // }
     type_to_size[current_table -> name] = ((symbol_table_class *)current_table) -> object_size;
+    type_to_size["list[ " + current_table -> name + " ]"] = 8;
     current_table = current_table->parent_st;
     all_nodes[$$] -> append_tac(all_nodes[$1]);
     all_nodes[$$] -> append_tac(all_nodes[$2]);

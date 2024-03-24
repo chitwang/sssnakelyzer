@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "../include/global.hpp" // Includes node.hpp
+#include "../include/global_vars.hpp" // Includes node.hpp
 using namespace std;
 
 node *root;
@@ -2796,12 +2796,7 @@ void node::generate_tac(){
     if(this -> type == "ID" || (this -> type == "LITERAL" && this -> children.size() == 0)) {        
         // Add typecast if need be
         if(this -> typecast_to != "UNNEEDED" && this -> typecast_to != ""){
-            
-            
-            
-            
-            
-             op = this -> typecast_to;
+            string op = this -> typecast_to;
             string result = this -> get_var_from_node();
             string arg1 = this -> get_var_from_node();
             quad q(result, arg1, op, "");
@@ -3354,7 +3349,6 @@ void node::generate_tac(){
         this -> ta_codes.push_back(q);
     }    
     else if(this -> name == "MethodDeclaration" || this -> name == "ConstructorDeclaration") {   
-        
 
         string mangled_name = this -> get_mangled_name();
         quad q("", mangled_name, "", "");

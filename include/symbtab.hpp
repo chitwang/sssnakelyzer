@@ -59,6 +59,7 @@ public:
     void add_entry(st_entry* new_entry);
     bool operator == (const symbol_table_func& other);
     void make_csv(string filename);
+    int get_func_local_size();
     // bool modifier_bv[10] = {0};
     // void update_modifiers(vector<st_entry*> modifiers);
 };

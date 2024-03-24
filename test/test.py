@@ -276,6 +276,7 @@ class C:
 class A:
     def __init__(self, a:int, b:bool):
         self.a : int = a
+        self.li: list[bool] = [True, b, b, False, False] 
         self.b: bool = b
     
     def printa(self, d:int) -> int:
@@ -289,10 +290,33 @@ class B(A):
         self.b = b
         self.obj:C = C(c)
 
+class D(B):
+    def __init__(self, a:int, b:bool, c:int ):
+        self.c = c
+        self.a = self.printa(4)
+        self.b = b
+        self.obj= C(c)
+        self.d:A = A(4, True)
+
+def foo() -> int:
+    return 1
+
 def main():
-  b:B = B(4,True,1)  
-  (b.obj.printc())
-  b.printa(4)
+#   a:B = B(0, False, 0)
+#   b:B = B(4,True,1)  
+#   c:B = B(1, False, 1)
+#   d:B = B(2, False, 2)
+#   e:D = D(3, True, 3)
+#   li: list[B] = [a,b,c,d]
+#   print(li[2].obj.a)
+#   (b.obj.printc())
+#   b.printa(4)
+#   e.d.b = 1
+#   b < c
+  obj: A = A(1, True)
+  print(obj.li[4])
+#foo() = 4
+# B = 3 
 
 if __name__ == "__main__":
-    main()
+  main()

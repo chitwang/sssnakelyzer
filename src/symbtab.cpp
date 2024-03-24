@@ -9,7 +9,11 @@ map<string, int> type_to_size = {
     {"int", 8}, 
     {"float", 8},
     {"bool", 1},
-    {"str", 4}
+    {"str", 4},
+    {"list[ int ]", 8}, 
+    {"list[ float ]", 8},
+    {"list[ bool ]", 8},
+    {"list[ str ]", 8}
 };
 
 set<string> primitive_types = {
@@ -188,6 +192,14 @@ bool symbol_table_func::operator == (const symbol_table_func& other) {
         }
     }
     return false;
+}
+
+int symbol_table_func::get_func_local_size() {
+    int space = 0;
+    for(auto &entry : this -> entries) {
+        space += entry -> size;
+    }
+    return space;
 }
 
 symbol_table_class::symbol_table_class(string class_name) {
