@@ -1617,10 +1617,12 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->ta_codes.push_back(q7);
     string t = "__t" + to_string(temp_count);
     temp_count++;
-    all_nodes[$$]->var = t;
-    quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
-    q8.make_code_from_assignment();
-    all_nodes[$$]->ta_codes.push_back(q8); 
+    /* shrey - Changing temp for a[i] */
+    all_nodes[$$]->var = "*( " + temp1 + " )";
+    // all_nodes[$$]->var = t;
+    // quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
+    // q8.make_code_from_assignment();
+    // all_nodes[$$]->ta_codes.push_back(q8); 
     all_nodes[$$]->is_var = true;
 }
 
@@ -1728,10 +1730,12 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->ta_codes.push_back(q7);
     string t = "__t" + to_string(temp_count);
     temp_count++;
-    all_nodes[$$]->var = t;
-    quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
-    q8.make_code_from_assignment();
-    all_nodes[$$]->ta_codes.push_back(q8); 
+    /* shrey - Changing temp for a[i] */
+    all_nodes[$$]->var = "*( " + temp1 + " )";
+    // all_nodes[$$]->var = t;
+    // quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
+    // q8.make_code_from_assignment();
+    // all_nodes[$$]->ta_codes.push_back(q8); 
     all_nodes[$$]->is_var = true;
 }
 
