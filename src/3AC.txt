@@ -1,134 +1,81 @@
-1:	begin_func C@__init__
-2:			self = pop_param;
-3:			C@__init__@c = pop_param;
-4:			__t0 = self + 0;
-5:			*__t0 = C@__init__@c;
-6:	end_func
-
-7:	begin_func C@printc
-8:			self = pop_param;
-9:			__t1 = self + 0;
-10:			push_param *__t1;
-11:			call print_int;
-12:	end_func
-
-13:	begin_func A@__init__
-14:			self = pop_param;
-15:			A@__init__@a = pop_param;
-16:			A@__init__@b = pop_param;
-17:			__t2 = self + 0;
-18:			*__t2 = A@__init__@a;
-19:			__t3 = self + 8;
-20:			push_param 13;
-21:			call allocmem;
-22:			__t4 = #retval#;
-23:			*( __t4 ) = 5;
-24:			*( __t4+8 ) = True;
-25:			*( __t4+9 ) = A@__init__@b;
-26:			*( __t4+10 ) = A@__init__@b;
-27:			*( __t4+11 ) = False;
-28:			*( __t4+12 ) = False;
-29:			*__t3 = __t4;
-30:			__t5 = self + 16;
-31:			*__t5 = A@__init__@b;
-32:	end_func
-
-33:	begin_func A@printa
-34:			self = pop_param;
-35:			A@printa@d = pop_param;
-36:			__t6 = self + 0;
-37:			push_param *__t6;
-38:			call print_int;
-39:			__t7 = self + 0;
-40:			return *__t7;
+1:	begin_func binarySearch
+2:			binarySearch@array = pop_param;
+3:			binarySearch@x = pop_param;
+4:			binarySearch@low = pop_param;
+5:			binarySearch@high = pop_param;
+6:			__t0 = binarySearch@low <= binarySearch@high;
+7:			if_false __t0 goto 39;
+8:			__t1 = binarySearch@high - binarySearch@low;
+9:			__t2 = __t1 // 2;
+10:			__t3 = binarySearch@low + __t2;
+11:			binarySearch@mid = __t3;
+12:			__t4 = binarySearch@array;
+13:			__t5 = *( __t4 ) ;
+14:			__t6 = binarySearch@mid >= __t5;
+15:			if_false __t6 goto 17;
+16:			exit_out_of_bound
+17:			__t5 = binarySearch@mid * 8;
+18:			__t5 = __t5 + 8;
+19:			__t5 = __t4 + __t5;
+20:			__t8 = *( __t5 ) == binarySearch@x;
+21:			if_false __t8 goto 24;
+22:			return binarySearch@mid;
+23:			goto 38;
+24:			__t9 = binarySearch@array;
+25:			__t10 = *( __t9 ) ;
+26:			__t11 = binarySearch@mid >= __t10;
+27:			if_false __t11 goto 29;
+28:			exit_out_of_bound
+29:			__t10 = binarySearch@mid * 8;
+30:			__t10 = __t10 + 8;
+31:			__t10 = __t9 + __t10;
+32:			__t13 = *( __t10 ) < binarySearch@x;
+33:			if_false __t13 goto 36;
+34:			__t14 = binarySearch@mid + 1;
+35:			binarySearch@low = __t14;
+36:			__t15 = binarySearch@mid - 1;
+37:			binarySearch@high = __t15;
+38:			goto 6;
+39:			__t16 = -(1);
+40:			return __t16;
 41:	end_func
 
-42:	begin_func B@__init__
-43:			self = pop_param;
-44:			B@__init__@a = pop_param;
-45:			B@__init__@b = pop_param;
-46:			B@__init__@c = pop_param;
-47:			__t8 = self + 17;
-48:			*__t8 = B@__init__@c;
-49:			__t9 = self + 0;
-50:			push_param self;
-51:			push_param 4;
-52:			call A@printa;
-53:			__t10 = #retval#;
-54:			*__t9 = __t10;
-55:			__t11 = self + 16;
-56:			*__t11 = B@__init__@b;
-57:			__t12 = self + 25;
-58:			push_param 8;
-59:			call allocmem;
-60:			__t13 = #retval#;
-61:			push_param __t13;
-62:			push_param B@__init__@c;
-63:			call C@__init__;
-64:			*__t12 = __t13;
-65:	end_func
+42:	begin_func main
+43:			push_param 64;
+44:			call allocmem;
+45:			__t17 = #retval#;
+46:			*( __t17 ) = 7;
+47:			*( __t17+8 ) = 3;
+48:			*( __t17+16 ) = 4;
+49:			*( __t17+24 ) = 5;
+50:			*( __t17+32 ) = 6;
+51:			*( __t17+40 ) = 7;
+52:			*( __t17+48 ) = 8;
+53:			*( __t17+56 ) = 9;
+54:			main@array = __t17;
+55:			push_param main@array;
+56:			call len;
+57:			__t18 = #retval#;
+58:			__t19 = __t18 - 1;
+59:			push_param main@array;
+60:			push_param 4;
+61:			push_param 0;
+62:			push_param __t19;
+63:			call binarySearch;
+64:			__t20 = #retval#;
+65:			main@result = __t20;
+66:			__t21 = -(1);
+67:			__t22 = main@result != __t21;
+68:			if_false __t22 goto 74;
+69:			push_param 'Element is present at index:';
+70:			call print_str;
+71:			push_param main@result;
+72:			call print_int;
+73:			goto 76;
+74:			push_param 'Element is not present';
+75:			call print_str;
+76:	end_func
 
-66:	begin_func D@__init__
-67:			self = pop_param;
-68:			D@__init__@a = pop_param;
-69:			D@__init__@b = pop_param;
-70:			D@__init__@c = pop_param;
-71:			__t14 = self + 17;
-72:			*__t14 = D@__init__@c;
-73:			__t15 = self + 0;
-74:			push_param self;
-75:			push_param 4;
-76:			call A@printa;
-77:			__t16 = #retval#;
-78:			*__t15 = __t16;
-79:			__t17 = self + 16;
-80:			*__t17 = D@__init__@b;
-81:			__t18 = self + 25;
-82:			push_param 8;
-83:			call allocmem;
-84:			__t19 = #retval#;
-85:			push_param __t19;
-86:			push_param D@__init__@c;
-87:			call C@__init__;
-88:			*__t18 = __t19;
-89:			__t20 = self + 33;
-90:			push_param 17;
-91:			call allocmem;
-92:			__t21 = #retval#;
-93:			push_param __t21;
-94:			push_param 4;
-95:			push_param True;
-96:			call A@__init__;
-97:			*__t20 = __t21;
-98:	end_func
-
-99:	begin_func foo
-100:		return 1;
-101:end_func
-
-102:begin_func main
-103:		push_param 17;
-104:		call allocmem;
-105:		__t22 = #retval#;
-106:		push_param __t22;
-107:		push_param 1;
-108:		push_param True;
-109:		call A@__init__;
-110:		main@obj = __t22;
-111:		__t23 = main@obj + 8;
-112:		__t24 = *__t23;
-113:		__t25 = *( __t24 ) ;
-114:		__t26 = 4 >= __t25;
-115:		if_false __t26 goto 117;
-116:		exit_out_of_bound
-117:		__t25 = 4 * 1;
-118:		__t25 = __t25 + 8;
-119:		__t25 = __t24 + __t25;
-120:		__t27 = *( __t25 );
-121:		push_param __t27;
-122:		call print_bol;
-123:end_func
-
-124:program start: 
-125:		call main;
-126:
+77:	program start: 
+78:			call main;
+79:

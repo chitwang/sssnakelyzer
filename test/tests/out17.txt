@@ -1,0 +1,37 @@
+1:	begin_func func
+2:			func@a = pop_param;
+3:			func@b = 0;
+4:			func@i = 0;
+5:			__t0 = func@i < func@a;
+6:			if_false __t0 goto 10;
+7:			func@b = func@b + func@i;
+8:			func@i = func@i + 1;
+9:			goto 5;
+10:			return func@b;
+11:	end_func
+
+12:	begin_func func2
+13:			func2@a = pop_param;
+14:			func2@b = pop_param;
+15:			func2@sum = 0;
+16:			func2@i = func2@a;
+17:			__t1 = func2@i < func2@b;
+18:			if_false __t1 goto 22;
+19:			func2@sum = func2@sum + func2@i;
+20:			func2@i = func2@i + 1;
+21:			goto 17;
+22:			return func2@sum;
+23:	end_func
+
+24:	begin_func main
+25:			push_param 7;
+26:			call func;
+27:			__t2 = #retval#;
+28:			__t3 = -(1);
+29:			push_param __t3;
+30:			push_param 99;
+31:			call func2;
+32:			__t4 = #retval#;
+33:	end_func
+
+34:

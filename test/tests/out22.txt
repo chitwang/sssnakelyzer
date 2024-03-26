@@ -1,0 +1,10 @@
+1:			j = 4;
+2:			i = 0;
+3:			__t1 = i < 2;
+4:			if_false __t1 goto 10;
+5:			__t0 = i + j;
+6:			push_param __t0;
+7:			call print_int;
+8:			i = i + 1;
+9:			goto 3;
+10:

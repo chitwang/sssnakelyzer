@@ -1,4 +1,4 @@
-def create_class(name):
+def create_class(name): 
 
   class MyClass:
 

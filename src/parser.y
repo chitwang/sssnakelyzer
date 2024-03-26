@@ -127,6 +127,12 @@ void print_help() {
     exit(1);
 }
 
+string get_new_temp() {
+    string temp = "__t" + to_string(temp_count);
+    temp_count++;
+    return temp;
+}
+
 string max_type(string type1, string type2) {
     if(type1 == type2) {
         return type1;
@@ -391,8 +397,7 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
     }
     else {
         //  chitwan -- resolving no var for object attributes
-        string tmp = "__t" + to_string(temp_count);
-        temp_count++;
+        string tmp = get_new_temp();
         if(b[0] == '*'){
             b = b.substr(1);
         }
@@ -479,8 +484,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
                 quad q0("", to_string(type_to_size[typeLeft]) , "push_param", "");
                 q0.make_code_from_param();
                 current_node->ta_codes.push_back(q0);    
-                string temp = "__t" + to_string(temp_count);
-                temp_count++;
+                string temp = get_new_temp();
                 quad q("", "allocmem", "call", "");
                 q.make_code_from_func_call();
                 current_node->ta_codes.push_back(q);  
@@ -496,7 +500,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
                 current_node->ta_codes.push_back(q2);
                 return check_constructor(typeLeft, actual_params); 
             }
-            else{
+            else {
                 cout<<"Not a func or class constructor\n";
                 exit(1);
             }
@@ -544,8 +548,7 @@ void check_return_type(string type1) {
 void make_binary_threeac(int n1, int n2, string op, int n3) {
     string arg1 = all_nodes[n1]->var;
     string arg2 = all_nodes[n2]->var;
-    string res = "__t" + to_string(temp_count);
-    temp_count++;
+    string res = get_new_temp();
     all_nodes[n3]->var = res;
     
     quad q(res, arg1, op, arg2);
@@ -556,8 +559,7 @@ void make_binary_threeac(int n1, int n2, string op, int n3) {
 }
 
 void make_unary_threeac(int n1, string op, int n2) {
-    string res = "__t" + to_string(temp_count);
-    temp_count++;
+    string res = get_new_temp();
     all_nodes[n2]->var = res;
     quad q(res, all_nodes[n1]->var, op, "");
     q.make_code_from_unary();
@@ -588,7 +590,10 @@ void yyerror(const char*);
 
 %%
 
-start_symbol: file_input {node_attr = {"start_symbol"};  node_numbers = {$1}; insert_node();$$ = node_count; node_count += 1;
+start_symbol: {
+    quad q("", "", "", "");
+    q.make_code_
+} file_input {node_attr = {"start_symbol"};  node_numbers = {$1}; insert_node();$$ = node_count; node_count += 1;
     all_nodes[$$]->append_tac(all_nodes[$1]);
 }
 
@@ -618,7 +623,17 @@ funcdef: func_header func_body_suite {node_attr = {"funcdef"}; node_numbers = {$
     }
     current_table->entries = temp;
     current_table = current_table->parent_st;
+    int frame_size = 56;
+    quad q1("", "", "", "");
+    q1.code = "move8 rbp -8(rsp)\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "rbp = rsp\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
     all_nodes[$$]->append_tac(all_nodes[$1]);
+    q1.code = "sub rsp, $" + to_string(frame_size) + "\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "move48 regs -56(rbp)\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
     all_nodes[$$]->append_tac(all_nodes[$2]);
     quad q("", "", "", "");
     q.make_code_end_func();
@@ -905,8 +920,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     all_nodes[$$]->var = string("*( self + ") + to_string(((symbol_table_class *)(current_table->parent_st))->object_size) + " )";
 
     /*  chitwan  -- 3ac minor correctness assign *(self + offt) to some temporary first */
-    string tmp = "__t" + to_string(temp_count);
-    temp_count++;
+    string tmp = get_new_temp();
     quad q(tmp, "self" , "+", to_string(((symbol_table_class *)(current_table->parent_st))->object_size));
     q.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -958,6 +972,17 @@ continue_stmt: KEY_CONTINUE {node_attr = {"continue", "continue_stmt"}; node_num
 return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     check_return_type(all_nodes[$2]->datatype);
+    quad q1("", "", "", "");
+    q1.code = "move48 -56(rbp) regs\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "move8 rbp rsp\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "move8 -8(rbp) rbp\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "move8 RRE -8(rsp)\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "sub rsp, $8\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
     quad q("", all_nodes[$2]->var, "return", "");
     q.make_code_from_return();
     all_nodes[$$]->append_tac(all_nodes[$2]);
@@ -966,6 +991,17 @@ return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_number
 | KEY_RETURN {node_attr = {"return", "return_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     check_return_type("None");
+    quad q1("", "", "", "");
+    q1.code = "move48 -56(rbp) regs\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "move8 rbp rsp\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "move8 -8(rbp) rbp\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "move8 RRE -8(rsp)\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
+    q1.code = "sub rsp, $8\n";
+    all_nodes[$$]->ta_codes.push_back(q1);
     quad q("", "", "return", "");
     q.make_code_from_return();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -1179,8 +1215,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     quad q(all_nodes[$2]->var, "0", "=", "");
     q.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q);
-    string tmp_var = "__t" + to_string(temp_count);
-    temp_count++;
+    string tmp_var = get_new_temp();
     quad q1(tmp_var, all_nodes[$2]->var, "<", all_nodes[$6]->var);
     q1.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q1);
@@ -1219,8 +1254,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     quad q(all_nodes[$2]->var, all_nodes[$6]->var, "=", "");
     q.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q);
-    string temp_var = "__t" + to_string(temp_count);
-    temp_count++;
+    string temp_var = get_new_temp();
     quad q1(temp_var, all_nodes[$2]->var, "<", all_nodes[$8]->var);
     q1.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q1);
@@ -1530,8 +1564,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
     if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
-        string temp = "__t" + to_string(temp_count);
-        temp_count++;
+        string temp = get_new_temp();
         quad q1(temp, "#retval#", "=", "");
         q1.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q1);
@@ -1552,8 +1585,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
     if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)) {
-        string temp = "__t" + to_string(temp_count);
-        temp_count++;
+        string temp = get_new_temp();
         quad q1(temp, "#retval#", "=", "");
         q1.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q1);
@@ -1575,18 +1607,15 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     node_count += 3;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
-    string temp = "__t" + to_string(temp_count);
-    temp_count++;
+    string temp = get_new_temp();
     quad q(temp, all_nodes[$1]->var, "=", "");
     q.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q);
-    string temp1 = "__t" + to_string(temp_count);
-    temp_count++;
+    string temp1 = get_new_temp();
     quad q1(temp1, "*( " + temp + " ) ", "=", "");
     q1.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q1);
-    string temp2 = "__t" + to_string(temp_count);
-    temp_count++;
+    string temp2 = get_new_temp();
     quad q2(temp2, all_nodes[$3]->var, ">=", temp1);   // chitwan -- pehle ye >= ki jgh < tha
     q2.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q2);
@@ -1615,8 +1644,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     quad q7(temp1, temp , "+", temp1);   // base + 8 + 4 * i
     q7.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q7);
-    string t = "__t" + to_string(temp_count);
-    temp_count++;
+    string t = get_new_temp();
     /* shrey - Changing temp for a[i] */
     all_nodes[$$]->var = "*( " + temp1 + " )";
     // all_nodes[$$]->var = t;
@@ -1647,8 +1675,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->ta_codes.push_back(q);
     
     if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
-        string temp = "__t" + to_string(temp_count);
-        temp_count++;
+        string temp = get_new_temp();
         quad q1(temp, "#retval#", "=", "");
         q1.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q1);
@@ -1667,8 +1694,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
     if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
-        string temp = "__t" + to_string(temp_count);
-        temp_count++;
+        string temp = get_new_temp();
         quad q1(temp, "#retval#", "=", "");
         q1.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q1);
@@ -1688,18 +1714,15 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     node_count += 3;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
-    string temp = "__t" + to_string(temp_count);
-    temp_count++;
+    string temp = get_new_temp();
     quad q(temp, all_nodes[$1]->var, "=", "");
     q.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q);
-    string temp1 = "__t" + to_string(temp_count);
-    temp_count++;
+    string temp1 = get_new_temp();
     quad q1(temp1, "*( " + temp + " ) ", "=", "");
     q1.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q1);
-    string temp2 = "__t" + to_string(temp_count);
-    temp_count++;
+    string temp2 = get_new_temp();
     quad q2(temp2, all_nodes[$3]->var, ">=", temp1);  // chitwan -- pehle ye >= ki jgh < tha 
     q2.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q2);
@@ -1728,8 +1751,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     quad q7(temp1, temp , "+", temp1);   // base + 8 + 4 * i
     q7.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q7);
-    string t = "__t" + to_string(temp_count);
-    temp_count++;
+    string t = get_new_temp();
     /* shrey - Changing temp for a[i] */
     all_nodes[$$]->var = "*( " + temp1 + " )";
     // all_nodes[$$]->var = t;
@@ -1753,6 +1775,7 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     all_nodes[$$]->append_tac(all_nodes[$2]);
     all_nodes[$$]->is_var = all_nodes[$2]->is_var;
 }
+
 | DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
     node_count += 3;
     int size = type_to_size[all_nodes[$2]->datatype];
@@ -1761,8 +1784,7 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     }
     all_nodes[$$]->append_tac(all_nodes[$2]);   // chitwan -- ye missing tha
     all_nodes[$$]->datatype = "list[ " + all_nodes[$2]->datatype + " ]";
-    all_nodes[$$]->var = "__t" + to_string(temp_count);
-    temp_count ++;
+    all_nodes[$$]->var = get_new_temp();
     quad q0("", to_string(all_nodes[$2]->var_list.size() * size + 8) , "push_param", "");
     q0.make_code_from_param();
     all_nodes[$$]->ta_codes.push_back(q0);  
@@ -1787,8 +1809,7 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
 }
 
 | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3; 
-    all_nodes[$$]->var = "__t" + to_string(temp_count);
-    temp_count ++;
+    all_nodes[$$]->var = get_new_temp();
     quad q0("", "8", "push_param", "");
     q0.make_code_from_param();
     all_nodes[$$]->ta_codes.push_back(q0);    

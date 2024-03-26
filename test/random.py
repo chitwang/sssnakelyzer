@@ -16,3 +16,5 @@ if __name__ == "__main__":
 # b = a - d
 # c = b + c
 # d = a - d
+
+(print)("onert")

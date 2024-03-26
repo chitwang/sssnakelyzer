@@ -1,0 +1,12 @@
+1:			a = 6;
+2:	begin_func geet
+3:			geet@a = pop_param;
+4:			geet@b = pop_param;
+5:			return geet@a;
+6:	end_func
+
+7:			push_param 1;
+8:			push_param True;
+9:			call geet;
+10:			__t0 = #retval#;
+11:
