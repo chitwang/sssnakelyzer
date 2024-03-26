@@ -404,7 +404,7 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
         quad q(tmp, b , "+", to_string(existing_entry->offset));
         q.make_code_from_binary();
         current_node->ta_codes.push_back(q);
-        current_node->var = "*"+(tmp);
+        current_node->var = "*( " + tmp + " )";
         /* chitwan */
         // current_node->var = "*( " + b + " + " + to_string(existing_entry->offset) + " )";
         if(!is_not_class(existing_entry -> type)) {
@@ -590,10 +590,22 @@ void yyerror(const char*);
 
 %%
 
-start_symbol: {
-    quad q("", "", "", "");
-    q.make_code_
-} file_input {node_attr = {"start_symbol"};  node_numbers = {$1}; insert_node();$$ = node_count; node_count += 1;
+start_symbol: file_input {node_attr = {"start_symbol"};  node_numbers = {$1}; insert_node();$$ = node_count; node_count += 1;
+    quad q("", "len", "", "");
+    q.make_code_begin_func();
+    all_nodes[$$]->ta_codes.push_back(q);
+    q.code = "\t\tlen@list = pop_param;\n";
+    all_nodes[$$]->ta_codes.push_back(q);
+    string temp = get_new_temp();
+    q.code = "\t\t" + temp + " = len@list;\n";
+    all_nodes[$$]->ta_codes.push_back(q);
+    string temp1 = get_new_temp();
+    q.code = "\t\t" + temp1 + " = *( " + temp + " );\n";
+    all_nodes[$$]->ta_codes.push_back(q);
+    q.code = "\t\treturn " + temp1 + ";\n";
+    all_nodes[$$]->ta_codes.push_back(q);
+    q.make_code_end_func();
+    all_nodes[$$]->ta_codes.push_back(q);
     all_nodes[$$]->append_tac(all_nodes[$1]);
 }
 
@@ -623,17 +635,17 @@ funcdef: func_header func_body_suite {node_attr = {"funcdef"}; node_numbers = {$
     }
     current_table->entries = temp;
     current_table = current_table->parent_st;
-    int frame_size = 56;
-    quad q1("", "", "", "");
-    q1.code = "move8 rbp -8(rsp)\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "rbp = rsp\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
+    //int frame_size = 56;
+    // quad q1("", "", "", "");
+    // q1.code = "\t\tmove8 rbp -8(rsp)\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\trbp = rsp\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
     all_nodes[$$]->append_tac(all_nodes[$1]);
-    q1.code = "sub rsp, $" + to_string(frame_size) + "\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "move48 regs -56(rbp)\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tsub rsp, $" + to_string(frame_size) + "\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tmove48 regs -56(rbp)\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
     all_nodes[$$]->append_tac(all_nodes[$2]);
     quad q("", "", "", "");
     q.make_code_end_func();
@@ -924,7 +936,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     quad q(tmp, "self" , "+", to_string(((symbol_table_class *)(current_table->parent_st))->object_size));
     q.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q);
-    all_nodes[$$]->var = "*"+(tmp);
+    all_nodes[$$]->var = "*( " + tmp + " )";
     /* chitwan --*/
     new_entry -> offset = ((symbol_table_class *)(current_table->parent_st))->object_size;
     bool is_class = !is_not_class(all_nodes[$4]->datatype);
@@ -972,17 +984,17 @@ continue_stmt: KEY_CONTINUE {node_attr = {"continue", "continue_stmt"}; node_num
 return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     check_return_type(all_nodes[$2]->datatype);
-    quad q1("", "", "", "");
-    q1.code = "move48 -56(rbp) regs\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "move8 rbp rsp\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "move8 -8(rbp) rbp\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "move8 RRE -8(rsp)\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "sub rsp, $8\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
+    // quad q1("", "", "", "");
+    // q1.code = "\t\tmove48 -56(rbp) regs\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tmove8 rbp rsp\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tmove8 -8(rbp) rbp\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tmove8 RRE -8(rsp)\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tsub rsp, $8\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
     quad q("", all_nodes[$2]->var, "return", "");
     q.make_code_from_return();
     all_nodes[$$]->append_tac(all_nodes[$2]);
@@ -991,17 +1003,17 @@ return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_number
 | KEY_RETURN {node_attr = {"return", "return_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     check_return_type("None");
-    quad q1("", "", "", "");
-    q1.code = "move48 -56(rbp) regs\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "move8 rbp rsp\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "move8 -8(rbp) rbp\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "move8 RRE -8(rsp)\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
-    q1.code = "sub rsp, $8\n";
-    all_nodes[$$]->ta_codes.push_back(q1);
+    // quad q1("", "", "", "");
+    // q1.code = "\t\tmove48 -56(rbp) regs\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tmove8 rbp rsp\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tmove8 -8(rbp) rbp\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tmove8 RRE -8(rsp)\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
+    // q1.code = "\t\tsub rsp, $8\n";
+    // all_nodes[$$]->ta_codes.push_back(q1);
     quad q("", "", "return", "");
     q.make_code_from_return();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -1366,11 +1378,32 @@ comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node()
         }
     }
     else {
-        is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
+        is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype, true);
     }
     all_nodes[$$]->datatype = "bool";
+    if(all_nodes[$1]->datatype == "str") {    
+        quad q("", all_nodes[$1]->var, "push_param", "");
+        q.make_code_from_param();
+        all_nodes[$$]->ta_codes.push_back(q);
+        q = quad("", all_nodes[$3]->var, "push_param", "");
+        q.make_code_from_param();
+        all_nodes[$$]->ta_codes.push_back(q);
     
-    make_binary_threeac($1, $3, op , $$);
+        q = quad("", "strcmp", "call", "");
+        q.make_code_from_func_call();
+        all_nodes[$$]->ta_codes.push_back(q);
+        string temp = get_new_temp();
+        q = quad(temp, "#retval#", "=", "");
+        q.make_code_from_assignment();
+        all_nodes[$$]->ta_codes.push_back(q);
+        all_nodes[$$]->var = get_new_temp();
+        q = quad(all_nodes[$$]->var, temp, op, "0");
+        q.make_code_from_binary();
+        all_nodes[$$]->ta_codes.push_back(q);
+    }
+    else { 
+        make_binary_threeac($1, $3, op , $$);
+    }
 }
 
 comp_op: OP_LESS_THAN {node_attr = {"<", "comp_op<"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}

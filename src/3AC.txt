@@ -1,81 +1,85 @@
-1:	begin_func binarySearch
-2:			binarySearch@array = pop_param;
-3:			binarySearch@x = pop_param;
-4:			binarySearch@low = pop_param;
-5:			binarySearch@high = pop_param;
-6:			__t0 = binarySearch@low <= binarySearch@high;
-7:			if_false __t0 goto 39;
-8:			__t1 = binarySearch@high - binarySearch@low;
-9:			__t2 = __t1 // 2;
-10:			__t3 = binarySearch@low + __t2;
-11:			binarySearch@mid = __t3;
-12:			__t4 = binarySearch@array;
-13:			__t5 = *( __t4 ) ;
-14:			__t6 = binarySearch@mid >= __t5;
-15:			if_false __t6 goto 17;
-16:			exit_out_of_bound
-17:			__t5 = binarySearch@mid * 8;
-18:			__t5 = __t5 + 8;
-19:			__t5 = __t4 + __t5;
-20:			__t8 = *( __t5 ) == binarySearch@x;
-21:			if_false __t8 goto 24;
-22:			return binarySearch@mid;
-23:			goto 38;
-24:			__t9 = binarySearch@array;
-25:			__t10 = *( __t9 ) ;
-26:			__t11 = binarySearch@mid >= __t10;
-27:			if_false __t11 goto 29;
-28:			exit_out_of_bound
-29:			__t10 = binarySearch@mid * 8;
-30:			__t10 = __t10 + 8;
-31:			__t10 = __t9 + __t10;
-32:			__t13 = *( __t10 ) < binarySearch@x;
-33:			if_false __t13 goto 36;
-34:			__t14 = binarySearch@mid + 1;
-35:			binarySearch@low = __t14;
-36:			__t15 = binarySearch@mid - 1;
-37:			binarySearch@high = __t15;
-38:			goto 6;
-39:			__t16 = -(1);
-40:			return __t16;
-41:	end_func
+1:	begin_func len
+2:			len@list = pop_param;
+3:			__t19 = len@list;
+4:			__t20 = *( __t19 );
+5:			return __t20;
+6:	end_func
 
-42:	begin_func main
-43:			push_param 64;
-44:			call allocmem;
-45:			__t17 = #retval#;
-46:			*( __t17 ) = 7;
-47:			*( __t17+8 ) = 3;
-48:			*( __t17+16 ) = 4;
-49:			*( __t17+24 ) = 5;
-50:			*( __t17+32 ) = 6;
-51:			*( __t17+40 ) = 7;
-52:			*( __t17+48 ) = 8;
-53:			*( __t17+56 ) = 9;
-54:			main@array = __t17;
-55:			push_param main@array;
-56:			call len;
-57:			__t18 = #retval#;
-58:			__t19 = __t18 - 1;
-59:			push_param main@array;
-60:			push_param 4;
-61:			push_param 0;
-62:			push_param __t19;
-63:			call binarySearch;
-64:			__t20 = #retval#;
-65:			main@result = __t20;
-66:			__t21 = -(1);
-67:			__t22 = main@result != __t21;
-68:			if_false __t22 goto 74;
-69:			push_param 'Element is present at index:';
-70:			call print_str;
-71:			push_param main@result;
-72:			call print_int;
-73:			goto 76;
-74:			push_param 'Element is not present';
-75:			call print_str;
-76:	end_func
+7:	begin_func main
+8:			push_param 40;
+9:			call allocmem;
+10:			__t0 = #retval#;
+11:			*( __t0 ) = 4;
+12:			*( __t0+8 ) = 1;
+13:			*( __t0+16 ) = 2;
+14:			*( __t0+24 ) = 3;
+15:			*( __t0+32 ) = 69;
+16:			main@a = __t0;
+17:			push_param main@a;
+18:			call len;
+19:			__t1 = #retval#;
+20:			main@i = __t1;
+21:			__t2 = main@a;
+22:			__t3 = *( __t2 ) ;
+23:			__t4 = main@i >= __t3;
+24:			if_false __t4 goto 26;
+25:			exit_out_of_bound
+26:			__t3 = main@i * 8;
+27:			__t3 = __t3 + 8;
+28:			__t3 = __t2 + __t3;
+29:			*( __t3 ) = 2;
+30:			push_param "Hello";
+31:			push_param "hello";
+32:			call strcmp;
+33:			__t6 = #retval#;
+34:			__t7 = __t6 < 0;
+35:			if_false __t7 goto 38;
+36:			push_param 1;
+37:			call print_int;
+38:			push_param "Hello";
+39:			push_param "hello";
+40:			call strcmp;
+41:			__t8 = #retval#;
+42:			__t9 = __t8 > 0;
+43:			if_false __t9 goto 46;
+44:			push_param 1;
+45:			call print_int;
+46:			push_param "Hello";
+47:			push_param "hello";
+48:			call strcmp;
+49:			__t10 = #retval#;
+50:			__t11 = __t10 >= 0;
+51:			if_false __t11 goto 54;
+52:			push_param 1;
+53:			call print_int;
+54:			push_param "Hello";
+55:			push_param "hello";
+56:			call strcmp;
+57:			__t12 = #retval#;
+58:			__t13 = __t12 <= 0;
+59:			if_false __t13 goto 62;
+60:			push_param 1;
+61:			call print_int;
+62:			push_param "Hello";
+63:			push_param "hello";
+64:			call strcmp;
+65:			__t14 = #retval#;
+66:			__t15 = __t14 == 0;
+67:			if_false __t15 goto 70;
+68:			push_param 1;
+69:			call print_int;
+70:			push_param "Hello";
+71:			push_param "hello";
+72:			call strcmp;
+73:			__t16 = #retval#;
+74:			__t17 = __t16 != 0;
+75:			if_false __t17 goto 78;
+76:			push_param 1;
+77:			call print_int;
+78:	end_func
 
-77:	program start: 
-78:			call main;
-79:
+79:	program start: 
+80:			__t18 = 2 < 1;
+81:			if_false __t18 goto 83;
+82:			call main;
+83:

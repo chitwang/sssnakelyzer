@@ -315,7 +315,6 @@ def main():
 #   b < c
   obj: A = (A)(1, True)
   obj.printa(4)
-  (print)(obj.li[4])
 #foo() = 4
 # B = 3 
 
