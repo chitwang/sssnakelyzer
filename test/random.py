@@ -28,8 +28,14 @@
 # b = a - d
 # c = b + c
 # d = a - d
-import inspect
 
-# Get the source code of a built-in function
-source_code = inspect.getsource(print)
-print(source_code)
+def foo(x: int) -> int:
+    y:int = 5*x
+    return y
+
+def main():
+    a:int = 4
+    b:int = foo(a)
+
+if __name__ == "__main__":
+    main()

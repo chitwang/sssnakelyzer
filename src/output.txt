@@ -1,156 +1,31 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t26 = len@list;
-4:			__t27 = *( __t26 );
-5:			return __t27;
-6:	end_func
+3:			__t2 = len@list;
+4:			__t3 = *( __t2 );
+5:			push __t3
+6:			return;
+7:	end_func
 
-7:	begin_func Person@__init__
-8:			self = pop_param;
-9:			Person@__init__@name = pop_param;
-10:			Person@__init__@age = pop_param;
-11:			__t0 = self + 0;
-12:			*( __t0 ) = Person@__init__@name;
-13:			__t1 = self + 4;
-14:			*( __t1 ) = Person@__init__@age;
-15:	end_func
+8:	begin_func foo
+9:			foo@x = pop_param;
+10:			__t0 = 5 * foo@x;
+11:			foo@y = __t0;
+12:			push foo@y;
+13:			return ;
+14:	end_func
 
-16:	begin_func Person@myfunc
-17:			self = pop_param;
-18:			__t2 = self + 0;
-19:			push_param *( __t2 );
-20:			call print_str;
-21:	end_func
+15:	begin_func main
+16:			main@a = 4;
+17:			push_param main@a;
+18:			stack_pointer +xxx
+19:			call foo, 1;
+20:			stack_pointer -xxx
+21:			__t1 = pop_param;
+22:			main@b = __t1;
+23:	end_func
 
-22:	begin_func Person@myint
-23:			self = pop_param;
-24:			return 5;
-25:	end_func
-
-26:	begin_func Student@__init__
-27:			self = pop_param;
-28:			Student@__init__@name = pop_param;
-29:			Student@__init__@age = pop_param;
-30:			Student@__init__@year = pop_param;
-31:			__t3 = self + 0;
-32:			*( __t3 ) = Student@__init__@name;
-33:			__t4 = self + 4;
-34:			*( __t4 ) = Student@__init__@age;
-35:			__t5 = self + 12;
-36:			*( __t5 ) = Student@__init__@year;
-37:	end_func
-
-38:	begin_func Student@welcome
-39:			self = pop_param;
-40:			__t6 = self + 12;
-41:			push_param *( __t6 );
-42:			call print_int;
-43:	end_func
-
-44:	begin_func Person2@__init__
-45:			self = pop_param;
-46:			Person2@__init__@fname = pop_param;
-47:			Person2@__init__@lname = pop_param;
-48:			__t7 = self + 0;
-49:			push_param 12;
-50:			call allocmem;
-51:			__t8 = #retval#;
-52:			push_param __t8;
-53:			push_param Person2@__init__@fname;
-54:			push_param 36;
-55:			call Person@__init__;
-56:			*( __t7 ) = __t8;
-57:			__t9 = self + 8;
-58:			*( __t9 ) = Person2@__init__@fname;
-59:			__t10 = self + 8;
-60:			*( __t10 ) = Person2@__init__@fname;
-61:			__t11 = self + 12;
-62:			*( __t11 ) = Person2@__init__@lname;
-63:			__t12 = self + 0;
-64:			push_param *( __t12 );
-65:			call Person@myfunc;
-66:	end_func
-
-67:	begin_func Person2@printname
-68:			self = pop_param;
-69:			__t13 = self + 8;
-70:			push_param *( __t13 );
-71:			call print_str;
-72:	end_func
-
-73:	begin_func Person2@getage
-74:			self = pop_param;
-75:			__t14 = self + 0;
-76:			__t15 = ( __t14 ) + 4;
-77:			return *( __t15 );
-78:	end_func
-
-79:	begin_func Person3@__init__
-80:			self = pop_param;
-81:			Person3@__init__@name = pop_param;
-82:			Person3@__init__@age = pop_param;
-83:			__t16 = self + 0;
-84:			*( __t16 ) = Person3@__init__@name;
-85:			__t17 = self + 4;
-86:			*( __t17 ) = Person3@__init__@age;
-87:	end_func
-
-88:	begin_func Person3@myfunc
-89:			self = pop_param;
-90:			__t18 = self + 0;
-91:			push_param *( __t18 );
-92:			call print_str;
-93:	end_func
-
-94:	begin_func Person3@myint
-95:			self = pop_param;
-96:			return 5;
-97:	end_func
-
-98:	begin_func main
-99:			push_param 12;
-100:		call allocmem;
-101:		__t19 = #retval#;
-102:		push_param __t19;
-103:		push_param "John";
-104:		push_param 36;
-105:		call Person@__init__;
-106:		main@p1 = __t19;
-107:		push_param main@p1;
-108:		call Person@myfunc;
-109:		push_param 20;
-110:		call allocmem;
-111:		__t20 = #retval#;
-112:		push_param __t20;
-113:		push_param "Mike";
-114:		push_param 36;
-115:		push_param 2019;
-116:		call Student@__init__;
-117:		main@s1 = __t20;
-118:		push_param main@s1;
-119:		call Student@welcome;
-120:		push_param 16;
-121:		call allocmem;
-122:		__t21 = #retval#;
-123:		push_param __t21;
-124:		push_param "John";
-125:		push_param "Doe";
-126:		call Person2@__init__;
-127:		main@p2 = __t21;
-128:		push_param main@p2;
-129:		call Person2@printname;
-130:		__t22 = main@p2 + 0;
-131:		__t23 = ( __t22 ) + 4;
-132:		*( __t23 ) = 40;
-133:		__t24 = main@p2 + 0;
-134:		push_param *( __t24 );
-135:		call Person@myfunc;
-136:		push_param main@p2;
-137:		call Person2@getage;
-138:		__t25 = #retval#;
-139:		main@x = __t25;
-140:end_func
-
-141:program start: 
-142:		call main;
-143:
+24:	program start: 
+25:			stack_pointer +xxx
+26:			call main, 0;
+27:			stack_pointer -xxx
+28:

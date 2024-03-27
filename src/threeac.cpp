@@ -44,7 +44,7 @@ void quad::make_code_from_conditional(){
 
 void quad::make_code_from_func_call() {
     made_from = FUNC_CALL;
-    code = "\t\t" + op + " " + arg1 + ";\n";
+    code = "\t\t" + op + " " + arg1 + ", " + arg2 + ";\n";
 }
 
 void quad::make_code_from_goto() {
@@ -78,12 +78,12 @@ void quad::make_code_end_func() {
 
 void quad::make_code_from_return() {
     made_from = RETURN;
-    code = "\t\t" + op + " " + arg1 + ";\n"; // op is "return"
+    code = "\t\t" + op + ";\n"; // op is "return"
 }
 
 void quad::make_code_shift_pointer() {
     made_from = SHIFT_POINTER;
-    code = "\t\tshift_pointer " + arg1 + "\n";
+    code = "\t\tstack_pointer " + arg1 + "xxx\n";
 }
 
 void quad::make_code_pop_param() {

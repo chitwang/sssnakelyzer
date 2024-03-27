@@ -432,7 +432,7 @@ string check_self_decl_before_use(string name, node *current_node) {
     }
 }
 
-string check_constructor(string class_name, vector<string> actual_params) {   
+string check_constructor(string class_name, vector<string> actual_params, node *curr_node) {   
     symbol_table_class *cl_tb = global_table -> look_up_class(class_name);
     if(!cl_tb) {
         cout << "Class " << class_name << " at line " << yylineno << " doesn't exist\n";
@@ -451,6 +451,7 @@ string check_constructor(string class_name, vector<string> actual_params) {
     for(int i = 1; i < constr->params.size(); i++) {
         is_compatible(constr->params[i]->type, actual_params[i - 1]);
     }
+    curr_node->sym_tab_func = constr;
     return cl_tb -> name;
 }
 
@@ -485,20 +486,26 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
                 q0.make_code_from_param();
                 current_node->ta_codes.push_back(q0);    
                 string temp = get_new_temp();
-                quad q("", "allocmem", "call", "");
+                quad q("", "+", "", "");
+                q.make_code_shift_pointer();
+                current_node->ta_codes.push_back(q);  
+                q = quad("", "allocmem", "call", "1");
                 q.make_code_from_func_call();
+                current_node->ta_codes.push_back(q);  
+                q = quad("", "-", "", "");
+                q.make_code_shift_pointer();
                 current_node->ta_codes.push_back(q);  
                 // quad q(all_nodes[$$]->var, "allocmem", "=", "");
                 // q.make_code_from_assignment();
                 // all_nodes[$$]->ta_codes.push_back(q);
-                quad q1(temp, "#retval#", "=", "");
+                quad q1(temp, "pop_param", "=", "");
                 q1.make_code_from_assignment();
                 current_node->ta_codes.push_back(q1);
 
                 quad q2("", temp , "push_param", "");
                 q2.make_code_from_param();
                 current_node->ta_codes.push_back(q2);
-                return check_constructor(typeLeft, actual_params); 
+                return check_constructor(typeLeft, actual_params, leftnode); 
             }
             else {
                 cout<<"Not a func or class constructor\n";
@@ -516,7 +523,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
         int flag = 0;
         symbol_table_func *func_table = leftnode -> sym_tab_func;
         // cout << "DEBUG "<<leftnode->var<<endl;
-        if(func_table -> name == "print" || func_table -> name == "len" || func_table -> name == "range"){
+        if(func_table -> name == "print" || func_table -> name == "len" || func_table -> name == "range") {
             symbol_table_func *f = check_predefined_functions(func_table -> name, actual_params);
             leftnode->var = f->mangled_name;
             return f->return_type;
@@ -602,7 +609,9 @@ start_symbol: file_input {node_attr = {"start_symbol"};  node_numbers = {$1}; in
     string temp1 = get_new_temp();
     q.code = "\t\t" + temp1 + " = *( " + temp + " );\n";
     all_nodes[$$]->ta_codes.push_back(q);
-    q.code = "\t\treturn " + temp1 + ";\n";
+    q.code = "\t\tpush " + temp1 + ";\n";
+    all_nodes[$$]->ta_codes.push_back(q);
+    q.code = "\t\treturn;\n";
     all_nodes[$$]->ta_codes.push_back(q);
     q.make_code_end_func();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -984,18 +993,10 @@ continue_stmt: KEY_CONTINUE {node_attr = {"continue", "continue_stmt"}; node_num
 return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     check_return_type(all_nodes[$2]->datatype);
-    // quad q1("", "", "", "");
-    // q1.code = "\t\tmove48 -56(rbp) regs\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tmove8 rbp rsp\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tmove8 -8(rbp) rbp\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tmove8 RRE -8(rsp)\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tsub rsp, $8\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    quad q("", all_nodes[$2]->var, "return", "");
+    quad q("", all_nodes[$2]->var, "push", "");
+    q.make_code_from_param();
+    all_nodes[$$]->ta_codes.push_back(q);
+    q = quad("", "", "return", "");
     q.make_code_from_return();
     all_nodes[$$]->append_tac(all_nodes[$2]);
     all_nodes[$$]->ta_codes.push_back(q);
@@ -1003,17 +1004,6 @@ return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_number
 | KEY_RETURN {node_attr = {"return", "return_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     check_return_type("None");
-    // quad q1("", "", "", "");
-    // q1.code = "\t\tmove48 -56(rbp) regs\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tmove8 rbp rsp\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tmove8 -8(rbp) rbp\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tmove8 RRE -8(rsp)\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tsub rsp, $8\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
     quad q("", "", "return", "");
     q.make_code_from_return();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -1388,12 +1378,17 @@ comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node()
         q = quad("", all_nodes[$3]->var, "push_param", "");
         q.make_code_from_param();
         all_nodes[$$]->ta_codes.push_back(q);
-    
-        q = quad("", "strcmp", "call", "");
+        q = quad("", "+", "", "");
+        q.make_code_shift_pointer();
+        all_nodes[$$]->ta_codes.push_back(q);  
+        q = quad("", "strcmp", "call", "2");
         q.make_code_from_func_call();
         all_nodes[$$]->ta_codes.push_back(q);
+        q = quad("", "-", "", "");
+        q.make_code_shift_pointer();
+        all_nodes[$$]->ta_codes.push_back(q);  
         string temp = get_new_temp();
-        q = quad(temp, "#retval#", "=", "");
+        q = quad(temp, "pop_param", "=", "");
         q.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q);
         all_nodes[$$]->var = get_new_temp();
@@ -1593,12 +1588,22 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         q.make_code_from_param();
         all_nodes[$$]->ta_codes.push_back(q);
     }
-    quad q("", all_nodes[$1]->var, "call", "");
+    int num_params = 0;
+    if(all_nodes[$1]->sym_tab_func) {
+        num_params = all_nodes[$1]->sym_tab_func->params.size();
+    }
+    quad q("", "+", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    q = quad("", all_nodes[$1]->var, "call", to_string(num_params));
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
+    q = quad("", "-", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
     if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
         string temp = get_new_temp();
-        quad q1(temp, "#retval#", "=", "");
+        quad q1(temp, "pop_param", "=", "");
         q1.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q1);
         all_nodes[$$]->var = temp;
@@ -1614,12 +1619,22 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->append_tac(all_nodes[$1]); // chitwan -- ye missing tha
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
-    quad q("", all_nodes[$1]->var, "call", "");
+    int num_params = 0;
+    if(all_nodes[$1]->sym_tab_func) {
+        num_params = all_nodes[$1]->sym_tab_func->params.size();
+    }
+    quad q("", "+", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    q = quad("", all_nodes[$1]->var, "call", to_string(num_params));
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
+    q = quad("", "-", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
     if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)) {
         string temp = get_new_temp();
-        quad q1(temp, "#retval#", "=", "");
+        quad q1(temp, "pop_param", "=", "");
         q1.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q1);
         all_nodes[$$]->var = temp;
@@ -1703,13 +1718,23 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         q.make_code_from_param();
         all_nodes[$$]->ta_codes.push_back(q);
     }
-    quad q("", all_nodes[$1]->var, "call", "");
+    int num_params = 0;
+    if(all_nodes[$1]->sym_tab_func) {
+        num_params = all_nodes[$1]->sym_tab_func->params.size();
+    }
+    quad q("", "+", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    q = quad("", all_nodes[$1]->var, "call", to_string(num_params));
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
-    
+    q = quad("", "-", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
+
     if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
         string temp = get_new_temp();
-        quad q1(temp, "#retval#", "=", "");
+        quad q1(temp, "pop_param", "=", "");
         q1.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q1);
         all_nodes[$$]->var = temp;
@@ -1723,12 +1748,22 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->append_tac(all_nodes[$1]); // chitwan -- ye missing tha
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
-    quad q("", all_nodes[$1]->var, "call", "");
+    int num_params = 0;
+    if(all_nodes[$1]->sym_tab_func) {
+        num_params = all_nodes[$1]->sym_tab_func->params.size();
+    }
+    quad q("", "+", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    q = quad("", all_nodes[$1]->var, "call", to_string(num_params));
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
+    q = quad("", "-", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
     if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
         string temp = get_new_temp();
-        quad q1(temp, "#retval#", "=", "");
+        quad q1(temp, "pop_param", "=", "");
         q1.make_code_from_assignment();
         all_nodes[$$]->ta_codes.push_back(q1);
         all_nodes[$$]->var = temp;
@@ -1821,13 +1856,19 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     quad q0("", to_string(all_nodes[$2]->var_list.size() * size + 8) , "push_param", "");
     q0.make_code_from_param();
     all_nodes[$$]->ta_codes.push_back(q0);  
-    quad q("", "allocmem", "call", "");
+    quad q("", "+", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    q = quad("", "allocmem", "call", "1");
     q.make_code_from_func_call();
+    all_nodes[$$]->ta_codes.push_back(q);
+    q = quad("", "-", "", "");
+    q.make_code_shift_pointer(); 
     all_nodes[$$]->ta_codes.push_back(q);  
     // quad q(all_nodes[$$]->var, "allocmem", "=", "");
     // q.make_code_from_assignment();
     // all_nodes[$$]->ta_codes.push_back(q);
-    quad q2(all_nodes[$$]->var, "#retval#", "=", "");
+    quad q2(all_nodes[$$]->var, "pop_param", "=", "");
     q2.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q2);
     
@@ -1846,13 +1887,19 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     quad q0("", "8", "push_param", "");
     q0.make_code_from_param();
     all_nodes[$$]->ta_codes.push_back(q0);    
-    quad q("", "allocmem", "call", "");
+    quad q("", "+", "", "");
+    q.make_code_shift_pointer();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    q = quad("", "allocmem", "call", "1");
     q.make_code_from_func_call();
+    all_nodes[$$]->ta_codes.push_back(q);  
+    q = quad("", "-", "", "");
+    q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
     // quad q(all_nodes[$$]->var, "allocmem", "=", "");
     // q.make_code_from_assignment();
     // all_nodes[$$]->ta_codes.push_back(q);
-    quad q2(all_nodes[$$]->var, "#retval#", "=", "");
+    quad q2(all_nodes[$$]->var, "pop_param", "=", "");
     q2.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q2);
     quad q1(string("*( " + all_nodes[$$]->var + " )"), "0", "=", "");

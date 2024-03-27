@@ -313,8 +313,10 @@ def main():
 #   b.printa(4)
 #   e.d.b = 1
 #   b < c
-  obj: A = (A)(1, True)
-  obj.printa(4)
+#   obj: A = (A)(1, True)
+#   obj.printa(4)
+    obj:D = D(1, True, 0)
+    obj.printa(2)
 #foo() = 4
 # B = 3 
 
