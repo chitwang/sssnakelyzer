@@ -24,9 +24,6 @@ public:
     st_entry(string name, int line_no, int semicolon_no, string type = "int");
     st_entry(string name, st_entry (&other));
     void update_type(string type);
-    // bool modifier_bv[10] = {0}; 
-    // int stmt_no;
-    // void update_modifiers(vector<st_entry*> modifiers);
 };
 
 class symbol_table {
@@ -37,12 +34,11 @@ public:
     vector <symbol_table *> children_st;
     int sub_scopes = 0;
     int scope_start_line_no = 0;
-    char symbol_table_category = 'O';     // GLOBAL : G || CLASS : C || METHOD : M || BLOCK : B || OTHER : O
+    char symbol_table_category = 'O';     // GLOBAL : G || CLASS : C || METHOD : M
     symbol_table();
     symbol_table(string name);
     void add_scope(symbol_table* st);
     void add_entry(st_entry* new_entry);
-    void delete_entry(string name);
     st_entry* look_up(string name);
     st_entry* look_up_local(string name);
     void make_csv(string filename = "symbol_table.csv");
@@ -60,8 +56,6 @@ public:
     bool operator == (const symbol_table_func& other);
     void make_csv(string filename);
     int get_func_local_size();
-    // bool modifier_bv[10] = {0};
-    // void update_modifiers(vector<st_entry*> modifiers);
 };
 
 class symbol_table_class : public symbol_table {
@@ -76,9 +70,6 @@ public:
     symbol_table_func* look_up_function_in_class_hierarchy(string &name);
     st_entry* look_up_attribute_in_class_hierarchy(string &name);
     void make_csv(string filename);
-    // string check_attribute_in_class(string &name, node * current_node);
-    // bool modifier_bv[10] = {0};
-    // void update_modifiers(vector<st_entry*> modifiers);
 };
 
 class symbol_table_global : public symbol_table {

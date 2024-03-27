@@ -5,10 +5,13 @@ using namespace std;
 #define YYDEBUG 1
 
 extern int yylineno;
+extern int in_loop;
+
 vector <string> nodes;
 vector <vector <int>> adj;
 int node_count = 0;
 int ins_count = 0;
+int temp_count = 0;
 vector <string> node_attr;
 vector <int> node_numbers;
 bool our_debug = false;
@@ -18,7 +21,6 @@ vector <quad> all_quads;
 
 symbol_table *current_table;
 symbol_table *temp_table;
-int temp_count = 0;
 
 void debug_insert() {
     cout << "PRODUCTION:\t";
@@ -325,16 +327,32 @@ void is_compatible(string type1, string type2 = "bool", bool stri = false) {
     return;
 }
 
-void break_continue(int n1, int n2) {
+void for_break_continue(int n1, int n2) {
     for(int i = 0; i < all_nodes[n1]->ta_codes.size(); i++) {
         auto (&tac) = all_nodes[n1]->ta_codes[i];
         if(tac.code == "\t\tgoto CONTINUE;\n"){
-            int rel_jump = (i + all_nodes[n2] -> ta_codes.size());
+            int rel_jump = all_nodes[n1] -> ta_codes.size() - i;
+            tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+            tac.make_code_from_goto();
+        }
+        else if(tac.code == "\t\tgoto BREAK;\n") {
+            int rel_jump = all_nodes[n1] -> ta_codes.size() - i + 2;
+            tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
+            tac.make_code_from_goto();
+        }
+    }
+}
+
+void while_break_continue(int n1, int n2) {
+    for(int i = 0; i < all_nodes[n1]->ta_codes.size(); i++) {
+        auto (&tac) = all_nodes[n1]->ta_codes[i];
+        if(tac.code == "\t\tgoto CONTINUE;\n"){
+            int rel_jump = i + all_nodes[n2] -> ta_codes.size();
             tac = quad("", "J-" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
             tac.make_code_from_goto();
         }
         else if(tac.code == "\t\tgoto BREAK;\n") {
-            int rel_jump = (all_nodes[n1] -> ta_codes.size() - i) + 1;
+            int rel_jump = all_nodes[n1] -> ta_codes.size() - i + 1;
             tac = quad("", "J+" + to_string(rel_jump), "goto", "");     // res, arg1, op, arg2
             tac.make_code_from_goto();
         }
@@ -544,7 +562,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
 }
 
 void check_return_type(string type1) {
-    if(current_table -> symbol_table_category != 'M'){
+    if(current_table -> symbol_table_category != 'M') {
         cout << "Return statement not in method at line " << yylineno << endl;
         exit(1);
     }
@@ -580,7 +598,7 @@ void yyerror(const char*);
 
 %}
 
-%define parse.error verbose
+%define parse.error detailed
 
 %union {
     char* strval;
@@ -977,6 +995,10 @@ flow_stmt: break_stmt {node_attr = {"flow_stmt"}; node_numbers = {$1}; insert_no
 }
 
 break_stmt: KEY_BREAK {node_attr = {"break", "break_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2; 
+    if(in_loop <= 0) {
+        cout << "Use of break statement outside of for or while loop on line " << yylineno << endl;
+        exit(1);
+    }
     quad q("", "goto", "BREAK", "");
     q.code = "\t\tgoto BREAK;\n";
     q.made_from = quad::GOTO;
@@ -984,6 +1006,10 @@ break_stmt: KEY_BREAK {node_attr = {"break", "break_stmt"}; node_numbers = {node
 }
 
 continue_stmt: KEY_CONTINUE {node_attr = {"continue", "continue_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
+    if(in_loop <= 0) {
+        cout << "Use of continue statement outside of for or while loop on line " << yylineno << endl;
+        exit(1);
+    }
     quad q("", "goto", "CONTINUE", "");
     q.code = "\t\tgoto CONTINUE;\n";
     q.made_from = quad::GOTO;
@@ -1197,13 +1223,14 @@ while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite {node_attr = {"while",":"
     quad q("", arg1, op, arg2);
     q.make_code_from_conditional();
     all_nodes[$$] -> ta_codes.push_back(q);
-    break_continue($4, $$);
+    while_break_continue($4, $$);
     all_nodes[$$] -> append_tac(all_nodes[$4]);
     op = "goto";
     arg1 = "J-" + to_string(stat_size + exp_size + 1);
     quad q2("", arg1, op, "");
     q2.make_code_from_goto();
     all_nodes[$$] -> ta_codes.push_back(q2);
+    in_loop--;
 }
 
 for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"for","in", "range", "(", ")", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, node_count + 2, node_count + 3, $6, node_count + 4 ,node_count + 5, $9}; insert_node(); $$ = node_count + 6;
@@ -1228,7 +1255,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     quad q2("", arg1, op, arg2);
     q2.make_code_from_conditional();
     all_nodes[$$] -> ta_codes.push_back(q2);
-    break_continue($9, $$);
+    for_break_continue($9, $$);
     // quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
     // q4.make_code_from_binary();
     // all_nodes[$$]->ta_codes.push_back(q4);
@@ -1242,6 +1269,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     quad q3("", arg1, op, "");
     q3.make_code_from_goto();
     all_nodes[$$] -> ta_codes.push_back(q3);
+    in_loop--;
 }
 
 | KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_COMMA test DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"for","in", "range", "(" , ",", ")", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, node_count + 2, node_count + 3, $6, node_count+4, $8, node_count + 5, node_count + 6, $11}; insert_node(); $$ = node_count + 7;
@@ -1267,7 +1295,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     quad q2("", arg1, op, arg2);
     q2.make_code_from_conditional();
     all_nodes[$$]->ta_codes.push_back(q2);
-    break_continue($11, $$);
+    for_break_continue($11, $$);
     /* shrey - Fixed order of code. Made it same as above */
     op = "goto";
     arg1 = "J-" + to_string(all_nodes[$11]->ta_codes.size() + 3);   // shrey -- yha size+4 ki jgh 3 hoga as per examples check this once by running test.py
@@ -1278,6 +1306,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     quad q3("", arg1, op, "");
     q3.make_code_from_goto();
     all_nodes[$$] -> ta_codes.push_back(q3);
+    in_loop--;
 }
 
 stmt_plus : blocks {$$ = $1; /*all_nodes[$$]->append_tac(all_nodes[$1]);*/}
@@ -2140,18 +2169,11 @@ type_or_name: types {
 %%
 
 int main(int argc, char* argv[]) {
-    /* global_table = new symbol_table_global(); */
     current_table = global_table;
     temp_table = NULL;
-    /* int yydebug = 0; */
     bool help_flag = false;
     string input_file = "";
     string output_file = "3AC.txt";
-    string op_color = "red";
-    string delim_color = "forestgreen";
-    string key_color = "blue";
-    string name_color = "cyan3";
-    string default_color = "black";
 
     for(int i = 1; i < argc; i++) {
         string s = argv[i];
@@ -2178,15 +2200,6 @@ int main(int argc, char* argv[]) {
         else if(s.substr(0, 9) == "--output=") {
             output_file = s.substr(9);
         }
-        else if(s.substr(0, 10) == "--colorop=") {
-            op_color = s.substr(10);
-        }
-        else if(s.substr(0, 11) == "--colorkey=") {
-            key_color = s.substr(11);
-        } 
-        else if(s.substr(0, 13) == "--colordelim=") {
-            delim_color = s.substr(13);
-        }
         else {
             cerr << "Wrong flag used!!" << endl;
             cout << endl;
@@ -2206,15 +2219,13 @@ int main(int argc, char* argv[]) {
 
     if(input_file != "") {
         freopen(input_file.c_str(), "r", stdin);
-    } 
+    }
 
     global_table->add_Print();
     global_table->add_Range();
     global_table->add_Len();
     yyparse();
     root_node = all_nodes.back();
-    root_node->clean_tree();
-    /* root_node -> make_dot(); */
     global_table->make_csv_wrapper("st.csv");
     
     ins_count = 1; 
@@ -2222,6 +2233,12 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void yyerror (char const *s) {
+/* void yyerror (char const *s) {
     fprintf (stderr, "%s\nOn line %d\n", s, yylineno);
-}
+} */
+void yyerror(const char* s)  {
+    cerr << "************************ ERROR ********************************" << endl;
+    cerr << "Error at line number: " << yylineno << endl;
+    cerr << "Error: " << s << endl;
+    cerr << "***************************************************************" << endl;
+};

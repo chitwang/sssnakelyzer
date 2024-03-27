@@ -1,8 +1,8 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t2 = len@list;
-4:			__t3 = *( __t2 );
-5:			push __t3
+3:			__t6 = len@list;
+4:			__t7 = *( __t6 );
+5:			push __t7;
 6:			return;
 7:	end_func
 
@@ -11,7 +11,7 @@
 10:			__t0 = 5 * foo@x;
 11:			foo@y = __t0;
 12:			push foo@y;
-13:			return ;
+13:			return;
 14:	end_func
 
 15:	begin_func main
@@ -28,4 +28,35 @@
 25:			stack_pointer +xxx
 26:			call main, 0;
 27:			stack_pointer -xxx
-28:
+28:			i = 0;
+29:			i = 0;
+30:			__t5 = i < 1;
+31:			if_false __t5 goto 59;
+32:			__t2 = i > 0;
+33:			if_false __t2 goto 52;
+34:			i = 2;
+35:			__t4 = i < 3;
+36:			if_false __t4 goto 52;
+37:			jahil = 0;
+38:			__t3 = jahil < 3;
+39:			if_false __t3 goto 46;
+40:			goto 46;
+41:			x = 0;
+42:			goto 38;
+43:			checking = 6;
+44:			jahil = jahil + 1;
+45:			goto 38;
+46:			goto 50;
+47:			breakingbad = "dsng";
+48:			goto 52;
+49:			string = "staongasjdnasjnd";
+50:			i = i + 1;
+51:			goto 35;
+52:			l = 9;
+53:			goto 57;
+54:			goto 59;
+55:			a = 0;
+56:			b = True;
+57:			i = i + 1;
+58:			goto 30;
+59:

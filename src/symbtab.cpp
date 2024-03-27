@@ -83,18 +83,6 @@ void symbol_table::add_entry(st_entry* new_entry) {
     new_entry -> table = this;
 }
 
-void symbol_table::delete_entry(string name) {
-    for(auto ite = entries.begin(); ite != entries.end(); ite++) {
-        if((*ite) -> name == name) {
-            entries.erase(ite);
-            return;
-        }
-    }
-
-    cout<<"There is no entry with variable name " << name << " in scope " << scope << ".\n";
-    cout<<"Returning without deleting...\n";
-}
-
 st_entry* symbol_table::look_up_local(string name) {
     for(auto &en: this->entries) {
         if(en->name == name) {

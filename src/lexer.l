@@ -11,6 +11,7 @@
 	string text_block;
     stack<int> indentation_checking;
     int spaceCount = 0;
+    int in_loop = 0;
     void err (const char* s) {
         if(s == NULL) {
             printf("Error in memory allocation");
@@ -267,6 +268,7 @@ COMMENT                         [\t ]*#[^\n]*
 }
 
 "for" {
+    in_loop++;
     yylval.strval = strdup(yytext);
     return KEY_FOR;
 }
@@ -277,6 +279,7 @@ COMMENT                         [\t ]*#[^\n]*
 }
 
 "while" {
+    in_loop++;
     yylval.strval = strdup(yytext);
     return KEY_WHILE;
 }
