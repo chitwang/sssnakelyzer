@@ -10,7 +10,7 @@ struct quad{
     string arg1;
     string arg2;
     string result;
-    string code = "";        // Construct from each node
+    string code = "";  
     int rel_jump = 0, abs_jump = 0, ins_line = 0;
     int made_from = 0;
     enum code_code {

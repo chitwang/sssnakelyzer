@@ -6,7 +6,6 @@
 #include "node.hpp"
 #include "threeac.hpp"
 
-extern int num_scopes;
 extern "C" int yylineno;
 
 extern symbol_table_global *global_table;
@@ -17,8 +16,10 @@ extern vector<node *> all_nodes;
 extern vector<quad> all_quads;
 extern int temp_count;
 
-extern node *root_node;     // contains the root node of the parse tree
+extern node *root_node;
 
 void print_tac(string filename);
+
+
 
 #endif

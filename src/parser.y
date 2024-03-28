@@ -103,13 +103,11 @@ node* adj_to_nodes(string tmp) {
 void insert_node() {
     for(int i = 0; i < node_attr.size(); i++) {
         all_nodes.push_back(adj_to_nodes(node_attr[i]));
-        //adj.push_back(vector<int>());
     }
     if(our_debug) {
         debug_insert();
     }
     for(int i = 0; i < node_numbers.size(); i++) {
-        // adj[node_count + node_attr.size() - 1].push_back(node_numbers[i]);
         all_nodes[node_count + node_attr.size() - 1]->add_child(all_nodes[node_numbers[i]]);
     }
 }
@@ -118,10 +116,7 @@ void print_help() {
     cout << "Usage: ./run.sh --input=<input_file_path> [options]" << endl;
     cout << "The following options can be used" << endl;
     cout << endl;
-    cout << "--output=<output_file_path> \t: Output file specification (default is ast.dot)" << endl;
-    cout << "--colorop=<color> \t\t: Color for operator nodes in the AST" << endl;
-    cout << "--colordelim=<color> \t\t: Color for delimiter nodes in the AST" << endl;
-    cout << "--colorkey=<color> \t\t: Color for keyword nodes in the AST" << endl;
+    cout << "--output=<output_file_path> \t: Output file specification (default is 3AC.txt)" << endl;
     cout << "--help \t\t\t\t: Instruction regarding usage instructions and options" << endl;
     cout << "--verbose1 \t\t\t: Prints our custom debug statements while reducing a production" << endl;
     cout << "--verbose2 \t\t\t: Prints the complete stack trace of the parser execution" << endl;
@@ -183,20 +178,20 @@ void make_new_class_symbtab(string s, string parent = "") {
     if(current_table->symbol_table_category == 'G') {
         symbol_table_class *if_exist = global_table -> look_up_class(s);
         if(if_exist) {
-            cout << "Redeclaration of class in same scope at line " << yylineno << endl;
+            cout << "Redeclaration of class '" << s << "' in same scope at line " << yylineno << endl;
             exit(1);
         }
         ((symbol_table_global *) current_table)->add_entry((symbol_table_class *) temp_table);
     }
     else {
-        cout << "Illegal class definition at line " << yylineno << endl;
+        cout << "Illegal definition of class '" << s << "' at line " << yylineno << endl;
         exit(1);
     }
     
     if(parent != "") {
         symbol_table_class *par = ((symbol_table_global *)current_table) -> look_up_class(parent);
         if(par == NULL) {
-            cout << "Parent class does not exist at line " << yylineno << endl;
+            cout << "Parent class '" << parent << "' is not defined at line " << yylineno << endl;
             exit(1);
         }
         else {
@@ -204,20 +199,20 @@ void make_new_class_symbtab(string s, string parent = "") {
             ((symbol_table_class *)temp_table) -> object_size = par -> object_size;
         }
     }
+    temp_table->scope_start_line_no = yylineno;
     current_table->add_scope(temp_table);
     current_table->children_st.push_back(temp_table);
     current_table = temp_table;
-    // cout<<current_table->symbol_table_category<<endl;
 }
 
 symbol_table_func *check_predefined_functions(string func_name, vector<string> &params) {
     if(func_name == "print") {
         if(params.size() != 1) {
-            cout << "Invalid arguments for print at line " << yylineno << endl;
+            cout << "Invalid arguments for 'print' at line " << yylineno << endl;
             exit(1);
         }
         if(params[0] != "str" && params[0] != "int" && params[0] != "float" && params[0] != "bool") {
-            cout << "Invalid arguments for print at line " << yylineno << endl;
+            cout << "Invalid arguments for 'print' at line " << yylineno << endl;
             exit(1);
         }
         for(int i = 0; i < global_table->functions.size(); i++) {
@@ -227,32 +222,13 @@ symbol_table_func *check_predefined_functions(string func_name, vector<string> &
         }
         return NULL;
     }
-    // else if(func_name == "range"){
-    //     if(params.size() == 1) {
-    //         if(params[0] != "int") {
-    //             cout << "Invalid arguments for range at line " << yylineno << endl;
-    //             exit(1);
-    //         }
-    //     }
-    //     else if(params.size() == 2) {
-    //         if(params[0] != "int" || params[1] != "int") {
-    //             cout << "Invalid arguments for range at line " << yylineno << endl;
-    //             exit(1);
-    //         }
-    //     }    
-    //     else{
-    //         cout << "Invalid arguments for range at line " << yylineno << endl;
-    //         exit(1);
-    //     }
-    //     return "int";
-    // }
     else if(func_name == "len"){
         if(params.size() != 1) {
-            cout << "Invalid arguments for len at line " << yylineno << endl;
+            cout << "Invalid arguments for 'len' at line " << yylineno << endl;
             exit(1);
         }
         if(params[0].length() < 4 || params[0].substr(0,4) != "list") {
-            cout << "Invalid arguments for len at line " << yylineno << endl;
+            cout << "Invalid arguments for 'len' at line " << yylineno << endl;
             exit(1);
         }
         return global_table->look_up_func(func_name);
@@ -265,7 +241,7 @@ symbol_table_func *make_new_func_symbtab(string func_name, vector<st_entry *> &p
     for(int i = 0; i < sz - 1; i++) {
         for(int j = i + 1; j < sz; j++) {
             if(params[i]->name == params[j] -> name) {
-                cout << "Invalid function parameters for function "<<func_name<<endl;
+                cout << "Duplicate argument '" << params[i]->name << "' in definition of function '" << func_name << "' at line " << yylineno << endl;
                 exit(1);
             }
         }
@@ -274,24 +250,26 @@ symbol_table_func *make_new_func_symbtab(string func_name, vector<st_entry *> &p
     if(current_table->symbol_table_category == 'C') {
         symbol_table_func *if_exist = ((symbol_table_class *)current_table) -> look_up_function(func_name);
         if(if_exist) {
-            cout << "Redeclaration of function in same class at line " << yylineno << endl;
+            cout << "Redeclaration of function '" << func_name << "' in same scope at line " << yylineno << endl;
             exit(1);
         }
         temp_table -> mangled_name = current_table -> name + "@" + temp_table -> name;
         ((symbol_table_class *) current_table)->add_func((symbol_table_func *) temp_table);
-    } else if(current_table->symbol_table_category == 'G') {
+    }
+    else if(current_table->symbol_table_category == 'G') {
         symbol_table_func *if_exist = global_table -> look_up_func(func_name);
         if(if_exist) {
-            cout << "Redeclaration of function in global scope at line " << yylineno << endl;
+            cout << "Redeclaration of function '" << func_name << "' in global scope at line " << yylineno << endl;
             exit(1);
         }
         temp_table -> mangled_name = temp_table -> name;
         ((symbol_table_global *) current_table)->add_entry((symbol_table_func *) temp_table);
     }
     else {
-        cout<< "Invalid function declaration at line " << yylineno << endl;
+        cout<< "Invalid declaration of function '" << func_name << "' at line " << yylineno << endl;
         exit(1);
     }
+    temp_table->scope_start_line_no = yylineno;
     current_table->add_scope(temp_table);
     current_table->children_st.push_back(temp_table);
     current_table = temp_table;
@@ -366,18 +344,16 @@ string check_decl_before_use(string name , node *current_node) {
         if(!st_func) {
             symbol_table_class *st_class = global_table -> look_up_class(name);
             if(!st_class) {
-                cout << "Identifier " << name << " at line " << yylineno << " was not declared\n";
+                cout << "Identifier '" << name << "' at line " << yylineno << " was not declared\n";
                 exit(1);
             }
             else {
                 current_node->is_class = true;
-              //  current_node -> is_var = true;
                 current_node->var = st_class -> name;
                 return name;
             }
         }
         else {
-            // cout << name << endl;
             current_node->is_func = true;
             current_node->sym_tab_func = st_func;
             current_node->var = st_func -> mangled_name;
@@ -385,7 +361,6 @@ string check_decl_before_use(string name , node *current_node) {
         }
     }
     else {
-        // cout << "existing entry at line " << yylineno << endl;
         current_node->is_var = true;
         current_node->var = existing_entry->mangled_name;
         current_node->sym_tab_entry = existing_entry;
@@ -394,16 +369,14 @@ string check_decl_before_use(string name , node *current_node) {
 }
 
 string check_attribute_in_class(symbol_table_class* symtab, string &name, node *current_node, string b = "") {
-    // cout<<"variable of left node at "<<yylineno<<"  " << b << endl;
     st_entry* existing_entry = symtab -> look_up_attribute_in_class_hierarchy(name);
     if(!existing_entry) {
         symbol_table_func *function_entry = symtab -> look_up_function_in_class_hierarchy(name);
         if(!function_entry) {
-            cout << "Attribute " << name << " at line " << yylineno << " was not declared\n";
+            cout << "Class '" << symtab->name << "' has no attribute '" << name << "' ( at line " << yylineno << " )\n";
             exit(1);
         }
         else {
-            /* chitwan -- in a call of the form a.foo(), the var for a should be pushed. implicit self*/
             quad q0("", b , "push_param", "");
             q0.make_code_from_param();
             current_node->ta_codes.push_back(q0);
@@ -414,7 +387,6 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
         }
     }
     else {
-        //  chitwan -- resolving no var for object attributes
         string tmp = get_new_temp();
         if(b[0] == '*'){
             b = b.substr(1);
@@ -423,13 +395,9 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
         q.make_code_from_binary();
         current_node->ta_codes.push_back(q);
         current_node->var = "*( " + tmp + " )";
-        /* chitwan */
-        // current_node->var = "*( " + b + " + " + to_string(existing_entry->offset) + " )";
         if(!is_not_class(existing_entry -> type)) {
             current_node -> is_class = true;
         } else {
-            
-            // current_node->var = existing_entry->mangled_name;
             current_node -> sym_tab_entry = existing_entry;
         }
         current_node -> is_var = true;
@@ -445,7 +413,7 @@ string check_self_decl_before_use(string name, node *current_node) {
         return check_attribute_in_class(((symbol_table_class *)current_table), name, current_node, "self");
     }
     else {
-        cout << "Class has no attribute " << name << " at line " << yylineno << endl;
+        cout << "Invalid use of self at line " << yylineno << ". self can only be used within class member functions\n";
         exit(1);
     }
 }
@@ -453,17 +421,17 @@ string check_self_decl_before_use(string name, node *current_node) {
 string check_constructor(string class_name, vector<string> actual_params, node *curr_node) {   
     symbol_table_class *cl_tb = global_table -> look_up_class(class_name);
     if(!cl_tb) {
-        cout << "Class " << class_name << " at line " << yylineno << " doesn't exist\n";
+        cout << "Class '" << class_name << "' at line " << yylineno << " doesn't exist\n";
         exit(1);
     }
     string init = "__init__";
     symbol_table_func *constr = cl_tb -> look_up_function_in_class_hierarchy(init);
     if(!constr)  {
-        cout << "Constructor for class " << class_name << "at line " << yylineno << " doesn't exist\n";
+        cout << "Constructor for class '" << class_name << "' at line " << yylineno << " doesn't exist\n";
         exit(1);
     }
     if(constr -> params.size() != actual_params.size() + 1){
-        cout << "Invalid arguments for constructor of class " << class_name << " at line " << yylineno << endl;
+        cout << "Invalid arguments for constructor of class '" << class_name << "' at line " << yylineno << endl;
         exit(1);
     }
     for(int i = 1; i < constr->params.size(); i++) {
@@ -479,19 +447,19 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
         if(typeLeft.length() >= 4 && typeLeft.substr(0, 4) == "list") 
             return typeLeft.substr(6, typeLeft.length() - 8);
         else {
-            cout << "Item on line " << yylineno << " of type " << typeLeft << " is not subscriptable\n";
+            cout << "Item on line " << yylineno << " of type '" << typeLeft << "' is not subscriptable\n";
             exit(1);
         }
     }
     if(typeRight == "objattribute") {
         if(is_not_class(typeLeft)) {
-            cout << typeLeft << " on line " << yylineno << " is not a class object\n";
+            cout << "'" << typeLeft << "' on line " << yylineno << " is not a class object\n";
             exit(1);
         } 
         string class_name = typeLeft;
         symbol_table_class *if_class = global_table -> look_up_class(class_name);
         if(!if_class) {
-            cout << "Object error \n";
+            cout << "Class '" << class_name << "' at line " << yylineno << " doesn't exist\n";
             exit(1);
         }
         return (check_attribute_in_class(if_class, attribute_name, current_node, leftnode->var));
@@ -513,9 +481,6 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
                 q = quad("", "-", "", "");
                 q.make_code_shift_pointer();
                 current_node->ta_codes.push_back(q);  
-                // quad q(all_nodes[$$]->var, "allocmem", "=", "");
-                // q.make_code_from_assignment();
-                // all_nodes[$$]->ta_codes.push_back(q);
                 quad q1(temp, "pop_param", "=", "");
                 q1.make_code_from_assignment();
                 current_node->ta_codes.push_back(q1);
@@ -526,21 +491,16 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
                 return check_constructor(typeLeft, actual_params, leftnode); 
             }
             else {
-                cout<<"Not a func or class constructor\n";
+                cout << "'" << leftnode->var << "' is not a func or class constructor\n";
                 exit(1);
             }
         }
-        // cout << "IS A FUNC\n";
-        // string func_name = leftnode -> sym_tab_func -> name;
-        // cout << "FUNC NAME: " << func_name << endl;
-        // cout << "LOOK UP DONE\n";
-        // if(!is_func) {
-        //     cout << "FUNC NOT FOUND\n";
-        // }
         
         int flag = 0;
         symbol_table_func *func_table = leftnode -> sym_tab_func;
-        // cout << "DEBUG "<<leftnode->var<<endl;
+        if(our_debug) {
+            cout << "DEBUG " << leftnode->var << endl;
+        }
         if(func_table -> name == "print" || func_table -> name == "len" || func_table -> name == "range") {
             symbol_table_func *f = check_predefined_functions(func_table -> name, actual_params);
             leftnode->var = f->mangled_name;
@@ -550,7 +510,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
             flag = 1;
         }
         if(actual_params.size() + flag != (func_table -> params).size()) {
-            cout << "Invalid params for function call" << func_table->name << " at line " << yylineno << endl;
+            cout << "Invalid parameters for function call '" << func_table->name << "' at line " << yylineno << endl;
             exit(1);
         }
         for(int i = 0; i < actual_params.size(); i++) {
@@ -588,9 +548,16 @@ void make_unary_threeac(int n1, string op, int n2) {
     all_nodes[n2]->var = res;
     quad q(res, all_nodes[n1]->var, op, "");
     q.make_code_from_unary();
-    // cout<<q.code<<endl;
     all_nodes[n2]->ta_codes.push_back(q);
     all_nodes[n2]->append_tac(all_nodes[n1]);
+}
+
+void set_var_class_func(int n1, int n2) {
+    all_nodes[n1]->is_var = all_nodes[n2]->is_var;
+    all_nodes[n1]->is_class = all_nodes[n2]->is_class;
+    all_nodes[n1]->is_func = all_nodes[n2]->is_func;
+    if(all_nodes[n1]->is_func) all_nodes[n1]->sym_tab_func = all_nodes[n2]->sym_tab_func;
+    return ;
 }
 
 extern int yylex(void);
@@ -598,7 +565,7 @@ void yyerror(const char*);
 
 %}
 
-%define parse.error detailed
+%define parse.error verbose
 
 %union {
     char* strval;
@@ -644,11 +611,10 @@ file_input: file_plus {node_attr = {"file_input"};  node_numbers = {$1}; insert_
 } 
 | newline_plus {node_attr = {"file_input"}; node_numbers = {}; insert_node();  $$ = node_count; node_count += 1;}
 
-file_plus: file_plus blocks {$$ = $1; /* adj[$$].push_back($2);*/  all_nodes[$$]->add_child(all_nodes[$2]);
-    // all_nodes[$$]->append_tac(all_nodes[$1]);
+file_plus: file_plus blocks {$$ = $1;all_nodes[$$]->add_child(all_nodes[$2]);
     all_nodes[$$]->append_tac(all_nodes[$2]); 
 } 
-         | blocks {$$ = $1; /*all_nodes[$$]->append_tac(all_nodes[$1]);*/}
+         | blocks {$$ = $1;}
 
 newline_plus: newline_plus NEWLINE {}
             | NEWLINE {}
@@ -662,17 +628,7 @@ funcdef: func_header func_body_suite {node_attr = {"funcdef"}; node_numbers = {$
     }
     current_table->entries = temp;
     current_table = current_table->parent_st;
-    //int frame_size = 56;
-    // quad q1("", "", "", "");
-    // q1.code = "\t\tmove8 rbp -8(rsp)\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\trbp = rsp\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
     all_nodes[$$]->append_tac(all_nodes[$1]);
-    // q1.code = "\t\tsub rsp, $" + to_string(frame_size) + "\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
-    // q1.code = "\t\tmove48 regs -56(rbp)\n";
-    // all_nodes[$$]->ta_codes.push_back(q1);
     all_nodes[$$]->append_tac(all_nodes[$2]);
     quad q("", "", "", "");
     q.make_code_end_func();
@@ -760,14 +716,13 @@ tfpdef: NAME DELIM_COLON type_or_name {
     insert_node();
     $$ = node_count + 2;
     if(string(strdup($1)) == "self") {
-        cout<<"Invalid type hint for self at "<<yylineno<<endl;
+        cout << "Invalid type hint for self at " << yylineno << endl;
         exit(1);
     }
     st_entry *new_entry = new st_entry(strdup($1), yylineno, yylineno, all_nodes[$3]->datatype);
     all_nodes[$$]->entry_list = {new_entry};
     all_nodes[node_count]->datatype = all_nodes[$3]->datatype;
-    //all_nodes[node_count]->type_checked = true;
-    if(all_nodes[$3]->datatype.length() >= 4 && all_nodes[$3]->datatype.substr(0,4) == "list"){
+    if(all_nodes[$3]->datatype.length() >= 4 && all_nodes[$3]->datatype.substr(0,4) == "list") {
         all_nodes[$$]->entry_list[0]->dimensions = 1;
     }
     node_count += 3;
@@ -778,7 +733,7 @@ tfpdef: NAME DELIM_COLON type_or_name {
     insert_node();
     $$ = node_count + 1;
     if(string(strdup($1)) != "self" || current_table -> symbol_table_category != 'C') {
-        cout << "Parameter not statically typed at line " << yylineno << endl;
+        cout << "Parameter '" << strdup($1) << "' type not given at line " << yylineno << endl;
         exit(1);
     }
     st_entry *new_entry = new st_entry(strdup($1), yylineno, yylineno, current_table->name);
@@ -845,7 +800,6 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
     }
     
     op = op.substr(0, op.size() - 1);
-    /* shrey - all_nodes[$3] -> var doesn't exist changed to all_nodes[$3]->var_list[0] */
     quad q(all_nodes[$1]->var, all_nodes[$1]->var, op, all_nodes[$3]->var_list[0]);
     q.make_code_from_binary();
     all_nodes[$$]->append_tac(all_nodes[$1]);
@@ -875,27 +829,12 @@ type_declaration: NAME DELIM_COLON type_or_name {
     $$ = node_count + 2;
     st_entry *entry = current_table -> look_up_local(strdup($1));
     if(entry) {
-        cout << strdup($1) << " already declared at line" << entry->line_no << endl;
+        cout << "'" << strdup($1) << "' already declared at line" << entry->line_no << endl;
         exit(1);
     }
-    
     if(current_table->symbol_table_category == 'M') {
-        // if(current_table->parent_st->symbol_table_category == 'C') {
-        //     symbol_table_func* fnc = ((symbol_table_class *)(current_table->parent_st))->look_up_function_in_class_hierarchy(strdup($1));
-        //     if(fnc) {
-        //         cout << strdup($1) << " already declared as function at line" << fnc->scope_start_line_no << endl;
-        //         exit(1);
-        //     }
-        // }
-        // else {
-        //     symbol_table_func* fnc =  global_table->look_up_func(strdup($1));
-        //     symbol_table_class* cl =  global_table->look_up_class(strdup($1));
-        //     if(func || class) {
-        //         cout << strdup($1) << " already declared as " << (func ? "function" : "") << (class ? "class" : "") << endl;
-        //     }
-        // }
         if(current_table->name == strdup($1)) {
-            cout << "Illegal declaration of " << strdup($1) << " at line " << yylineno << "\n";
+            cout << "Illegal declaration of '" << strdup($1) << "' at line " << yylineno << "\n";
         }
     }
     else if(current_table->symbol_table_category == 'G') {
@@ -903,7 +842,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
         symbol_table_func* fnc =  global_table->look_up_func(var_name);
         symbol_table_class* cl =  global_table->look_up_class(var_name);
         if(fnc || cl) { 
-            cout << strdup($1) << " already declared as " << (fnc ? "function" : "") << (cl ? "class" : "") << endl;
+            cout << "'" << strdup($1) << "' already declared as " << (fnc ? "function" : "") << (cl ? "class" : "") << endl;
             exit(1);
         }
     }
@@ -923,6 +862,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     current_table -> add_entry(new_entry);
     node_count += 3;
     all_nodes[$$]->datatype = all_nodes[$3]->datatype;
+    
     /* shrey - Declaration of variable is done by mangled name rather than only lexeme */
     // all_nodes[$$] -> var = strdup($1);
     all_nodes[$$] -> var = new_entry -> mangled_name;
@@ -937,14 +877,14 @@ type_declaration: NAME DELIM_COLON type_or_name {
     node_attr = {"self.", string("NAME ( ")+ strdup($2) + " )", ":", "type_declaration"};
     node_numbers = {node_count, node_count + 1, node_count + 2, $4};
     if(current_table->symbol_table_category != 'M' || !(current_table->parent_st) || current_table->parent_st->symbol_table_category != 'C') {
-        cout << "Invalid Declaration. Identifiers can only have letters, digits or _\n";
+        cout << "Invalid Declaration at line " << yylineno << ". Identifiers can only have letters, digits or _\n";
         exit(1);
     }
     insert_node();
     $$ = node_count + 3;
     st_entry *entry = current_table -> parent_st -> look_up_local(strdup($2));
     if(entry) {
-        cout << strdup($2) << " attribute already declared at line " << entry->line_no << endl;
+        cout << "'" << strdup($2) << "' attribute already declared at line " << entry->line_no << endl;
         exit(1);
     }
     st_entry *new_entry = new st_entry(strdup($2), yylineno, yylineno, all_nodes[$4]->datatype);
@@ -1040,7 +980,7 @@ global_stmt: KEY_GLOBAL names {node_attr = {"global", "global_stmt"}; node_numbe
         for(auto entry : all_nodes[$2]->entry_list){
             st_entry *existing_entry = current_table -> look_up_local(entry -> name);
             if(existing_entry) {
-                cout << entry -> name << " already declared at line " << existing_entry -> line_no << endl;
+                cout << "'" << entry -> name << "' already declared at line " << existing_entry -> line_no << endl;
                 exit(1);
             }
             current_table -> add_entry(entry);
@@ -1048,7 +988,7 @@ global_stmt: KEY_GLOBAL names {node_attr = {"global", "global_stmt"}; node_numbe
         
     }
     else{
-        cout << "stray global statement\n";
+        cout << "Stray global statement at line " << yylineno << "\n";
         exit(1);
     }
 }
@@ -1056,7 +996,7 @@ global_stmt: KEY_GLOBAL names {node_attr = {"global", "global_stmt"}; node_numbe
 names: NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "names"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; 
     st_entry *entry = global_table -> look_up_local(strdup($1));
     if(!entry) {
-        cout << strdup($1) << " not a global variable at line number " << yylineno << endl;
+        cout << "'" << strdup($1) << "' not a global variable ( at line number " << yylineno << " )\n";
         exit(1);
     }
     all_nodes[$$]->entry_list = {entry};
@@ -1066,7 +1006,7 @@ names: NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "names"}; node_
 | NAME DELIM_COMMA names {node_attr = {"NAME", ",", "names"}; node_numbers = {node_count+0,node_count + 1, $3}; insert_node(); $$ = node_count + 2; 
     st_entry *entry = global_table -> look_up_local(strdup($1));
     if(!entry) {
-        cout << strdup($1) << " not a global variable at line number " << yylineno << endl;
+        cout << "'" << strdup($1) << "' not a global variable at line number " << yylineno << endl;
         exit(1);
     }
     all_nodes[$$]->entry_list = all_nodes[$3]->entry_list;
@@ -1176,8 +1116,6 @@ if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt
     q2.make_code_from_goto();
     all_nodes[$$]->ta_codes.push_back(q2);
     all_nodes[$$]->append_tac(all_nodes[$5]);
-    
-    // all_nodes[$$]->ta_codes.push_back(q2);
     all_nodes[$$]->append_tac(all_nodes[$8]);
 }
 
@@ -1235,8 +1173,12 @@ while_stmt: KEY_WHILE namedexpr_test DELIM_COLON suite {node_attr = {"while",":"
 
 for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"for","in", "range", "(", ")", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, node_count + 2, node_count + 3, $6, node_count + 4 ,node_count + 5, $9}; insert_node(); $$ = node_count + 6;
     node_count += 7;
-    if(all_nodes[$2]->datatype != "int" || all_nodes[$6]->datatype != "int") {
-        cout << "Invalid for loop at line " << yylineno << endl;
+    if(all_nodes[$2]->datatype != "int") {        
+        cout << "for loop ending at line " << yylineno << " has invalid iterator type\n";
+        exit(1);
+    }
+    if(all_nodes[$6]->datatype != "int") {
+        cout << "for loop ending at line " << yylineno << " has invalid argument for range\n";
         exit(1);
     }
     all_nodes[$$]->append_tac(all_nodes[$2]);
@@ -1250,19 +1192,14 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     all_nodes[$$]->ta_codes.push_back(q1);
     string op = "if_false";
     string arg1 = tmp_var;
-    /* shrey - Incorrect jump in for loop, change: size() + 2 -> size() + 3 */
     string arg2 = "J+" + to_string(all_nodes[$9]->ta_codes.size() + 3);
     quad q2("", arg1, op, arg2);
     q2.make_code_from_conditional();
     all_nodes[$$] -> ta_codes.push_back(q2);
     for_break_continue($9, $$);
-    // quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
-    // q4.make_code_from_binary();
-    // all_nodes[$$]->ta_codes.push_back(q4);
     op = "goto";
     arg1 = "J-" + to_string(all_nodes[$9]->ta_codes.size() + 3);   // chitwan -- yha size+4 ki jgh 3 hoga as per examples check this once by running public1.py
     all_nodes[$$] -> append_tac(all_nodes[$9]);
-    /* shrey - Changing position of iterator count increment to after suite */
     quad q4(all_nodes[$2]->var, all_nodes[$2]->var, "+", "1");
     q4.make_code_from_binary();
     all_nodes[$$]->ta_codes.push_back(q4);
@@ -1274,8 +1211,12 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
 
 | KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_COMMA test DELIM_RIGHT_PAREN DELIM_COLON suite {node_attr = {"for","in", "range", "(" , ",", ")", ":","for_stmt"}; node_numbers = {node_count, $2, node_count+1, node_count + 2, node_count + 3, $6, node_count+4, $8, node_count + 5, node_count + 6, $11}; insert_node(); $$ = node_count + 7;
     node_count += 8;
-    if(all_nodes[$2]->datatype != "int" || all_nodes[$6]->datatype != "int" || all_nodes[$8] -> datatype != "int") {
-        cout << "Invalid for loop at line " << yylineno << endl;
+    if(all_nodes[$2]->datatype != "int") { 
+        cout << "for loop ending at line " << yylineno << " has invalid iterator type\n";
+        exit(1);
+    }
+    if(all_nodes[$6]->datatype != "int" || all_nodes[$8]->datatype != "int") {
+        cout << "for loop ending at line " << yylineno << " has invalid argument(s) for range\n";
         exit(1);
     }
     all_nodes[$$]->append_tac(all_nodes[$2]);
@@ -1309,7 +1250,7 @@ for_stmt: KEY_FOR expr KEY_IN KEY_RANGE DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN 
     in_loop--;
 }
 
-stmt_plus : blocks {$$ = $1; /*all_nodes[$$]->append_tac(all_nodes[$1]);*/}
+stmt_plus : blocks {$$ = $1;}
 | stmt_plus blocks {$$ = $1; all_nodes[$$]->add_child(all_nodes[$2]);
     all_nodes[$$]->append_tac(all_nodes[$2]);
 }
@@ -1333,7 +1274,7 @@ namedexpr_test: test {node_attr = {"namedexpr_test"}; node_numbers = {$1}; inser
 test: or_test {node_attr = {"test"}; node_numbers = {$1}; insert_node(); $$ = node_count;
     node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
     
@@ -1342,7 +1283,7 @@ test: or_test {node_attr = {"test"}; node_numbers = {$1}; insert_node(); $$ = no
 or_test: and_test {node_attr = {"or_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; 
     node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
 }
@@ -1351,12 +1292,11 @@ or_test: and_test {node_attr = {"or_test"}; node_numbers = {$1}; insert_node(); 
     is_compatible(all_nodes[$1]->datatype, "bool");
     is_compatible(all_nodes[$3]->datatype, "bool");
     all_nodes[$$]->datatype = "bool";
-    
     make_binary_threeac($1, $3, "||", $$);
 }
 
 and_test: not_test {node_attr = {"and_test"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1; all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
 }
@@ -1378,14 +1318,14 @@ not_test: KEY_NOT not_test {node_attr = {"not", "not_test"}; node_numbers = {nod
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
         
 comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 | expr comp_op comparison {node_attr = {"comparison"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count + 0;
     node_count += 1;
@@ -1443,12 +1383,11 @@ expr: xor_expr {node_attr = {"expr"}; node_numbers = {$1}; insert_node(); $$ = n
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 | expr OP_BITWISE_OR xor_expr {node_attr = {"|", "expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2; 
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
-    
     make_binary_threeac($1, $3, "|", $$);
     
 }
@@ -1457,38 +1396,35 @@ xor_expr: and_expr {node_attr = {"xor_expr"}; node_numbers = {$1}; insert_node()
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 | xor_expr OP_BITWISE_XOR and_expr {node_attr = {"^", "xor_expr"}; node_numbers = {$1, node_count + 0, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
     make_binary_threeac($1, $3, "^", $$);
-    
 }
 
 and_expr: shift_expr {node_attr = {"and_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 | and_expr OP_BITWISE_AND shift_expr {node_attr = {"&", "and_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
     make_binary_threeac($1, $3, "&", $$);
-    
 }
         
 shift_expr: arith_expr {node_attr = {"shift_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 | shift_expr OP_LEFT_SHIFT arith_expr {node_attr = {"<<", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     check_type_int_bool(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
-    
     make_binary_threeac($1, $3, "<<", $$);
 }
 | shift_expr OP_RIGHT_SHIFT arith_expr {node_attr = {">>", "shift_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
@@ -1502,7 +1438,7 @@ arith_expr: term {node_attr = {"arith_expr"}; node_numbers = {$1}; insert_node()
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 | arith_expr OP_ADD term {node_attr = {"+", "arith_expr"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1;
     node_count += 2;
@@ -1522,52 +1458,44 @@ term: factor {node_attr = {"term"}; node_numbers = {$1}; insert_node(); $$ = nod
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 | term OP_MULTIPLY factor {node_attr = {"*", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-    
-
     make_binary_threeac($1, $3, "*", $$);
 }
 | term OP_DIVIDE factor {node_attr = {"/", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-    
     make_binary_threeac($1, $3, "/", $$);
 }
 | term OP_MODULO factor {node_attr = {"%", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-    
     make_binary_threeac($1, $3, "%", $$);
 }
 | term OP_FLOOR_DIVIDE factor {node_attr = {"//", "term"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
     all_nodes[$$]->datatype = "int";
-    
     make_binary_threeac($1, $3, "//", $$);
 }
 
 factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
     if(all_nodes[$2]->datatype != "int" && all_nodes[$2]->datatype != "bool") {
-        cout << "Bitwise not at line " << yylineno << "operand should be an integer\n";
+        cout << "Bitwise not at line " << yylineno << ". Operand should be compatible to integer\n";
         exit(1);
     }
     all_nodes[$$]->datatype = "int";
-    
     make_unary_threeac($2, "~", $$);
 }
 
 | OP_ADD factor {node_attr = {"+", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$2]->datatype, "int");
     all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
-    
     make_unary_threeac($2, "+", $$);
 }
 
 | OP_SUBTRACT factor {node_attr = {"-", "factor"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$2]->datatype, "int");
     all_nodes[$$]->datatype = (all_nodes[$2]->datatype == "float" ? "float":"int");
-    
     make_unary_threeac($2, "-", $$);
 }
 
@@ -1575,20 +1503,19 @@ factor: OP_BITWISE_NOT factor {node_attr = {"~", "factor"}; node_numbers = {node
     all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 
 power: atom_expr {node_attr = {"power"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$] -> datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 
 | atom_expr OP_POWER factor {node_attr = {"**", "power"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     all_nodes[$$]->datatype = check_type_arith(all_nodes[$1]->datatype, all_nodes[$3]->datatype, strdup($2));
-    
     make_binary_threeac($1, $3, "**", $$);
 }
     
@@ -1596,18 +1523,17 @@ atom_expr: atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node();
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 
 | trailored_atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1]->datatype;
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->var = all_nodes[$1]->var;
-    all_nodes[$$]->is_var = all_nodes[$1]->is_var;
+    set_var_class_func($$, $1);
 }
 
 trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
-    // cout << "BEFORE\n";
     all_nodes[$$]->append_tac(all_nodes[$1]);  // chitwan -- missing tha ye
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1], all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
@@ -1672,12 +1598,11 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         string temp = "__t" + to_string(temp_count - 1);
         all_nodes[$$]->var = temp;
     }
-    
 }
 
 | atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     if(all_nodes[$3]->datatype != "int") {
-        cout << "Index at line " << yylineno << " should be an integer\n";
+        cout << "Type mismatch at line " << yylineno << ". List index should be an integer\n";
         exit(1);
     }
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "list_subs");
@@ -1724,10 +1649,6 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     string t = get_new_temp();
     /* shrey - Changing temp for a[i] */
     all_nodes[$$]->var = "*( " + temp1 + " )";
-    // all_nodes[$$]->var = t;
-    // quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
-    // q8.make_code_from_assignment();
-    // all_nodes[$$]->ta_codes.push_back(q8); 
     all_nodes[$$]->is_var = true;
 }
 
@@ -1735,7 +1656,6 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->append_tac(all_nodes[$1]);   // chitwan -- 
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "objattribute", strdup($3));
     node_count += 3;
-
     // done in set trailer type
 }
 | trailored_atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
@@ -1804,7 +1724,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
 }
 | trailored_atom DELIM_LEFT_BRACKET test DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     if(all_nodes[$3]->datatype != "int") {
-        cout << "Index at line " << yylineno << " should be an integer\n";
+        cout << "Type mismatch at line " << yylineno << ". List index should be an integer\n";
         exit(1);
     }
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "list_subs");
@@ -1851,10 +1771,6 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     string t = get_new_temp();
     /* shrey - Changing temp for a[i] */
     all_nodes[$$]->var = "*( " + temp1 + " )";
-    // all_nodes[$$]->var = t;
-    // quad q8(t, "*( " + temp1 + " )", "=", "");  // t = a[4i]
-    // q8.make_code_from_assignment();
-    // all_nodes[$$]->ta_codes.push_back(q8); 
     all_nodes[$$]->is_var = true;
 }
 
@@ -1870,7 +1786,7 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     all_nodes[$$]->datatype = all_nodes[$2]->datatype;
     all_nodes[$$]->var = all_nodes[$2]->var;
     all_nodes[$$]->append_tac(all_nodes[$2]);
-    all_nodes[$$]->is_var = all_nodes[$2]->is_var;
+    set_var_class_func($$, $2);
 }
 
 | DELIM_LEFT_BRACKET testlist DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, $2, node_count+1}; insert_node(); $$ = node_count + 2;
@@ -1894,9 +1810,6 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     q = quad("", "-", "", "");
     q.make_code_shift_pointer(); 
     all_nodes[$$]->ta_codes.push_back(q);  
-    // quad q(all_nodes[$$]->var, "allocmem", "=", "");
-    // q.make_code_from_assignment();
-    // all_nodes[$$]->ta_codes.push_back(q);
     quad q2(all_nodes[$$]->var, "pop_param", "=", "");
     q2.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q2);
@@ -1925,9 +1838,6 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     q = quad("", "-", "", "");
     q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
-    // quad q(all_nodes[$$]->var, "allocmem", "=", "");
-    // q.make_code_from_assignment();
-    // all_nodes[$$]->ta_codes.push_back(q);
     quad q2(all_nodes[$$]->var, "pop_param", "=", "");
     q2.make_code_from_assignment();
     all_nodes[$$]->ta_codes.push_back(q2);
@@ -1996,7 +1906,6 @@ testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$
     all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
     all_nodes[$$] -> var_list = {all_nodes[$1] -> var};
     all_nodes[$$]->append_tac(all_nodes[$1]);
-    // cout << "Var1 "<<all_nodes[$1] -> var <<endl;
 }
 | test DELIM_COMMA testlist {node_attr = {",", "testlist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$1] -> datatype, all_nodes[$3] -> datatype);
@@ -2005,13 +1914,11 @@ testlist: test {node_attr = {"testlist"}; node_numbers = {$1}; insert_node(); $$
     all_nodes[$$]->var_list.insert(all_nodes[$$]->var_list.end(), all_nodes[$3]->var_list.begin(), all_nodes[$3]->var_list.end());
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
-    // cout << "Var2 "<<all_nodes[$1] -> var <<endl;
 }
 | test DELIM_COMMA {node_attr = {",", "testlist"}; node_numbers = {$1, node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$] -> datatype = all_nodes[$1] -> datatype;
     all_nodes[$$]->var_list.push_back(all_nodes[$1]->var);
     all_nodes[$$]->append_tac(all_nodes[$1]);
-    // cout << "Var3 "<<all_nodes[$1] -> var <<endl;
 }
 
 classdef: class_header suite {
@@ -2020,9 +1927,6 @@ classdef: class_header suite {
     insert_node();
     $$ =  node_count;
     node_count += 1;
-    // if(((symbol_table_class *)current_table) -> parent_class) {
-    //     ((symbol_table_class *)current_table) -> object_size += ((symbol_table_class *)current_table) -> parent_class -> object_size;
-    // }
     type_to_size[current_table -> name] = ((symbol_table_class *)current_table) -> object_size;
     type_to_size["list[ " + current_table -> name + " ]"] = 8;
     current_table = current_table->parent_st;
@@ -2079,7 +1983,6 @@ argument: test {node_attr = {"argument"}; node_numbers = {$1}; insert_node(); $$
     all_nodes[$$]->var = all_nodes[$1]->var;
     all_nodes[$$]->append_tac(all_nodes[$1]);
 }
-/* | test DELIM_ASSIGN test {node_attr = {"=", "argument"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;} */
 
 func_body_suite: single_stmt {node_attr = {"func_body_suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->append_tac(all_nodes[$1]);
@@ -2222,7 +2125,6 @@ int main(int argc, char* argv[]) {
     }
 
     global_table->add_Print();
-    global_table->add_Range();
     global_table->add_Len();
     yyparse();
     root_node = all_nodes.back();
@@ -2233,12 +2135,9 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-/* void yyerror (char const *s) {
-    fprintf (stderr, "%s\nOn line %d\n", s, yylineno);
-} */
 void yyerror(const char* s)  {
-    cerr << "************************ ERROR ********************************" << endl;
+    cerr << "\n************************ ERROR ********************************\n" << endl;
     cerr << "Error at line number: " << yylineno << endl;
     cerr << "Error: " << s << endl;
-    cerr << "***************************************************************" << endl;
+    cerr << "\n***************************************************************\n" << endl;
 };

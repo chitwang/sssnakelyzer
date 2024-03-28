@@ -297,6 +297,7 @@ class D(B):
         self.b = b
         self.obj= C(c)
         self.d:A = A(4, True)
+        self.li: list[int] = [1, 2, 3, 4,]
 
 def foo() -> int:
     return 1
@@ -315,11 +316,12 @@ def main():
 #   b < c
 #   obj: A = (A)(1, True)
 #   obj.printa(4)
-    obj:D = D(1, True, 0)
-    obj.printa(2)
-#foo() = 4
-# B = 3 
+    obj:D = (D)(1, True, 0)
+    (obj.printa)(2)
+    (print)("asg asd")
+    (obj).printa(1)
+    a:int = 1
+    b:int = 2
 
 if __name__ == "__main__":
   main()
-  

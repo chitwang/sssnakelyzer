@@ -2,7 +2,6 @@
 #include "../include/global.hpp"
 using namespace std;
 
-extern bool isop(string);
 symbol_table_global *main_table;
 
 node::node(string name, bool terminal, string type, node* parent) {
@@ -10,7 +9,6 @@ node::node(string name, bool terminal, string type, node* parent) {
     this->name = name;
     this->terminal = terminal;
     this->type = type;
-    this->line_no = yylineno;
     this->children = vector<node *> ();
     this->entry_list = vector<st_entry*> ();
 }

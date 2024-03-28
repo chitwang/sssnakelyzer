@@ -2,7 +2,6 @@
 #include "../include/global.hpp"
 using namespace std;
 
-int num_scopes = 0;
 symbol_table_global *global_table = new symbol_table_global();
 
 map<string, int> type_to_size = {
@@ -22,20 +21,11 @@ set<string> primitive_types = {
 
 st_entry::st_entry() {}
 
-st_entry::st_entry(string name, int line_no, int semicolon_no, string type /*= "int"*/) {
+st_entry::st_entry(string name, int line_no, int semicolon_no, string type) {
     this->name = name;
     this->line_no = line_no;
-    // this->stmt_no = semicolon_no;
     this->type = type;
     this->size = type_to_size[type];
-}
-
-st_entry::st_entry(string name, st_entry (&other)) {
-    this->name = name;
-    this->type = other.type;
-    this->line_no = other.line_no;
-    // this->stmt_no = other.stmt_no;
-    this->size = other.size;
 }
 
 void st_entry::update_type(string type) {
@@ -65,9 +55,6 @@ void symbol_table::add_scope(symbol_table* st) {
 }
 
 void symbol_table::add_entry(st_entry* new_entry) {
-    // for(int i = 0; i < new_entry -> dimensions; i++) {
-    //     new_entry -> type += "[]";
-    // }
     new_entry -> update_type(new_entry -> type);
 
     for(auto (&entry) : entries) {
@@ -100,9 +87,7 @@ st_entry* symbol_table::look_up_local(string name) {
     return NULL;
 }
 
-st_entry* symbol_table::look_up(string name) {
-    //! populate the global symbol table entry list with class names so that lookup here is possible !//
-    
+st_entry* symbol_table::look_up(string name) {    
     if(this -> symbol_table_category == 'M') {
         symbol_table_func* tmp = (symbol_table_func *) this;
         for(int idx = 0; idx < tmp -> params.size(); idx++) {
@@ -117,13 +102,6 @@ st_entry* symbol_table::look_up(string name) {
         }
     }
     st_entry *st = global_table->look_up_local(name);
-
-    // if(this -> symbol_table_category == 'C' && ((symbol_table_class *)this) -> parent_class) {
-    //     st = ((symbol_table_class *)this)->parent_class->look_up(name);
-    // }
-    // if(!st && this->parent_st &&) {
-    //     st = this->parent_st->look_up(name);
-    // }
     return st;
 }
 
@@ -131,9 +109,6 @@ symbol_table_func::symbol_table_func(string func_name, vector<st_entry* > (&para
     this->name = func_name;
 
     for(auto &param : params) {
-        // for(int i = 0; i < param -> dimensions; i++) {
-        //     param -> type += "[]";
-        // }
         param -> table = this;
         param -> update_type(param -> type);
     }
@@ -144,9 +119,6 @@ symbol_table_func::symbol_table_func(string func_name, vector<st_entry* > (&para
 }
 
 void symbol_table_func::add_entry(st_entry* new_entry) {
-    // for(int i = 0; i < new_entry -> dimensions; i++) {
-    //     new_entry -> type += "[]";
-    // }
     new_entry -> update_type(new_entry -> type);
 
     for(const auto (&param) : params) {
@@ -182,14 +154,6 @@ bool symbol_table_func::operator == (const symbol_table_func& other) {
     return false;
 }
 
-int symbol_table_func::get_func_local_size() {
-    int space = 0;
-    for(auto &entry : this -> entries) {
-        space += entry -> size;
-    }
-    return space;
-}
-
 symbol_table_class::symbol_table_class(string class_name) {
     this -> name = class_name;
     this -> symbol_table_category = 'C';
@@ -219,9 +183,6 @@ symbol_table_func* symbol_table_class::look_up_function(string &name) {
             return member_funcs[idx];
         }
     }
-    // if(this -> parent_class) {
-    //     return this -> parent_class -> look_up_function(name);
-    // }
     return NULL;
 }
 
@@ -265,10 +226,6 @@ void symbol_table_global::add_entry(symbol_table_class* new_cls) {
             exit(1);
         }
     }
-
-    // st_entry *tmp = new st_entry(new_cls -> name, new_cls -> scope_start_line_no, 0, new_cls -> name);
-    // tmp -> initialized = true;
-    // this -> entries.push_back(tmp);  // populate here as well for other lookups
     this -> classes.push_back(new_cls);
 }
 
@@ -279,9 +236,6 @@ void symbol_table_global::add_entry(symbol_table_func* new_func) {
             exit(1);
         }
     }
-    // st_entry *tmp = new st_entry(new_func -> name, new_func -> scope_start_line_no, 0, new_func -> name);
-    // tmp -> initialized = true;
-    // this -> entries.push_back(tmp);  // populate here as well for other lookups
     this -> functions.push_back(new_func);
 }
 
@@ -306,9 +260,9 @@ symbol_table_func* symbol_table_global::look_up_func(string &func_name) {
 void symbol_table::make_csv(string filename) {
     ofstream out(filename, ios::app);
     
-    out << "Scope, Name, Type, Line Number\n";
+    out << "Name, Type, Line Number\n";
     for(auto &entry : this -> entries) {
-        out << this -> scope << ", " <<  entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
+        out << entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
     }
     out.close();
 }
@@ -316,14 +270,14 @@ void symbol_table::make_csv(string filename) {
 void symbol_table_func::make_csv(string filename) {
     ofstream out(filename, ios::app);
     
-    out << "Scope, Formal Parameter Name, Formal Parameter Type, Line Number\n";
+    out << "Token, Formal Parameter Name, Formal Parameter Type, Line Number\n";
     for(auto &param : this -> params) {
-        out << this -> scope << ", " << param -> name << ", " << param -> type << ", " << param -> line_no << '\n';
+        out << "VARIABLE, " << param -> name << ", " << param -> type << ", " << param -> line_no << '\n';
     }
 
-    out << "Scope, Name, Type, Line Number\n";
+    out << "\nToken, Variable Name, Type, Line Number\n";
     for(auto &entry : this -> entries) {
-        out << this -> scope << ", " <<  entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
+        out << "VARIABLE, " << entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
     }
 
     out.close();
@@ -332,7 +286,7 @@ void symbol_table_func::make_csv(string filename) {
 void symbol_table_class::make_csv(string filename) {
     ofstream out(filename, ios::app);
     
-    out << "Scope, Function Name, Return Type, Line Number\n";
+    out << "Token, Function Name, Return Type, Line Number\n";
     for(auto &func: this -> member_funcs) {
         string func_name = func -> name;
         func_name += "(";
@@ -346,12 +300,12 @@ void symbol_table_class::make_csv(string filename) {
         
         func_name += ")";
 
-        out << this -> scope << ", " << func_name << ", " << func -> return_type << ", " << this -> scope_start_line_no << "\n";
+        out << "FUNCTION, " << func_name << ", " << func -> return_type << ", " << func -> scope_start_line_no << "\n";
     }
 
-    out << "Scope, Field Name, Field Type, Line Number\n";
+    out << "\nToken, Variable Name, Type, Line Number\n";
     for(auto &entry: this -> entries) {
-        out << this -> scope << ", " <<  entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n';
+        out << "VARIABLE, " << entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n';
     }
 
     out.close();
@@ -360,18 +314,17 @@ void symbol_table_class::make_csv(string filename) {
 void symbol_table_global::make_csv(string filename) {
     ofstream out(filename, ios::app);
 
-    out << "Scope, Class Name, Size, Line Number\n";
+    out << "Token, Name, Size, Line Number\n";
     for(auto &cls : this -> classes) {
-        out << "Global, " << cls -> name << ", " << cls -> object_size << ", " << this -> scope_start_line_no << "\n";  
+        out << "CLASS, " << cls -> name << ", " << cls -> object_size << ", " << cls -> scope_start_line_no << "\n";  
     }
-    out << "Scope, Function Name, Size, Line Number\n";
+    out << "\nToken, Name, Return Type, Line Number\n";
     for(auto &funcs : this -> functions) {
-        out << "Global, " << funcs -> name << ", NULL, " << this -> scope_start_line_no << "\n";  
+        out << "FUNCTION, " << funcs -> name << ", " << funcs -> return_type << ", " << funcs -> scope_start_line_no << "\n";  
     }
-    out << "Scope, Variable Name, Size, Line Number\n";
-
+    out << "\nToken, Name, Type, Line Number\n";
     for(auto &entry : this -> entries) {
-        out << "Global, " << entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
+        out << "VARIABLE, " << entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n';
     }
 
     out.close();
@@ -386,19 +339,13 @@ void symbol_table::make_csv_wrapper(string filename) {
         break;
         case 'M': ((symbol_table_func *) this) -> make_csv(filename);
         break;
-        case 'B': 
         default: ((symbol_table *) this) -> make_csv(filename);
         break;
     }
 
     for(auto &child : children_st) {
         child_file = filename.substr(0, filename.size()-4) + "_" + child -> name + ".csv";
-        if(child -> symbol_table_category == 'G' || child -> symbol_table_category == 'C' || child -> symbol_table_category == 'M') {
-            child -> make_csv_wrapper(child_file);
-        }
-        else {
-            child -> make_csv_wrapper(filename);
-        }
+        child -> make_csv_wrapper(child_file);
     }
 }
 

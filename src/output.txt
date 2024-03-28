@@ -1,62 +1,191 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t6 = len@list;
-4:			__t7 = *( __t6 );
-5:			push __t7;
+3:			__t27 = len@list;
+4:			__t28 = *( __t27 );
+5:			push __t28;
 6:			return;
 7:	end_func
 
-8:	begin_func foo
-9:			foo@x = pop_param;
-10:			__t0 = 5 * foo@x;
-11:			foo@y = __t0;
-12:			push foo@y;
-13:			return;
-14:	end_func
+8:	begin_func C@__init__
+9:			self = pop_param;
+10:			C@__init__@c = pop_param;
+11:			__t0 = self + 0;
+12:			*( __t0 ) = C@__init__@c;
+13:	end_func
 
-15:	begin_func main
-16:			main@a = 4;
-17:			push_param main@a;
+14:	begin_func C@printc
+15:			self = pop_param;
+16:			__t1 = self + 0;
+17:			push_param *( __t1 );
 18:			stack_pointer +xxx
-19:			call foo, 1;
+19:			call print_int, 1;
 20:			stack_pointer -xxx
-21:			__t1 = pop_param;
-22:			main@b = __t1;
-23:	end_func
+21:	end_func
 
-24:	program start: 
-25:			stack_pointer +xxx
-26:			call main, 0;
-27:			stack_pointer -xxx
-28:			i = 0;
-29:			i = 0;
-30:			__t5 = i < 1;
-31:			if_false __t5 goto 59;
-32:			__t2 = i > 0;
-33:			if_false __t2 goto 52;
-34:			i = 2;
-35:			__t4 = i < 3;
-36:			if_false __t4 goto 52;
-37:			jahil = 0;
-38:			__t3 = jahil < 3;
-39:			if_false __t3 goto 46;
-40:			goto 46;
-41:			x = 0;
-42:			goto 38;
-43:			checking = 6;
-44:			jahil = jahil + 1;
-45:			goto 38;
-46:			goto 50;
-47:			breakingbad = "dsng";
-48:			goto 52;
-49:			string = "staongasjdnasjnd";
-50:			i = i + 1;
-51:			goto 35;
-52:			l = 9;
-53:			goto 57;
-54:			goto 59;
-55:			a = 0;
-56:			b = True;
-57:			i = i + 1;
-58:			goto 30;
-59:
+22:	begin_func A@__init__
+23:			self = pop_param;
+24:			A@__init__@a = pop_param;
+25:			A@__init__@b = pop_param;
+26:			__t2 = self + 0;
+27:			*( __t2 ) = A@__init__@a;
+28:			__t3 = self + 8;
+29:			push_param 13;
+30:			stack_pointer +xxx
+31:			call allocmem, 1;
+32:			stack_pointer -xxx
+33:			__t4 = pop_param;
+34:			*( __t4 ) = 5;
+35:			*( __t4+8 ) = True;
+36:			*( __t4+9 ) = A@__init__@b;
+37:			*( __t4+10 ) = A@__init__@b;
+38:			*( __t4+11 ) = False;
+39:			*( __t4+12 ) = False;
+40:			*( __t3 ) = __t4;
+41:			__t5 = self + 16;
+42:			*( __t5 ) = A@__init__@b;
+43:	end_func
+
+44:	begin_func A@printa
+45:			self = pop_param;
+46:			A@printa@d = pop_param;
+47:			__t6 = self + 0;
+48:			push_param *( __t6 );
+49:			stack_pointer +xxx
+50:			call print_int, 1;
+51:			stack_pointer -xxx
+52:			push *( __t7 );
+53:			__t7 = self + 0;
+54:			return;
+55:	end_func
+
+56:	begin_func B@__init__
+57:			self = pop_param;
+58:			B@__init__@a = pop_param;
+59:			B@__init__@b = pop_param;
+60:			B@__init__@c = pop_param;
+61:			__t8 = self + 17;
+62:			*( __t8 ) = B@__init__@c;
+63:			__t9 = self + 0;
+64:			push_param self;
+65:			push_param 4;
+66:			stack_pointer +xxx
+67:			call A@printa, 2;
+68:			stack_pointer -xxx
+69:			__t10 = pop_param;
+70:			*( __t9 ) = __t10;
+71:			__t11 = self + 16;
+72:			*( __t11 ) = B@__init__@b;
+73:			__t12 = self + 25;
+74:			push_param 8;
+75:			stack_pointer +xxx
+76:			call allocmem, 1;
+77:			stack_pointer -xxx
+78:			__t13 = pop_param;
+79:			push_param __t13;
+80:			push_param B@__init__@c;
+81:			stack_pointer +xxx
+82:			call C@__init__, 2;
+83:			stack_pointer -xxx
+84:			*( __t12 ) = __t13;
+85:	end_func
+
+86:	begin_func D@__init__
+87:			self = pop_param;
+88:			D@__init__@a = pop_param;
+89:			D@__init__@b = pop_param;
+90:			D@__init__@c = pop_param;
+91:			__t14 = self + 17;
+92:			*( __t14 ) = D@__init__@c;
+93:			__t15 = self + 0;
+94:			push_param self;
+95:			push_param 4;
+96:			stack_pointer +xxx
+97:			call A@printa, 2;
+98:			stack_pointer -xxx
+99:			__t16 = pop_param;
+100:		*( __t15 ) = __t16;
+101:		__t17 = self + 16;
+102:		*( __t17 ) = D@__init__@b;
+103:		__t18 = self + 25;
+104:		push_param 8;
+105:		stack_pointer +xxx
+106:		call allocmem, 1;
+107:		stack_pointer -xxx
+108:		__t19 = pop_param;
+109:		push_param __t19;
+110:		push_param D@__init__@c;
+111:		stack_pointer +xxx
+112:		call C@__init__, 2;
+113:		stack_pointer -xxx
+114:		*( __t18 ) = __t19;
+115:		__t20 = self + 33;
+116:		push_param 17;
+117:		stack_pointer +xxx
+118:		call allocmem, 1;
+119:		stack_pointer -xxx
+120:		__t21 = pop_param;
+121:		push_param __t21;
+122:		push_param 4;
+123:		push_param True;
+124:		stack_pointer +xxx
+125:		call A@__init__, 3;
+126:		stack_pointer -xxx
+127:		*( __t20 ) = __t21;
+128:		__t22 = self + 41;
+129:		push_param 40;
+130:		stack_pointer +xxx
+131:		call allocmem, 1;
+132:		stack_pointer -xxx
+133:		__t23 = pop_param;
+134:		*( __t23 ) = 4;
+135:		*( __t23+8 ) = 1;
+136:		*( __t23+16 ) = 2;
+137:		*( __t23+24 ) = 3;
+138:		*( __t23+32 ) = 4;
+139:		*( __t22 ) = __t23;
+140:end_func
+
+141:begin_func foo
+142:		push 1;
+143:		return;
+144:end_func
+
+145:begin_func main
+146:		push_param 49;
+147:		stack_pointer +xxx
+148:		call allocmem, 1;
+149:		stack_pointer -xxx
+150:		__t24 = pop_param;
+151:		push_param __t24;
+152:		push_param 1;
+153:		push_param True;
+154:		push_param 0;
+155:		stack_pointer +xxx
+156:		call D@__init__, 4;
+157:		stack_pointer -xxx
+158:		main@obj = __t24;
+159:		push_param main@obj;
+160:		push_param 2;
+161:		stack_pointer +xxx
+162:		call A@printa, 2;
+163:		stack_pointer -xxx
+164:		__t25 = pop_param;
+165:		push_param "asg asd";
+166:		stack_pointer +xxx
+167:		call print_str, 1;
+168:		stack_pointer -xxx
+169:		push_param main@obj;
+170:		push_param 1;
+171:		stack_pointer +xxx
+172:		call A@printa, 2;
+173:		stack_pointer -xxx
+174:		__t26 = pop_param;
+175:		main@a = 1;
+176:		main@b = 2;
+177:end_func
+
+178:program start: 
+179:		stack_pointer +xxx
+180:		call main, 0;
+181:		stack_pointer -xxx
+182:
