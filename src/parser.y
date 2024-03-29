@@ -959,12 +959,12 @@ continue_stmt: KEY_CONTINUE {node_attr = {"continue", "continue_stmt"}; node_num
 return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_numbers = {node_count, $2}; insert_node(); $$ = node_count + 1;
     node_count += 2;
     check_return_type(all_nodes[$2]->datatype);
+    all_nodes[$$]->append_tac(all_nodes[$2]);
     quad q("", all_nodes[$2]->var, "push", "");
     q.make_code_from_param();
     all_nodes[$$]->ta_codes.push_back(q);
     q = quad("", "", "return", "");
     q.make_code_from_return();
-    all_nodes[$$]->append_tac(all_nodes[$2]);
     all_nodes[$$]->ta_codes.push_back(q);
 }
 | KEY_RETURN {node_attr = {"return", "return_stmt"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1;
@@ -1076,7 +1076,7 @@ if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt
     all_nodes[$$]->append_tac(all_nodes[$5]);
 }
 
-| KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"if",":","else",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2,node_count + 3, $7}; insert_node(); $$ = node_count + 4;
+| KEY_IF namedexpr_test DELIM_COLON suite KEY_ELSE DELIM_COLON suite {node_attr = {"if",":","else",":","if_stmt"}; node_numbers = {node_count, $2, node_count+1, $4, node_count+2, node_count + 3, $7}; insert_node(); $$ = node_count + 4;
     node_count += 5;
     is_compatible(all_nodes[$2]->datatype, "bool");
     all_nodes[$$]->append_tac(all_nodes[$2]);
@@ -1111,11 +1111,22 @@ if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt
     
     // arg1 = a
     op = "goto";
-    arg1 = "J+" + to_string(all_nodes[$5]->ta_codes.size() + all_nodes[$8]->ta_codes.size() + 1);
+    arg1 = "J+" + to_string(all_nodes[$5]->ta_codes.size() + all_nodes[$8]->ta_codes.size() + 2);
     quad q2("", arg1, op, "");
     q2.make_code_from_goto();
     all_nodes[$$]->ta_codes.push_back(q2);
+    /* chitwan */
+    for(auto &qu: all_nodes[$5]->ta_codes){
+        if(qu.op == "goto"){
+            qu.rel_jump += all_nodes[$8]->ta_codes.size();
+        }
+    }
+    /* chitwan */
     all_nodes[$$]->append_tac(all_nodes[$5]);
+    arg1 = "J+" + to_string(all_nodes[$8]->ta_codes.size() + 1);
+    q2 =  quad("", arg1, op, "");
+    q2.make_code_from_goto();
+    all_nodes[$$]->ta_codes.push_back(q2);
     all_nodes[$$]->append_tac(all_nodes[$8]);
 }
 
@@ -1124,7 +1135,7 @@ elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite {node_attr = {"elif",":","e
     all_nodes[$$]->append_tac(all_nodes[$2]);
     string op = "if_false";
     string arg1 = all_nodes[$2]->var;
-    string arg2 = "J+" + to_string(all_nodes[$4]->ta_codes.size() + 1);
+    string arg2 = "J+" + to_string(all_nodes[$4]->ta_codes.size() + 2);
     quad q("", arg1, op, arg2);
     q.make_code_from_conditional();
     all_nodes[$$]->ta_codes.push_back(q);

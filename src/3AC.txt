@@ -1,20 +1,74 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t0 = len@list;
-4:			__t1 = *( __t0 );
-5:			push __t1;
+3:			__t12 = len@list;
+4:			__t13 = *( __t12 );
+5:			push __t13;
 6:			return;
 7:	end_func
 
-8:			x = 1;
-9:			x = 3;
-10:	end_func
+8:	begin_func Fibonacci
+9:			Fibonacci@n = pop_param;
+10:			__t0 = Fibonacci@n < 0;
+11:			if_false __t0 goto 14;
+12:			Fibonacci@n = 1;
+13:			goto 42;
+14:			__t1 = Fibonacci@n == 0;
+15:			if_false __t1 goto 19;
+16:			push 0;
+17:			return;
+18:			goto 41;
+19:			__t2 = Fibonacci@n == 1;
+20:			__t3 = Fibonacci@n == 2;
+21:			__t4 = __t2 || __t3;
+22:			if_false __t4 goto 27;
+23:			Fibonacci@n = Fibonacci@n + 100;
+24:			push Fibonacci@n;
+25:			return;
+26:			goto 42;
+27:			__t5 = Fibonacci@n - 1;
+28:			push_param __t5;
+29:			stack_pointer +xxx
+30:			call Fibonacci, 1;
+31:			stack_pointer -xxx
+32:			__t6 = pop_param;
+33:			__t7 = Fibonacci@n - 2;
+34:			push_param __t7;
+35:			stack_pointer +xxx
+36:			call Fibonacci, 1;
+37:			stack_pointer -xxx
+38:			__t8 = pop_param;
+39:			__t9 = __t6 + __t8;
+40:			push __t9;
+41:			return;
+42:	end_func
 
-11:			stack_pointer +xxx
-12:			call foo, 0;
-13:			stack_pointer -xxx
-14:			push_param x;
-15:			stack_pointer +xxx
-16:			call print_int, 1;
-17:			stack_pointer -xxx
-18:
+43:	begin_func if_else_check
+44:			if_else_check@n = pop_param;
+45:			__t10 = if_else_check@n == 0;
+46:			if_false __t10 goto 54;
+47:			push_param "zero";
+48:			stack_pointer +xxx
+49:			call print, 1;
+50:			stack_pointer -xxx
+51:			if_else_check@n = if_else_check@n + 4564;
+52:			if_else_check@n = if_else_check@n * 98;
+53:			goto 69;
+54:			__t11 = if_else_check@n == 1;
+55:			if_false __t11 goto 63;
+56:			push_param "one";
+57:			stack_pointer +xxx
+58:			call print, 1;
+59:			stack_pointer -xxx
+60:			if_else_check@n = if_else_check@n + 87455;
+61:			if_else_check@n = if_else_check@n ^ 5;
+62:			goto 69;
+63:			push_param "nonzero";
+64:			stack_pointer +xxx
+65:			call print, 1;
+66:			stack_pointer -xxx
+67:			if_else_check@n = if_else_check@n - 977;
+68:			if_else_check@n = if_else_check@n // 87;
+69:			return;
+70:	end_func
+
+71:

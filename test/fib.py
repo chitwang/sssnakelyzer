@@ -19,6 +19,19 @@ def Fibonacci(n: int) -> int:
     else:
         return Fibonacci(n-1) + Fibonacci(n-2)
  
- 
+def if_else_check(n : int)-> None:
+    if n == 0:
+        print("zero")
+        n += 4564
+        n *= 98
+    elif n == 1:
+        print("one")
+        n += 87455
+        n ^= 5
+    else:
+        print("nonzero")
+        n -= 977
+        n //= 87
+    return
 # Driver Program
 # print(Fibonacci(9))
