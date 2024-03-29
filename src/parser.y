@@ -388,9 +388,9 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
     }
     else {
         string tmp = get_new_temp();
-        if(b[0] == '*'){
-            b = b.substr(1);
-        }
+        // if(b[0] == '*') {
+        //     b = b.substr(1);
+        // }
         quad q(tmp, b , "+", to_string(existing_entry->offset));
         q.make_code_from_binary();
         current_node->ta_codes.push_back(q);

@@ -8,7 +8,7 @@ map<string, int> type_to_size = {
     {"int", 8}, 
     {"float", 8},
     {"bool", 1},
-    {"str", 4},
+    {"str", 8},
     {"list[ int ]", 8}, 
     {"list[ float ]", 8},
     {"list[ bool ]", 8},
@@ -32,7 +32,7 @@ void st_entry::update_type(string type) {
     this->type = type;
     this->size = type_to_size[type];
     if(this -> size == 0) {
-        this -> size = 4;       // otherwise it's a reference and hence 4 bytes
+        this -> size = 8;       // otherwise it's a reference and hence 4 bytes
     }
 }
 

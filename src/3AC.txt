@@ -1,74 +1,128 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t12 = len@list;
-4:			__t13 = *( __t12 );
-5:			push __t13;
+3:			__t16 = len@list;
+4:			__t17 = *( __t16 );
+5:			push __t17;
 6:			return;
 7:	end_func
 
-8:	begin_func Fibonacci
-9:			Fibonacci@n = pop_param;
-10:			__t0 = Fibonacci@n < 0;
-11:			if_false __t0 goto 14;
-12:			Fibonacci@n = 1;
-13:			goto 42;
-14:			__t1 = Fibonacci@n == 0;
-15:			if_false __t1 goto 19;
-16:			push 0;
-17:			return;
-18:			goto 41;
-19:			__t2 = Fibonacci@n == 1;
-20:			__t3 = Fibonacci@n == 2;
-21:			__t4 = __t2 || __t3;
-22:			if_false __t4 goto 27;
-23:			Fibonacci@n = Fibonacci@n + 100;
-24:			push Fibonacci@n;
-25:			return;
-26:			goto 42;
-27:			__t5 = Fibonacci@n - 1;
-28:			push_param __t5;
+8:	begin_func A@__init__
+9:			self = pop_param;
+10:			A@__init__@num = pop_param;
+11:			__t0 = self + 0;
+12:			*( __t0 ) = A@__init__@num;
+13:			__t1 = self + 8;
+14:			*( __t1 ) = False;
+15:	end_func
+
+16:	begin_func main
+17:			push_param 9;
+18:			stack_pointer +xxx
+19:			call allocmem, 1;
+20:			stack_pointer -xxx
+21:			__t2 = pop_param;
+22:			push_param __t2;
+23:			push_param 1;
+24:			stack_pointer +xxx
+25:			call A@__init__, 2;
+26:			stack_pointer -xxx
+27:			main@a = __t2;
+28:			push_param 9;
 29:			stack_pointer +xxx
-30:			call Fibonacci, 1;
+30:			call allocmem, 1;
 31:			stack_pointer -xxx
-32:			__t6 = pop_param;
-33:			__t7 = Fibonacci@n - 2;
-34:			push_param __t7;
+32:			__t3 = pop_param;
+33:			push_param __t3;
+34:			push_param 2;
 35:			stack_pointer +xxx
-36:			call Fibonacci, 1;
+36:			call A@__init__, 2;
 37:			stack_pointer -xxx
-38:			__t8 = pop_param;
-39:			__t9 = __t6 + __t8;
-40:			push __t9;
-41:			return;
-42:	end_func
-
-43:	begin_func if_else_check
-44:			if_else_check@n = pop_param;
-45:			__t10 = if_else_check@n == 0;
-46:			if_false __t10 goto 54;
-47:			push_param "zero";
-48:			stack_pointer +xxx
-49:			call print, 1;
-50:			stack_pointer -xxx
-51:			if_else_check@n = if_else_check@n + 4564;
-52:			if_else_check@n = if_else_check@n * 98;
-53:			goto 69;
-54:			__t11 = if_else_check@n == 1;
-55:			if_false __t11 goto 63;
-56:			push_param "one";
+38:			main@b = __t3;
+39:			push_param 9;
+40:			stack_pointer +xxx
+41:			call allocmem, 1;
+42:			stack_pointer -xxx
+43:			__t4 = pop_param;
+44:			push_param __t4;
+45:			push_param 3;
+46:			stack_pointer +xxx
+47:			call A@__init__, 2;
+48:			stack_pointer -xxx
+49:			main@c = __t4;
+50:			push_param 9;
+51:			stack_pointer +xxx
+52:			call allocmem, 1;
+53:			stack_pointer -xxx
+54:			__t5 = pop_param;
+55:			push_param __t5;
+56:			push_param 4;
 57:			stack_pointer +xxx
-58:			call print, 1;
+58:			call A@__init__, 2;
 59:			stack_pointer -xxx
-60:			if_else_check@n = if_else_check@n + 87455;
-61:			if_else_check@n = if_else_check@n ^ 5;
-62:			goto 69;
-63:			push_param "nonzero";
-64:			stack_pointer +xxx
-65:			call print, 1;
-66:			stack_pointer -xxx
-67:			if_else_check@n = if_else_check@n - 977;
-68:			if_else_check@n = if_else_check@n // 87;
-69:			return;
-70:	end_func
+60:			main@d = __t5;
+61:			push_param 9;
+62:			stack_pointer +xxx
+63:			call allocmem, 1;
+64:			stack_pointer -xxx
+65:			__t6 = pop_param;
+66:			push_param __t6;
+67:			push_param 5;
+68:			stack_pointer +xxx
+69:			call A@__init__, 2;
+70:			stack_pointer -xxx
+71:			main@e = __t6;
+72:			push_param 9;
+73:			stack_pointer +xxx
+74:			call allocmem, 1;
+75:			stack_pointer -xxx
+76:			__t7 = pop_param;
+77:			push_param __t7;
+78:			push_param 6;
+79:			stack_pointer +xxx
+80:			call A@__init__, 2;
+81:			stack_pointer -xxx
+82:			main@f = __t7;
+83:			push_param 56;
+84:			stack_pointer +xxx
+85:			call allocmem, 1;
+86:			stack_pointer -xxx
+87:			__t8 = pop_param;
+88:			*( __t8 ) = 6;
+89:			*( __t8+8 ) = main@a;
+90:			*( __t8+16 ) = main@b;
+91:			*( __t8+24 ) = main@c;
+92:			*( __t8+32 ) = main@d;
+93:			*( __t8+40 ) = main@e;
+94:			*( __t8+48 ) = main@f;
+95:			main@li = __t8;
+96:			push_param main@li;
+97:			stack_pointer +xxx
+98:			call len, 1;
+99:			stack_pointer -xxx
+100:		__t9 = pop_param;
+101:		main@i = 2;
+102:		__t15 = main@i < __t9;
+103:		if_false __t15 goto 120;
+104:		main@i = main@i * 1;
+105:		__t10 = main@li;
+106:		__t11 = *( __t10 ) ;
+107:		__t12 = main@i >= __t11;
+108:		if_false __t12 goto 110;
+109:		exit_out_of_bound
+110:		__t11 = main@i * 8;
+111:		__t11 = __t11 + 8;
+112:		__t11 = __t10 + __t11;
+113:		__t14 = *( __t11 ) + 0;
+114:		push_param *( __t14 );
+115:		stack_pointer +xxx
+116:		call print, 1;
+117:		stack_pointer -xxx
+118:		main@i = main@i + 1;
+119:		goto 102;
+120:end_func
 
-71:
+121:program start: 
+122:		stack_pointer +xxx
+123:		call main, 0;
+124:		stack_pointer -xxx
+125:
