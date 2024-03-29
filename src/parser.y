@@ -548,8 +548,8 @@ void make_unary_threeac(int n1, string op, int n2) {
     all_nodes[n2]->var = res;
     quad q(res, all_nodes[n1]->var, op, "");
     q.make_code_from_unary();
-    all_nodes[n2]->ta_codes.push_back(q);
     all_nodes[n2]->append_tac(all_nodes[n1]);
+    all_nodes[n2]->ta_codes.push_back(q);
 }
 
 void set_var_class_func(int n1, int n2) {
@@ -1116,9 +1116,9 @@ if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt
     q2.make_code_from_goto();
     all_nodes[$$]->ta_codes.push_back(q2);
     /* chitwan */
-    for(auto &qu: all_nodes[$5]->ta_codes){
-        if(qu.op == "goto"){
-            qu.rel_jump += all_nodes[$8]->ta_codes.size();
+    for(auto &qu: all_nodes[$5]->ta_codes) {
+        if(qu.op == "goto") { 
+            qu.rel_jump += all_nodes[$8]->ta_codes.size() + 1;
         }
     }
     /* chitwan */

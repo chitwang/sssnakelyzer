@@ -14,7 +14,7 @@ def add_list(a : list[int]) -> int:
 
 # function returning value even though it is null
 def return_none() -> None:
-    return 5
+    return
 
 def main() -> None:
     # function call

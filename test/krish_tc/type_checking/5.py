@@ -5,9 +5,10 @@
 a : int = 0
 def f():
     global a
-    a : int = 3
+    a = 3
     return
 # this gives and error
+b: int = 1
 
 global b
 # this also gives an error

@@ -3,8 +3,6 @@
 
 #include <bits/stdc++.h>
 #include "symbtab.hpp"
-// #include "node.hpp"
-// #include "threeac.hpp"
 
 extern "C" int yylineno;
 

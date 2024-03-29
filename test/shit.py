@@ -17,9 +17,12 @@
 
 # y = 0.0
 
-def foo() -> int:
-  return 0
+# def foo() -> int:
+#   return 0
 
-a:int = 5
-print(foo())
-b:int = 5
+# a:int = 5
+# print(foo())
+# b:int = 5
+x = 2
+y = -2 ** x
+print(y)

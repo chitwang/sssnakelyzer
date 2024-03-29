@@ -27,6 +27,9 @@ def check_grade(score : int) -> int:
                 return 6
             elif score >= 30:
                 return 7
+            else: 
+                return 8
+            j += 1
 
 if __name__ == "__main__":
     main()

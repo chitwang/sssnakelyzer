@@ -16,6 +16,8 @@ def main() -> None:
     x = int_var1 - int_var2
     x = int_var1 * int_var2
     x = int_var1 / int_var2
+    y:int = -2 ** float_var1
+    y = not (1 + 2)
     # Float ops (with type casting)
     x = float_var1 + float_var2
     x = float_var1 - float_var2

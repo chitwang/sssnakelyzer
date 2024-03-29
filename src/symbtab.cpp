@@ -275,9 +275,14 @@ void symbol_table_func::make_csv(string filename) {
         out << "VARIABLE, " << param -> name << ", " << param -> type << ", " << param -> line_no << '\n';
     }
 
-    out << "\nToken, Variable Name, Type, Line Number\n";
-    for(auto &entry : this -> entries) {
-        out << "VARIABLE, " << entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
+    if(this -> name != "print") {
+        out << "\nToken, Variable Name, Type, Line Number\n";
+        for(auto &entry : this -> entries) {
+            out << "VARIABLE, " << entry -> name << ", " << entry -> type << ", " << entry -> line_no << '\n'; 
+        }
+    }
+    else {
+        out << "\n";
     }
 
     out.close();
@@ -316,7 +321,11 @@ void symbol_table_global::make_csv(string filename) {
 
     out << "Token, Name, Size, Line Number\n";
     for(auto &cls : this -> classes) {
-        out << "CLASS, " << cls -> name << ", " << cls -> object_size << ", " << cls -> scope_start_line_no << "\n";  
+        string fname = cls -> name;
+        if(cls->parent_class) {
+            fname += "( " + cls -> parent_class -> name + " )";
+        }
+        out << "CLASS, " << fname << ", " << cls -> object_size << ", " << cls -> scope_start_line_no << "\n";  
     }
     out << "\nToken, Name, Return Type, Line Number\n";
     for(auto &funcs : this -> functions) {

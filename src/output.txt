@@ -1,128 +1,94 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t16 = len@list;
-4:			__t17 = *( __t16 );
-5:			push __t17;
+3:			__t27 = len@list;
+4:			__t28 = *( __t27 );
+5:			push __t28;
 6:			return;
 7:	end_func
 
-8:	begin_func A@__init__
-9:			self = pop_param;
-10:			A@__init__@num = pop_param;
-11:			__t0 = self + 0;
-12:			*( __t0 ) = A@__init__@num;
-13:			__t1 = self + 8;
-14:			*( __t1 ) = False;
-15:	end_func
-
-16:	begin_func main
-17:			push_param 9;
+8:	begin_func main
+9:			main@int_var1 = 10;
+10:			main@int_var2 = 5;
+11:			main@float_var1 = 2.5;
+12:			main@float_var2 = 3.14;
+13:			main@str_var1 = "World";
+14:			main@str_var2 = "Hello";
+15:			main@bool_var1 = True;
+16:			main@bool_var2 = False;
+17:			push_param 32;
 18:			stack_pointer +xxx
 19:			call allocmem, 1;
 20:			stack_pointer -xxx
-21:			__t2 = pop_param;
-22:			push_param __t2;
-23:			push_param 1;
-24:			stack_pointer +xxx
-25:			call A@__init__, 2;
-26:			stack_pointer -xxx
-27:			main@a = __t2;
-28:			push_param 9;
-29:			stack_pointer +xxx
-30:			call allocmem, 1;
-31:			stack_pointer -xxx
-32:			__t3 = pop_param;
-33:			push_param __t3;
-34:			push_param 2;
-35:			stack_pointer +xxx
-36:			call A@__init__, 2;
-37:			stack_pointer -xxx
-38:			main@b = __t3;
-39:			push_param 9;
-40:			stack_pointer +xxx
-41:			call allocmem, 1;
-42:			stack_pointer -xxx
-43:			__t4 = pop_param;
-44:			push_param __t4;
-45:			push_param 3;
-46:			stack_pointer +xxx
-47:			call A@__init__, 2;
-48:			stack_pointer -xxx
-49:			main@c = __t4;
-50:			push_param 9;
-51:			stack_pointer +xxx
-52:			call allocmem, 1;
-53:			stack_pointer -xxx
-54:			__t5 = pop_param;
-55:			push_param __t5;
-56:			push_param 4;
-57:			stack_pointer +xxx
-58:			call A@__init__, 2;
-59:			stack_pointer -xxx
-60:			main@d = __t5;
-61:			push_param 9;
-62:			stack_pointer +xxx
-63:			call allocmem, 1;
-64:			stack_pointer -xxx
-65:			__t6 = pop_param;
-66:			push_param __t6;
-67:			push_param 5;
-68:			stack_pointer +xxx
-69:			call A@__init__, 2;
-70:			stack_pointer -xxx
-71:			main@e = __t6;
-72:			push_param 9;
+21:			__t0 = pop_param;
+22:			*( __t0 ) = 3;
+23:			*( __t0+8 ) = 1;
+24:			*( __t0+16 ) = 2;
+25:			*( __t0+24 ) = 3;
+26:			main@list_var1 = __t0;
+27:			push_param 32;
+28:			stack_pointer +xxx
+29:			call allocmem, 1;
+30:			stack_pointer -xxx
+31:			__t1 = pop_param;
+32:			*( __t1 ) = 3;
+33:			*( __t1+8 ) = 4;
+34:			*( __t1+16 ) = 5;
+35:			*( __t1+24 ) = 6;
+36:			main@list_var2 = __t1;
+37:			main@x = 10;
+38:			__t2 = main@int_var1 + main@int_var2;
+39:			main@x = __t2;
+40:			__t3 = main@int_var1 - main@int_var2;
+41:			main@x = __t3;
+42:			__t4 = main@int_var1 * main@int_var2;
+43:			main@x = __t4;
+44:			__t5 = main@int_var1 / main@int_var2;
+45:			main@x = __t5;
+46:			__t6 = 2 ** main@float_var1;
+47:			__t7 = -(__t6);
+48:			main@y = __t7;
+49:			__t8 = 1 + 2;
+50:			__t9 = !(__t8);
+51:			main@y = __t9;
+52:			__t10 = main@float_var1 + main@float_var2;
+53:			main@x = __t10;
+54:			__t11 = main@float_var1 - main@float_var2;
+55:			main@x = __t11;
+56:			__t12 = main@float_var1 * main@float_var2;
+57:			main@x = __t12;
+58:			__t13 = main@float_var1 / main@float_var2;
+59:			main@x = __t13;
+60:			__t14 = main@bool_var1 && main@bool_var2;
+61:			main@x = __t14;
+62:			__t15 = main@bool_var1 || main@bool_var2;
+63:			main@x = __t15;
+64:			__t16 = !(main@bool_var1);
+65:			main@x = __t16;
+66:			push_param main@list_var1;
+67:			stack_pointer +xxx
+68:			call len, 1;
+69:			stack_pointer -xxx
+70:			__t17 = pop_param;
+71:			main@x = __t17;
+72:			push_param main@list_var2;
 73:			stack_pointer +xxx
-74:			call allocmem, 1;
+74:			call len, 1;
 75:			stack_pointer -xxx
-76:			__t7 = pop_param;
-77:			push_param __t7;
-78:			push_param 6;
-79:			stack_pointer +xxx
-80:			call A@__init__, 2;
-81:			stack_pointer -xxx
-82:			main@f = __t7;
-83:			push_param 56;
-84:			stack_pointer +xxx
-85:			call allocmem, 1;
-86:			stack_pointer -xxx
-87:			__t8 = pop_param;
-88:			*( __t8 ) = 6;
-89:			*( __t8+8 ) = main@a;
-90:			*( __t8+16 ) = main@b;
-91:			*( __t8+24 ) = main@c;
-92:			*( __t8+32 ) = main@d;
-93:			*( __t8+40 ) = main@e;
-94:			*( __t8+48 ) = main@f;
-95:			main@li = __t8;
-96:			push_param main@li;
-97:			stack_pointer +xxx
-98:			call len, 1;
-99:			stack_pointer -xxx
-100:		__t9 = pop_param;
-101:		main@i = 2;
-102:		__t15 = main@i < __t9;
-103:		if_false __t15 goto 120;
-104:		main@i = main@i * 1;
-105:		__t10 = main@li;
-106:		__t11 = *( __t10 ) ;
-107:		__t12 = main@i >= __t11;
-108:		if_false __t12 goto 110;
-109:		exit_out_of_bound
-110:		__t11 = main@i * 8;
-111:		__t11 = __t11 + 8;
-112:		__t11 = __t10 + __t11;
-113:		__t14 = *( __t11 ) + 0;
-114:		push_param *( __t14 );
-115:		stack_pointer +xxx
-116:		call print, 1;
-117:		stack_pointer -xxx
-118:		main@i = main@i + 1;
-119:		goto 102;
-120:end_func
+76:			__t18 = pop_param;
+77:			main@x = __t18;
+78:			__t19 = 10 + 5;
+79:			__t20 = 3.14 / 2.5;
+80:			__t21 = __t19 * __t20;
+81:			__t22 = __t21 ** 2;
+82:			__t23 = 7 - 3;
+83:			__t24 = __t22 + __t23;
+84:			__t25 = 2 ** 3;
+85:			__t26 = __t24 / __t25;
+86:			main@x = __t26;
+87:	end_func
 
-121:program start: 
-122:		stack_pointer +xxx
-123:		call main, 0;
-124:		stack_pointer -xxx
-125:
+88:	program start: 
+89:			stack_pointer +xxx
+90:			call main, 0;
+91:			stack_pointer -xxx
+92:

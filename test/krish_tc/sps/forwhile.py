@@ -31,7 +31,7 @@ def main() -> None:
             continue
         print(k)
         k += 1
-    i : int = 0
+    i = 0
     # Simple for loop with continue and break conditions
     print("Simple for loop with continue and break:")
     for i in range(10):
@@ -51,8 +51,8 @@ def main() -> None:
         print(i)
 
     # # Simple while loop with continue and break conditions
-    j : int = 0
-    k : int = 0
+    j = 0
+    k = 0
     print("\nSimple while loop with continue and break:")
     while j < 10:
         if j == 2:
