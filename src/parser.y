@@ -7,17 +7,17 @@ using namespace std;
 extern int yylineno;
 extern int in_loop;
 
-vector <string> nodes;
-vector <vector <int>> adj;
 int node_count = 0;
 int ins_count = 0;
 int temp_count = 0;
+bool our_debug = false;
+vector <string> nodes;
+vector <vector <int>> adj;
 vector <string> node_attr;
 vector <int> node_numbers;
-bool our_debug = false;
-node* root_node = NULL;
 vector <node *> all_nodes;
 vector <quad> all_quads;
+node* root_node = NULL;
 
 symbol_table *current_table;
 symbol_table *temp_table;
@@ -1549,7 +1549,10 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     }
     quad q("", "+", "", "");
     q.make_code_shift_pointer();
-    all_nodes[$$]->ta_codes.push_back(q);  
+    all_nodes[$$]->ta_codes.push_back(q);
+    if(all_nodes[$1]->var == "print_int" || all_nodes[$1]->var == "print_bol" || all_nodes[$1]->var == "print_flt" || all_nodes[$1]->var == "print_str") {
+        all_nodes[$1]->var = "print";
+    }
     q = quad("", all_nodes[$1]->var, "call", to_string(num_params));
     q.make_code_from_func_call();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -1567,7 +1570,6 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         string temp = "__t" + to_string(temp_count - 1);
         all_nodes[$$]->var = temp;
     }
-    
 }
 
 | atom DELIM_LEFT_PAREN DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, node_count + 1}; insert_node(); $$ = node_count + 2; 

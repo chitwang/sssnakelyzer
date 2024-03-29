@@ -5,7 +5,7 @@
 
 using namespace std;
 
-struct quad{
+struct quad {
     string op;
     string arg1;
     string arg2;

@@ -8,9 +8,9 @@ void f1() {
   cout << x << endl;
 }
 
-void f2(){
+void f2() {
   x = x + 2;
-  cout<<x<<endl;
+  cout << x << endl;
 }
 
 int main() {

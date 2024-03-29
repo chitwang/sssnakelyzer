@@ -22,7 +22,6 @@ public:
     st_entry();
     st_entry(string name, int line_no, int semicolon_no, string type = "int");
     void update_type(string type);
-    // st_entry(string name, st_entry (&other));
 };
 
 class symbol_table {
