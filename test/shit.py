@@ -23,6 +23,25 @@
 # a:int = 5
 # print(foo())
 # b:int = 5
-x = 2
-y = -2 ** x
-print(y)
+# class A:
+#   def __init__(self):
+#     self.x: int = 1
+#     self.y:int = 2
+  
+# class B:
+#   def __init__(self):
+#     self.obj:A = A()
+
+#   def foo(self) -> A:
+#     temp:A = A()
+#     return temp
+  
+# obj:B = B()
+# print(obj.foo().x)
+
+# if "compare" > "Compare" > "compare":
+if 3 > 4 > 5:
+    print("compare")
+else:
+    print("Compare")
+

@@ -1342,7 +1342,7 @@ comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node()
     node_count += 1;
     string op = all_nodes[$2]->name.substr(7);
     if(op == "in" || op == "not_in") {
-        if(all_nodes[$1]->datatype != "int" || all_nodes[$3]->datatype != "int") {
+        if(all_nodes[$1]->datatype != all_nodes[$3]->datatype.substr(6, all_nodes[$3]->datatype.size() - 8)) {
             cout << "Type Error at line " << yylineno << endl;
             exit(1);
         }

@@ -1,90 +1,21 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t15 = len@list;
-4:			__t16 = *( __t15 );
-5:			push __t16;
+3:			__t2 = len@list;
+4:			__t3 = *( __t2 );
+5:			push __t3;
 6:			return;
 7:	end_func
 
-8:	begin_func A@__init__
-9:			self = pop_param;
-10:			__t0 = self + 0;
-11:			*( __t0 ) = 2;
-12:			__t1 = self + 8;
-13:			*( __t1 ) = 15.324;
-14:	end_func
-
-15:	begin_func A@add
-16:			self = pop_param;
-17:			A@add@x = pop_param;
-18:			__t2 = self + 0;
-19:			__t3 = A@add@x + *( __t2 );
-20:			push __t3;
-21:			return;
-22:	end_func
-
-23:	begin_func B@__init__
-24:			self = pop_param;
-25:			B@__init__@num = pop_param;
-26:			__t4 = self + 0;
-27:			*( __t4 ) = 5;
-28:			__t5 = self + 16;
-29:			*( __t5 ) = "Hey!";
-30:			__t6 = self + 8;
-31:			*( __t6 ) = 132.132;
-32:			__t7 = self + 24;
-33:			push_param 16;
-34:			stack_pointer +xxx
-35:			call allocmem, 1;
-36:			stack_pointer -xxx
-37:			__t8 = pop_param;
-38:			push_param __t8;
-39:			stack_pointer +xxx
-40:			call A@__init__, 1;
-41:			stack_pointer -xxx
-42:			*( __t7 ) = __t8;
-43:			__t9 = self + 32;
-44:			*( __t9 ) = B@__init__@num;
-45:	end_func
-
-46:	begin_func C@__init__
-47:			self = pop_param;
-48:			__t10 = self + 40;
-49:			*( __t10 ) = False;
-50:	end_func
-
-51:	begin_func main
-52:			push_param 41;
-53:			stack_pointer +xxx
-54:			call allocmem, 1;
-55:			stack_pointer -xxx
-56:			__t11 = pop_param;
-57:			push_param __t11;
-58:			stack_pointer +xxx
-59:			call C@__init__, 1;
-60:			stack_pointer -xxx
-61:			main@obj = __t11;
-62:			__t12 = main@obj + 24;
-63:			__t13 = *( __t12 ) + 0;
-64:			push_param *( __t13 );
-65:			stack_pointer +xxx
-66:			call print, 1;
-67:			stack_pointer -xxx
-68:			push_param main@obj;
-69:			push_param 3;
-70:			stack_pointer +xxx
-71:			call A@add, 2;
-72:			stack_pointer -xxx
-73:			__t14 = pop_param;
-74:			main@x = __t14;
-75:			push_param main@x;
-76:			stack_pointer +xxx
-77:			call print, 1;
-78:			stack_pointer -xxx
-79:	end_func
-
-80:	program start: 
-81:			stack_pointer +xxx
-82:			call main, 0;
-83:			stack_pointer -xxx
-84:
+8:			__t0 = 4 > 5;
+9:			__t1 = 3 > __t0;
+10:			if_false __t1 goto 16;
+11:			push_param "compare";
+12:			stack_pointer +xxx
+13:			call print, 1;
+14:			stack_pointer -xxx
+15:			goto 20;
+16:			push_param "Compare";
+17:			stack_pointer +xxx
+18:			call print, 1;
+19:			stack_pointer -xxx
+20:
