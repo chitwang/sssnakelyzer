@@ -288,6 +288,7 @@ class B(A):
         self.c:int = c
         self.a = self.printa(4)
         self.b = b
+        self.b = self.b
         self.obj:C = C(c)
 
 class D(B):
@@ -322,6 +323,9 @@ def main():
     (obj).printa(1)
     a:int = 1
     b:int = 2
+    x:list[int] = [1, 2, 3]
+    x[a] += x[b]
+    x[a] -= 1
 
 if __name__ == "__main__":
   main()

@@ -28,20 +28,47 @@
 #     self.x: int = 1
 #     self.y:int = 2
   
-# class B:
-#   def __init__(self):
-#     self.obj:A = A()
+class B:
+  def __init__(self):
+    self.a:int = 4
 
-#   def foo(self) -> A:
-#     temp:A = A()
-#     return temp
-  
+  def foo(self, a:int, b:int, c:int) -> int:
+    return a+b+c
+
+def foo(a:int, b:int, c:int) -> int:
+    return a+b+c
+
 # obj:B = B()
 # print(obj.foo().x)
 
 # if "compare" > "Compare" > "compare":
-if 3 > 4 > 5:
-    print("compare")
-else:
-    print("Compare")
+def main():
+  # a:list[int] = [1, 2, 3]
+  # b:list[int] = [1, 2, 3]
+  i:int = 0
+  j:int = 1
+  # a[i] = b[j] + 1
+  # a[i] = b[j] + b[j - 1]
+  # a[i] = b[j]
+  # a[i] += b[j]
+  # if a[0]:
+  #     print("false")
+  # x:list[str] = ["a", "b", "c"]
+  # s:str = "asdfa"
+  # strm:str = "new"
+  # if x[0] > x[1]:
+  #     print("True")
+  # li:list[int] = [1, 2, 3]
 
+  # print(b[1])
+
+  # obj:B = B()
+  ac:int = 4 + 5
+  ab:int = 5
+  c:int = ab + 43
+
+  # p:int = obj.foo(ac, c, 3)
+  p:int = foo(ac, c, 3)
+  print(p)
+
+# main()

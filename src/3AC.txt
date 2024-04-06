@@ -1,21 +1,22 @@
-1:	begin_func len
-2:			len@list = pop_param;
-3:			__t2 = len@list;
-4:			__t3 = *( __t2 );
-5:			push __t3;
-6:			return;
-7:	end_func
+1:	begin_func foo
+2:			foo@a = pop_param;
+3:			push_param foo@a;
+4:			stack_pointer +xxx
+5:			call print, 1;
+6:			stack_pointer -xxx
+7:			return foo@a;
+8:	end_func
 
-8:			__t0 = 4 > 5;
-9:			__t1 = 3 > __t0;
-10:			if_false __t1 goto 16;
-11:			push_param "compare";
-12:			stack_pointer +xxx
-13:			call print, 1;
-14:			stack_pointer -xxx
-15:			goto 20;
-16:			push_param "Compare";
+9:	begin_func main
+10:			push_param 3;
+11:			stack_pointer +xxx
+12:			call foo, 1;
+13:			stack_pointer -xxx
+14:			__t0 = return_value;
+15:			main@a = __t0;
+16:			push_param main@a;
 17:			stack_pointer +xxx
 18:			call print, 1;
 19:			stack_pointer -xxx
-20:
+20:	end_func
+
