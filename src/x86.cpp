@@ -1,3 +1,4 @@
+
 #include <bits/stdc++.h>
 #include "../include/global.hpp"
 
@@ -8,9 +9,9 @@ int func_count = 0;
 map<string, string> func_name_map;
 extern node *root_node;
 
-instruction::instruction() {}
+instruction::instruction(){;}
 
-instruction::instruction(string op, string a1, string a2, string a3, string it, string comment) : op(op), arg1(a1), arg2(a2), arg3(a3), ins_type(it), comment(comment) {
+instruction::instruction(string op, string a1, string a2, string a3, string it, string comment) : op(op), arg1(a1), arg2(a2), arg3(a3), ins_type(it), comment(comment){
     if(it == "ins") {           // default instructions
         if(arg3 == "") {
             code = "\t\t" + op;
@@ -20,6 +21,9 @@ instruction::instruction(string op, string a1, string a2, string a3, string it, 
             if(arg2 != ""){
                 code += ",\t" + arg2;
             }
+        }
+        else {
+
         }
     }
     else if(it == "segment") {  // text segment, global segment
@@ -54,17 +58,18 @@ bool codegen::isVariable(string s) {   // if the first character is a digit/-/+,
 }
 
 bool codegen::isMainFunction(string s) {
-    string sub = "";
-    for(int i = s.length() - 1; i >= 0; i--) {
-        if(s[i] == '.') {
-            break;
-        }
-        else {
-            sub += s[i];
-        }
-    }
+    // string sub = "";
+    // for(int i = s.length() - 1; i >= 0; i--) {
+    //     if(s[i] == '.') {
+    //         break;
+    //     }
+    //     else {
+    //         sub += s[i];
+    //     }
+    // }
 
-    return sub == "][gnirtS@niam";
+    // return sub == "][gnirtS@niam";
+    return (s == "main");
 }
 
 string codegen::get_func_name(string s) {
@@ -101,19 +106,19 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z){
             if(!isVariable(q.arg1)){
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else {
+            else{
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
             if(!isVariable(q.arg2)){
                 ins = instruction("add", "$" + q.arg2, "%rdx");
             }
-            else {
+            else{
                 ins = instruction("add", to_string(y) + "(%rbp)", "%rdx");
             }
         }
-        else if(q.op == "-") {
-            if(!isVariable(q.arg1)) {
+        else if(q.op == "-"){
+            if(!isVariable(q.arg1)){
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
             else{
@@ -626,7 +631,8 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z){
         ins = instruction("jmp", "L" + to_string(x));
         insts.push_back(ins);
     }
-    else if(q.made_from == quad::STORE){        // *(r(z) + a2) = a1(x)
+    else if(q.made_from == quad::STORE){       // *(r(z) + a2) = a1(x)
+        cout<<"store\t"<<q.result<<" "<<q.arg1<<endl;
         if(!isVariable(q.arg1)){
             ins = instruction("movq", "$" + q.arg1, "%rax");
         }
@@ -643,11 +649,11 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z){
             insts.push_back(ins);
         }
         else {
-            cout << "Unknown 3AC `" << q.code << "`. Cannot make load from this code!" << endl;
+            cout << "Unknown TAC `" << q.code << "`. Cannot make load from this code!" << endl;
             exit(1);  
         }
     }
-    else if(q.made_from == quad::LOAD) {         // r(z) = *(a1(x) + a2(y))
+    else if(q.made_from == quad::LOAD){         // r(z) = *(a1(x) + a2(y))
         ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
         insts.push_back(ins);
 
@@ -656,7 +662,7 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z){
             insts.push_back(ins);
         }
         else {
-            cout << "Unknown 3AC `" << q.code << "`. Cannot make load from this code!" << endl;
+            cout << "Unknown TAC `" << q.code << "`. Cannot make load from this code!" << endl;
             exit(1);
         }
 
@@ -671,6 +677,7 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z){
 
         ins = instruction("", get_func_name(q.arg1), "", "", "label");     // add label
         insts.push_back(ins);
+
 
         ins = instruction("pushq", "%rbp");      // old base pointer
         insts.push_back(ins);
@@ -822,7 +829,8 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z){
         ins = instruction("popq", "%rax");
         insts.push_back(ins);
     }
-    else if(q.made_from == quad::PARAM){   // pushq a(x) || pushq const
+    else if(q.made_from == quad::PUSH_PARAM){   // pushq a(x) || pushq const
+        cout<<"push param "<<q.arg1<<endl;
         if(y == 1) {        // first parameter, perform caller saved registers
             ins = instruction("pushq", "%rax");
             insts.push_back(ins);
@@ -888,7 +896,7 @@ void codegen::get_tac_subroutines() {
 
         if(q.made_from == quad::END_FUNC) {
             func_started = false;
-            if(subroutine.size()) {
+            if(subroutine.size()){
                 this -> subroutines.push_back(subroutine);
                 subroutine.clear();
             }
@@ -955,7 +963,7 @@ void codegen::gen_basic_block(vector<quad> BB, subroutine_table* sub_table) {
             int y = sub_table -> lookup_table[q.result].offset;
             insts = this -> make_x86_code(q, x, y);
         }
-        else if(q.made_from == quad::PARAM){   // push_param a1(x)
+        else if(q.made_from == quad::PUSH_PARAM){   // push_param a1(x)
             int x = sub_table -> lookup_table[q.arg1].offset;
             sub_table -> number_of_params++;
             insts = this -> make_x86_code(q, x, sub_table -> number_of_params);
@@ -1092,14 +1100,14 @@ void codegen::print_code(string asm_file) {
     }
 }
 
-subroutine_entry::subroutine_entry() {}
+subroutine_entry::subroutine_entry(){;}
 
 subroutine_entry::subroutine_entry(string name, int offset) {
     this -> name = name;
     this -> offset = offset;
 }
 
-subroutine_table::subroutine_table() {}
+subroutine_table::subroutine_table(){;}
 
 bool subroutine_table::isVariable(string s) {   // if the first character is a digit/-/+, then it is a constant and not a variable
     return !(s[0] >= '0' && s[0] <= '9') && (s[0] != '-') && (s[0] != '+');
@@ -1115,6 +1123,7 @@ void subroutine_table::construct_subroutine_table(vector<quad> subroutine_ins) {
         }
          
         if(q.made_from == quad::POP_PARAM) {
+            cout<<q.result<<" "<<stack_offset<<" "<<pop_cnt<<endl;
             this -> lookup_table[q.result] = subroutine_entry(q.result, stack_offset*pop_cnt);
             pop_cnt++;
         }

@@ -389,7 +389,7 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
         else {
             b = check_star_and_make(current_node, b);
             quad q0("", b , "push_param", "");
-            q0.make_code_from_param();
+            q0.make_code_push_param();
             current_node->ta_codes.push_back(q0);
             current_node -> var = function_entry->mangled_name;
             current_node -> is_func = true;
@@ -482,7 +482,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
             if(leftnode -> is_class) {
                 leftnode -> var = typeLeft + "@__init__";
                 quad q0("", to_string(type_to_size[typeLeft]) , "push_param", "");
-                q0.make_code_from_param();
+                q0.make_code_push_param();
                 current_node->ta_codes.push_back(q0);    
                 string temp = get_new_temp();
                 quad q("", "+", "", "");
@@ -501,7 +501,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
                 current_node->ta_codes.push_back(q1);
 
                 quad q2("", temp , "push_param", "");
-                q2.make_code_from_param();
+                q2.make_code_push_param();
                 current_node->ta_codes.push_back(q2);
                 return check_constructor(typeLeft, actual_params, leftnode); 
             }
@@ -663,14 +663,15 @@ func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
     quad q("", newf->mangled_name, "", "");
     q.make_code_begin_func();
     all_nodes[$$]->ta_codes.push_back(q);
-    for(auto &entry : all_nodes[$3]->entry_list) {
+    for(int i = all_nodes[$3]->entry_list.size()-1;i>=0;i--) {
+        auto entry = all_nodes[$3]->entry_list[i];
         if(entry->name == "self") {
             entry -> mangled_name = "self";
         }
         else {
             entry -> mangled_name = newf -> mangled_name + "@" + entry->name;
         }
-        quad q1("", entry -> mangled_name , "", "");
+        quad q1( entry -> mangled_name , "", "", "");
         q1.make_code_pop_param();
         all_nodes[$$]->ta_codes.push_back(q1);
     }
@@ -685,14 +686,15 @@ func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
     quad q("", newf -> mangled_name, "", "");
     q.make_code_begin_func();
     all_nodes[$$]->ta_codes.push_back(q);
-    for(auto &entry : all_nodes[$3]->entry_list) {
+    for(int i = all_nodes[$3]->entry_list.size()-1;i>=0;i--) {
+        auto entry = all_nodes[$3]->entry_list[i];
         if(entry->name == "self") {
             entry -> mangled_name = "self";
         }
         else {
             entry -> mangled_name = newf -> mangled_name + "@" + entry->name;
         }
-        quad q1("", entry -> mangled_name , "", "");
+        quad q1(entry -> mangled_name , "", "", "");
         q1.make_code_pop_param();
         all_nodes[$$]->ta_codes.push_back(q1);
     }
@@ -799,9 +801,16 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
     is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
 
     string arg1 = all_nodes[$3]->var;
-    arg1 = check_star_and_make(all_nodes[$$], arg1);
-    quad q(all_nodes[$1]->var, arg1, "=", "");
-    q.make_code_from_assignment();
+    arg1 = check_star_and_make(all_nodes[$3], arg1);
+    quad q("", "", "", "");
+    if((all_nodes[$1]->var)[0] == '*'){
+        q = quad((all_nodes[$1]->var).substr(1), arg1, "", "");
+        q.make_code_from_store();
+    }
+    else{
+        q = quad (all_nodes[$1]->var, arg1, "=", "");
+        q.make_code_from_assignment();
+    }
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
     all_nodes[$$]->ta_codes.push_back(q);
@@ -848,9 +857,9 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
     }
     is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
     all_nodes[$$]->append_tac(all_nodes[$1]);
+    all_nodes[$$]->append_tac(all_nodes[$3]);
     string arg1 = all_nodes[$3]->var;
     arg1 = check_star_and_make(all_nodes[$$], arg1);
-    all_nodes[$$]->append_tac(all_nodes[$3]);
     quad q("", "", "", "");
     if((all_nodes[$1]->var)[0]=='*') {
         q = quad((all_nodes[$1]->var).substr(1), arg1, "", "");
@@ -1007,7 +1016,7 @@ return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_number
     string arg1 = all_nodes[$2]->var;
     arg1 = check_star_and_make(all_nodes[$$], arg1);
     // quad q("", arg1, "push", "");
-    // q.make_code_from_param();
+    // q.make_code_push_param();
     // all_nodes[$$]->ta_codes.push_back(q);
     quad q("", arg1, "return", "");
     q.make_code_from_return();
@@ -1420,10 +1429,10 @@ comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node()
         arg2 = check_star_and_make(all_nodes[$3], arg2);
         all_nodes[$$]->append_tac(all_nodes[$3]);
         quad q("", arg1, "push_param", "");
-        q.make_code_from_param();
+        q.make_code_push_param();
         all_nodes[$$]->ta_codes.push_back(q);
         q = quad("", arg2, "push_param", "");
-        q.make_code_from_param();
+        q.make_code_push_param();
         all_nodes[$$]->ta_codes.push_back(q);
         q = quad("", "+", "", "");
         q.make_code_shift_pointer();
@@ -1619,10 +1628,11 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     node_count += 3;
     all_nodes[$$]->append_tac(all_nodes[$3]);
     for(int i=0;i<all_nodes[$3]->var_list.size();i++){
+    // for(int i=all_nodes[$3]->var_list.size()-1;i>=0;i--){
         string arg1 = all_nodes[$3]->var_list[i];
         arg1 = check_star_and_make(all_nodes[$$], arg1);
         quad q("", arg1, "push_param", "");
-        q.make_code_from_param();
+        q.make_code_push_param();
         all_nodes[$$]->ta_codes.push_back(q);
     }
     int num_params = 0;
@@ -1756,10 +1766,11 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     node_count += 3;
     all_nodes[$$]->append_tac(all_nodes[$3]);
     for(int i=0;i<all_nodes[$3]->var_list.size();i++){
+    // for(int i=all_nodes[$3]->var_list.size()-1;i>=0;i--){
         string arg1 = all_nodes[$3]->var_list[i];
         arg1  = check_star_and_make(all_nodes[$$], arg1);
         quad q("", arg1, "push_param", "");
-        q.make_code_from_param();
+        q.make_code_push_param();
         all_nodes[$$]->ta_codes.push_back(q);
     }
     int num_params = 0;
@@ -1902,7 +1913,7 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     all_nodes[$$]->datatype = "list[ " + all_nodes[$2]->datatype + " ]";
     all_nodes[$$]->var = get_new_temp();
     quad q0("", to_string(all_nodes[$2]->var_list.size() * size + 8) , "push_param", "");
-    q0.make_code_from_param();
+    q0.make_code_push_param();
     all_nodes[$$]->ta_codes.push_back(q0);  
     quad q("", "+", "", "");
     q.make_code_shift_pointer();
@@ -1938,7 +1949,7 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
 /* | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3; 
     all_nodes[$$]->var = get_new_temp();
     quad q0("", "8", "push_param", "");
-    q0.make_code_from_param();
+    q0.make_code_push_param();
     all_nodes[$$]->ta_codes.push_back(q0);    
     quad q("", "+", "", "");
     q.make_code_shift_pointer();

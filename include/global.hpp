@@ -25,12 +25,13 @@ struct quad {
         LOAD,
         FUNC_CALL,
         GOTO,
-        PARAM,
         BEGIN_FUNC,
         END_FUNC,
         RETURN,
         SHIFT_POINTER,
+        PARAM,
         POP_PARAM,
+        PUSH_PARAM,
         EXIT,
         RETURN_VAL
     };
@@ -47,7 +48,7 @@ struct quad {
     void make_code_from_load();                         // r = *(a1);
     void make_code_from_func_call();                    // push/popparam a1;
     void make_code_from_goto();                         // GOTO a1;
-    void make_code_from_param();                        // push/popparam a1;
+    void make_code_push_param();                        // push/popparam a1;
     void make_code_begin_func();                        // begin_func x;
     void make_code_end_func();                          // end_func;
     void make_code_from_return();                       // return a1;

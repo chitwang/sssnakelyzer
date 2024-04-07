@@ -1,22 +1,51 @@
 1:	begin_func foo
-2:			foo@a = pop_param;
-3:			push_param foo@a;
-4:			stack_pointer +xxx
-5:			call print, 1;
-6:			stack_pointer -xxx
-7:			return foo@a;
-8:	end_func
+2:			foo@x = pop_param;
+3:			foo@x = 3;
+4:			push_param 3;
+5:			stack_pointer +xxx
+6:			call print, 1;
+7:			stack_pointer -xxx
+8:			return 0;
+9:	end_func
 
-9:	begin_func main
-10:			push_param 3;
-11:			stack_pointer +xxx
-12:			call foo, 1;
-13:			stack_pointer -xxx
-14:			__t0 = return_value;
-15:			main@a = __t0;
-16:			push_param main@a;
-17:			stack_pointer +xxx
-18:			call print, 1;
-19:			stack_pointer -xxx
-20:	end_func
+10:	begin_func f
+11:			f@x = pop_param;
+12:			f@x = f@x + 1;
+13:			push_param f@x;
+14:			stack_pointer +xxx
+15:			call foo, 1;
+16:			stack_pointer -xxx
+17:			__t0 = return_value;
+18:			return ;
+19:	end_func
+
+20:	begin_func B@__init__
+21:			B@__init__@x = pop_param;
+22:			self = pop_param;
+23:			__t1 = self + 0;
+24:			*(__t1) = B@__init__@x;
+25:			push_param 1;
+26:			stack_pointer +xxx
+27:			call f, 1;
+28:			stack_pointer -xxx
+29:	end_func
+
+30:	begin_func main
+31:			push_param 2;
+32:			stack_pointer +xxx
+33:			call f, 1;
+34:			stack_pointer -xxx
+35:			push_param 8;
+36:			stack_pointer +xxx
+37:			call allocmem, 1;
+38:			stack_pointer -xxx
+39:			__t3 = return_value;
+40:			push_param __t3;
+41:			__t2 = -(10);
+42:			push_param __t2;
+43:			stack_pointer +xxx
+44:			call B@__init__, 2;
+45:			stack_pointer -xxx
+46:			main@obj = __t3;
+47:	end_func
 

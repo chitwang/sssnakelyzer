@@ -55,9 +55,11 @@ void quad::make_code_from_goto() {
     code = "\t\t" + op + " ";       // op is "GOTO"
 }
 
-void quad::make_code_from_param() {
-    made_from = PARAM;
+void quad::make_code_push_param(){
+    made_from = PUSH_PARAM;
     code = "\t\t" + op + " " + arg1 + ";\n";
+    arg2 = "";
+    result = "";
 }
 
 void quad::check_jump(const int ins_line){
@@ -90,7 +92,7 @@ void quad::make_code_shift_pointer() {
 
 void quad::make_code_pop_param() {
     made_from = POP_PARAM;
-    code = "\t\t" + arg1 + " = pop_param;\n";
+    code = "\t\t" + result + " = pop_param;\n";
 }
 
 void quad::make_code_from_return_val() {
@@ -128,9 +130,6 @@ void quad::make_code() {
     else if(this -> made_from == GOTO){
         this -> make_code_from_goto();
     }
-    else if(this -> made_from == PARAM){
-        this -> make_code_from_param();
-    }
     else if(this -> made_from == BEGIN_FUNC){
         this -> make_code_begin_func();
     }
@@ -148,6 +147,9 @@ void quad::make_code() {
     }
     else if(this -> made_from == RETURN_VAL) {
         this -> make_code_from_return_val();
+    }
+    else if(this -> made_from == PUSH_PARAM) {
+        this -> make_code_push_param();
     }
 }
 
