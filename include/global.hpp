@@ -33,7 +33,8 @@ struct quad {
         POP_PARAM,
         PUSH_PARAM,
         EXIT,
-        RETURN_VAL
+        RETURN_VAL,
+        NONE_RETURN_VAL
     };
 
     quad();
@@ -55,6 +56,7 @@ struct quad {
     void make_code_shift_pointer();                      // shift stack pointer
     void make_code_pop_param();
     void make_code_from_return_val();
+    void make_code_from_none_return_val();
     void check_jump(const int);
 };
 

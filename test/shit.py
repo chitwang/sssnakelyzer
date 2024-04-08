@@ -37,7 +37,7 @@ def f(x:int) -> None:
   
 class B:
   def __init__(self, x:int):
-    # print(x)
+    print(x)
     self.a:int = x
     f(1)
 #   def foo(self, a:int, b:int) -> int:

@@ -7,7 +7,7 @@ symbol_table_global *global_table = new symbol_table_global();
 map<string, int> type_to_size = {
     {"int", 8}, 
     {"float", 8},
-    {"bool", 1},
+    {"bool", 8},
     {"str", 8},
     {"list[ int ]", 8}, 
     {"list[ float ]", 8},

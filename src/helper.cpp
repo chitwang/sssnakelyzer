@@ -102,6 +102,13 @@ void quad::make_code_from_return_val() {
     arg2 = "";
 }
 
+void quad::make_code_from_none_return_val() {
+    made_from = NONE_RETURN_VAL;
+    code = "\t\tnone type function call ends\n";
+    arg1 = "";
+    arg2 = "";
+}
+
 void quad::make_code() {
     if(this -> made_from == BINARY){
         this -> make_code_from_binary();
@@ -151,6 +158,9 @@ void quad::make_code() {
     else if(this -> made_from == PUSH_PARAM) {
         this -> make_code_push_param();
     }
+    else if(this -> made_from == NONE_RETURN_VAL) {
+        this -> make_code_from_none_return_val();
+    }
 }
 
 node::node(string name, bool terminal, string type, node* parent) {
@@ -175,23 +185,6 @@ void node::append_tac(node* v) {
     v -> ta_codes.clear();
 }
 
-// void node::print_tac(string filename) {
-//     ofstream out(filename);
-
-//     int ins_count = 1;
-//     for(auto (&q) : this -> ta_codes) {
-//         if(q.code != "") {
-//             q.check_jump(ins_count);    // Also sets q's ins_line
-//             out << ins_count << (ins_count >= 100 ? ":" : ":\t") << q.code;
-//             ins_count++;
-
-//         }
-//     }
-//     out << ins_count << ":";
-
-//     out.close();
-// }
-
 void node::print_tac(string filename){
     ofstream out(filename);
 
@@ -205,12 +198,7 @@ void node::print_tac(string filename){
                 targets.insert(q.abs_jump);
             }
             
-            if(filename == "") {
-                cout << ins_count << (ins_count >= 100 ? ":" : ":\t") << q.code;
-            }
-            else {
-                out << ins_count << (ins_count >= 100 ? ":" : ":\t") << q.code;
-            }
+            out << ins_count << (ins_count >= 100 ? ":" : ":\t") << q.code;
             ins_count++;
         }
     }

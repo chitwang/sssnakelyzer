@@ -1651,17 +1651,30 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q = quad("", "-", "", "");
     q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
-    if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
+    // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/){
+    //     string temp = get_new_temp();
+    //     // quad q1(temp, "pop_param", "=", "");
+    //     // q1.make_code_from_assignment();
+    //     quad q1(temp, "", "", "");
+    //     q1.make_code_from_return_val();
+    //     all_nodes[$$]->ta_codes.push_back(q1);
+    //     all_nodes[$$]->var = temp;
+    // }
+    // else {
+    //     string temp = "__t" + to_string(temp_count - 1);
+    //     all_nodes[$$]->var = temp;
+    // }
+    if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
+        quad q("", "", "", "");
+        q.make_code_from_none_return_val();
+        all_nodes[$$]->ta_codes.push_back(q);
+        all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
+    }
+    else{
         string temp = get_new_temp();
-        // quad q1(temp, "pop_param", "=", "");
-        // q1.make_code_from_assignment();
         quad q1(temp, "", "", "");
         q1.make_code_from_return_val();
         all_nodes[$$]->ta_codes.push_back(q1);
-        all_nodes[$$]->var = temp;
-    }
-    else {
-        string temp = "__t" + to_string(temp_count - 1);
         all_nodes[$$]->var = temp;
     }
 }
@@ -1683,17 +1696,30 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q = quad("", "-", "", "");
     q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
-    if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)) {
+    // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/) {
+    //     string temp = get_new_temp();
+    //     // quad q1(temp, "pop_param", "=", "");
+    //     // q1.make_code_from_assignment();
+    //     quad q1(temp, "", "", "");
+    //     q1.make_code_from_return_val();
+    //     all_nodes[$$]->ta_codes.push_back(q1);
+    //     all_nodes[$$]->var = temp;
+    // }
+    // else {
+    //     string temp = "__t" + to_string(temp_count - 1);
+    //     all_nodes[$$]->var = temp;
+    // }
+    if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
+        quad q("", "", "", "");
+        q.make_code_from_none_return_val();
+        all_nodes[$$]->ta_codes.push_back(q);
+        all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
+    }
+    else{
         string temp = get_new_temp();
-        // quad q1(temp, "pop_param", "=", "");
-        // q1.make_code_from_assignment();
         quad q1(temp, "", "", "");
         q1.make_code_from_return_val();
         all_nodes[$$]->ta_codes.push_back(q1);
-        all_nodes[$$]->var = temp;
-    }
-    else {
-        string temp = "__t" + to_string(temp_count - 1);
         all_nodes[$$]->var = temp;
     }
 }
@@ -1787,17 +1813,30 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
 
-    if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
+    // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/){
+    //     string temp = get_new_temp();
+    //     // quad q1(temp, "pop_param", "=", "");
+    //     // q1.make_code_from_assignment();
+    //     quad q1(temp, "", "", "");
+    //     q1.make_code_from_return_val();
+    //     all_nodes[$$]->ta_codes.push_back(q1);
+    //     all_nodes[$$]->var = temp;
+    // }
+    // else {
+    //     string temp = "__t" + to_string(temp_count - 1);
+    //     all_nodes[$$]->var = temp;
+    // }
+    if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
+        quad q("", "", "", "");
+        q.make_code_from_none_return_val();
+        all_nodes[$$]->ta_codes.push_back(q);
+        all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
+    }
+    else{
         string temp = get_new_temp();
-        // quad q1(temp, "pop_param", "=", "");
-        // q1.make_code_from_assignment();
         quad q1(temp, "", "", "");
         q1.make_code_from_return_val();
         all_nodes[$$]->ta_codes.push_back(q1);
-        all_nodes[$$]->var = temp;
-    }
-    else {
-        string temp = "__t" + to_string(temp_count - 1);
         all_nodes[$$]->var = temp;
     }
 }
@@ -1818,17 +1857,30 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q = quad("", "-", "", "");
     q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
-    if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" && is_not_class(all_nodes[$$] -> datatype)){
+    // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/){
+    //     string temp = get_new_temp();
+    //     // quad q1(temp, "pop_param", "=", "");
+    //     // q1.make_code_from_assignment();
+    //     quad q1(temp, "", "", "");
+    //     q1.make_code_from_return_val();
+    //     all_nodes[$$]->ta_codes.push_back(q1);
+    //     all_nodes[$$]->var = temp;
+    // }
+    // else {
+    //     string temp = "__t" + to_string(temp_count - 1);
+    //     all_nodes[$$]->var = temp;
+    // }
+    if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
+        quad q("", "", "", "");
+        q.make_code_from_none_return_val();
+        all_nodes[$$]->ta_codes.push_back(q);
+        all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
+    }
+    else{
         string temp = get_new_temp();
-        // quad q1(temp, "pop_param", "=", "");
-        // q1.make_code_from_assignment();
         quad q1(temp, "", "", "");
         q1.make_code_from_return_val();
         all_nodes[$$]->ta_codes.push_back(q1);
-        all_nodes[$$]->var = temp;
-    }
-    else {
-        string temp = "__t" + to_string(temp_count - 1);
         all_nodes[$$]->var = temp;
     }
 }
@@ -1991,10 +2043,10 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
 }
 
 | KEY_TRUE {node_attr = {string("BOL ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2; all_nodes[$$]->datatype = "bool";
-    all_nodes[$$]->var = strdup($1);
+    all_nodes[$$]->var = "1";
 }
 | KEY_FALSE {node_attr = {string("BOL ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;all_nodes[$$]->datatype = "bool";
-    all_nodes[$$]->var = strdup($1);
+    all_nodes[$$]->var = "0";
 }
 | types {node_attr = {"atom"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1; all_nodes[$$]->datatype = all_nodes[$1]->datatype;}
 
