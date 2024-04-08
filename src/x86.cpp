@@ -170,6 +170,42 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("movq", "%rax", "%rdx");
         }
+        else if(q.op == "**"){
+            if(!isVariable(q.arg1)) {   // arg1 is a literal
+                ins = instruction("movq", "$" + q.arg1, "%rax");
+                insts.push_back(ins);
+            }
+            else {
+                ins = instruction("movq", to_string(x) + "(%rbp)", "%rax");
+                insts.push_back(ins);                
+            }
+
+            if(!isVariable(q.arg2)) {  // arg2 is a literal
+                ins = instruction("movq", "$" + q.arg2, "%rbx");
+            }
+            else {
+                ins = instruction("movq", to_string(y) + "(%rbp)", "%rbx");
+            }
+            insts.push_back(ins);
+            ins = instruction("movq", "$1", "%rcx");
+            insts.push_back(ins);
+            ins = instruction("", "exp_loop", "", "", "label");
+            insts.push_back(ins);
+            ins = instruction("test", "%rbx", "%rbx");
+            insts.push_back(ins);
+            ins = instruction("jz", "exp_done");
+            insts.push_back(ins);
+            ins = instruction("imul", "%rax", "%rcx");
+            insts.push_back(ins);
+            ins = instruction("dec", "%rbx");
+            insts.push_back(ins);
+            ins = instruction("jmp", "exp_loop");
+            insts.push_back(ins);
+            ins = instruction("", "exp_done", "", "", "label");
+            insts.push_back(ins);
+            ins = instruction("movq", "%rcx", "%rdx");
+            // insts.push_back(ins);
+        }
         else if(q.op == "%") {
             if(!isVariable(q.arg1)){   // arg1 is a literal
                 ins = instruction("movq", "$" + q.arg1, "%rax");
@@ -479,7 +515,7 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
                 ins = instruction("xor", to_string(y) + "(%rbp)", "%rdx");
             }
         }
-        else if(q.op == "and"){
+        else if(q.op == "&&"){
             if(!isVariable(q.arg1)){
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
@@ -512,7 +548,7 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("", "2", "", "", "label");
         }
-        else if(q.op == "or"){
+        else if(q.op == "||"){
             if(!isVariable(q.arg1)){
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
@@ -561,15 +597,20 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("neg", "%rdx", "");
         }
-        else if(q.op == "not"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "!") {
+            cout<<"not reached\n";
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
             else{
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
-            ins = instruction("not", "%rdx", "");
+            ins = instruction("test", "%rdx", "%rdx");
+            insts.push_back(ins);
+            ins = instruction("sete", "%dl");
+            insts.push_back(ins);
+            ins = instruction("mov", "%rdx", "%rdi");
         }
         else if(q.op == "-"){
             ins = instruction("xor", "%rdx", "%rdx");
@@ -632,7 +673,7 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
         insts.push_back(ins);
     }
     else if(q.made_from == quad::STORE){       // *(r(z) + a2) = a1(x)
-        cout<<"store\t"<<q.result<<" "<<q.arg1<<endl;
+        // cout<<"store\t"<<q.result<<" "<<q.arg1<<endl;
         if(!isVariable(q.arg1)){
             ins = instruction("movq", "$" + q.arg1, "%rax");
         }
@@ -847,7 +888,7 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
         insts.push_back(ins);
     }
     else if(q.made_from == quad::PUSH_PARAM){   // pushq a(x) || pushq const
-        cout<<"push param "<<q.arg1<<endl;
+        // cout<<"push param "<<q.arg1<<endl;
         if(y == 1) {        // first parameter, perform caller saved registers
             ins = instruction("pushq", "%rax");
             insts.push_back(ins);
@@ -1143,7 +1184,7 @@ void subroutine_table::construct_subroutine_table(vector<quad> subroutine_ins) {
         }
          
         if(q.made_from == quad::POP_PARAM) {
-            cout<<q.result<<" "<<stack_offset<<" "<<pop_cnt<<endl;
+            // cout<<q.result<<" "<<stack_offset<<" "<<pop_cnt<<endl;
             this -> lookup_table[q.result] = subroutine_entry(q.result, stack_offset*pop_cnt);
             pop_cnt++;
         }

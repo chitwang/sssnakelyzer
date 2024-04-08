@@ -601,23 +601,26 @@ void yyerror(const char*);
 %%
 
 start_symbol: file_input {node_attr = {"start_symbol"};  node_numbers = {$1}; insert_node();$$ = node_count; node_count += 1;
-    // quad q("", "len", "", "");
-    // q.make_code_begin_func();
-    // all_nodes[$$]->ta_codes.push_back(q);
-    // q.code = "\t\tlen@list = pop_param;\n";
-    // all_nodes[$$]->ta_codes.push_back(q);
-    // string temp = get_new_temp();
-    // q.code = "\t\t" + temp + " = len@list;\n";
-    // all_nodes[$$]->ta_codes.push_back(q);
-    // string temp1 = get_new_temp();
-    // q.code = "\t\t" + temp1 + " = *( " + temp + " );\n";
-    // all_nodes[$$]->ta_codes.push_back(q);
-    // q.code = "\t\tpush " + temp1 + ";\n";
-    // all_nodes[$$]->ta_codes.push_back(q);
-    // q.code = "\t\treturn;\n";
-    // all_nodes[$$]->ta_codes.push_back(q);
-    // q.make_code_end_func();
-    // all_nodes[$$]->ta_codes.push_back(q);
+    quad q("", "len", "", "");
+    q.make_code_begin_func();
+    all_nodes[$$]->ta_codes.push_back(q);
+    q = quad("len@list", "", "", "");
+    q.make_code_pop_param();
+    all_nodes[$$]->ta_codes.push_back(q);
+    string temp = get_new_temp();
+    q = quad(temp, "len@list", "=", "");
+    q.make_code_from_assignment();
+    all_nodes[$$]->ta_codes.push_back(q);
+    string temp1 = get_new_temp();
+    q = quad(temp1, temp, "", "");
+    q.make_code_from_load();
+    all_nodes[$$]->ta_codes.push_back(q);
+    q = quad("", temp1, "return", "");
+    q.make_code_from_return();
+    all_nodes[$$]->ta_codes.push_back(q);
+    q = quad("", "", "", "");
+    q.make_code_end_func();
+    all_nodes[$$]->ta_codes.push_back(q);
     all_nodes[$$]->append_tac(all_nodes[$1]);
 }
 

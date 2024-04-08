@@ -1,91 +1,78 @@
-1:	begin_func main
-2:			main@i = 0;
-3:			__t1 = main@i < 10;
-4:			if_false __t1 goto 10;
-5:			__t0 = main@i == 4;
-6:			if_false __t0 goto 8;
-7:			goto 10;
-8:			main@i = main@i + 1;
-9:			goto 3;
-10:			main@i = main@i + 1;
-11:			__t2 = main@i < 10;
-12:			if_false __t2 goto 26;
-13:			__t3 = main@i + 1;
-14:			push_param __t3;
-15:			stack_pointer +xxx
-16:			call print, 1;
-17:			stack_pointer -xxx
-18:			none type function call ends
-19:			__t4 = main@i == 7;
-20:			if_false __t4 goto 24;
-21:			main@i = main@i + 2;
-22:			if_false 3 goto 24;
-23:			goto 11;
-24:			main@i = main@i + 1;
-25:			goto 11;
-26:			__t5 = 0 ^ 1;
-27:			if_false __t5 goto 33;
-28:			push_param 123;
-29:			stack_pointer +xxx
-30:			call print, 1;
-31:			stack_pointer -xxx
-32:			none type function call ends
-33:			push_param 88;
-34:			stack_pointer +xxx
-35:			call allocmem, 1;
-36:			stack_pointer -xxx
-37:			__t6 = return_value;
-38:			*(__t6) = 10;
-39:			__t7 = __t6 + 8;
-40:			*(__t7) = 1;
-41:			__t8 = __t6 + 16;
-42:			*(__t8) = 2;
-43:			__t9 = __t6 + 24;
-44:			*(__t9) = 3;
-45:			__t10 = __t6 + 32;
-46:			*(__t10) = 4;
-47:			__t11 = __t6 + 40;
-48:			*(__t11) = 5;
-49:			__t12 = __t6 + 48;
-50:			*(__t12) = 6;
-51:			__t13 = __t6 + 56;
-52:			*(__t13) = 7;
-53:			__t14 = __t6 + 64;
-54:			*(__t14) = 8;
-55:			__t15 = __t6 + 72;
-56:			*(__t15) = 9;
-57:			__t16 = __t6 + 80;
-58:			*(__t16) = 10;
-59:			main@a = __t6;
-60:			main@i = 2;
-61:			__t24 = main@i < 10;
-62:			if_false __t24 goto 83;
-63:			__t17 = main@i == 5;
-64:			if_false __t17 goto 66;
-65:			goto 81;
-66:			__t18 = main@a;
-67:			__t19 = *(__t18);
-68:			__t20 = main@i >= __t19;
-69:			if_false __t20 goto 71;
-70:			exit_out_of_bound
-71:			__t19 = main@i * 8;
-72:			__t19 = __t19 + 8;
-73:			__t19 = __t18 + __t19;
-74:			__t22 = *(__t19);
-75:			__t23 = __t22 - 1;
-76:			push_param __t23;
-77:			stack_pointer +xxx
-78:			call print, 1;
-79:			stack_pointer -xxx
-80:			none type function call ends
-81:			main@i = main@i + 1;
-82:			goto 61;
-83:			__t25 = 64 // 17;
-84:			main@num = __t25;
-85:			push_param main@num;
-86:			stack_pointer +xxx
-87:			call print, 1;
-88:			stack_pointer -xxx
-89:			none type function call ends
-90:	end_func
+1:	begin_func len
+2:			len@list = pop_param;
+3:			__t18 = len@list;
+4:			__t19 = *(__t18);
+5:			return __t19;
+6:	end_func
 
+7:			x = 1;
+8:			y = 69;
+9:			z = 420;
+10:	begin_func fact
+11:			fact@n = pop_param;
+12:			__t0 = !(fact@n);
+13:			if_false __t0 goto 21;
+14:			__t1 = !(fact@n);
+15:			push_param __t1;
+16:			stack_pointer +xxx
+17:			call print, 1;
+18:			stack_pointer -xxx
+19:			none type function call ends
+20:			return 1;
+21:			__t2 = fact@n < 3;
+22:			if_false __t2 goto 24;
+23:			return fact@n;
+24:			__t3 = fact@n - 1;
+25:			push_param __t3;
+26:			stack_pointer +xxx
+27:			call fact, 1;
+28:			stack_pointer -xxx
+29:			__t4 = return_value;
+30:			__t5 = fact@n * __t4;
+31:			return __t5;
+32:	end_func
+
+33:	begin_func main
+34:			push_param 88;
+35:			stack_pointer +xxx
+36:			call allocmem, 1;
+37:			stack_pointer -xxx
+38:			__t6 = return_value;
+39:			*(__t6) = 10;
+40:			__t7 = __t6 + 8;
+41:			*(__t7) = 1;
+42:			__t8 = __t6 + 16;
+43:			*(__t8) = 2;
+44:			__t9 = __t6 + 24;
+45:			*(__t9) = 3;
+46:			__t10 = __t6 + 32;
+47:			*(__t10) = 4;
+48:			__t11 = __t6 + 40;
+49:			*(__t11) = 5;
+50:			__t12 = __t6 + 48;
+51:			*(__t12) = 6;
+52:			__t13 = __t6 + 56;
+53:			*(__t13) = 7;
+54:			__t14 = __t6 + 64;
+55:			*(__t14) = 8;
+56:			__t15 = __t6 + 72;
+57:			*(__t15) = 9;
+58:			__t16 = __t6 + 80;
+59:			*(__t16) = 10;
+60:			main@a = __t6;
+61:			push_param 6;
+62:			stack_pointer +xxx
+63:			call fact, 1;
+64:			stack_pointer -xxx
+65:			__t17 = return_value;
+66:			push_param __t17;
+67:			stack_pointer +xxx
+68:			call print, 1;
+69:			stack_pointer -xxx
+70:			none type function call ends
+71:	end_func
+
+72:			stack_pointer +xxx
+73:			call main, 0;
+74:			stack_pointer -xxx
+75:			none type function call ends
