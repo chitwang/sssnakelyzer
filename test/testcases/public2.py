@@ -1,10 +1,11 @@
-data: list[float] = [-2.3, 3.14, 0.9, 11, -9.1]
-
-def compute_min() -> float:
-  min_value: float = 0.0
+def compute_min(data: list[int]) -> int:
+  min_value: int = 0
   i: int = 0
+  
   for i in range(len(data)):
-    if min_value == 0.0:
+    print(i)
+    print("dance")
+    if min_value == 0:
       min_value = data[i]
       a:int = 4
     elif data[i] < min_value:
@@ -12,8 +13,8 @@ def compute_min() -> float:
   return min_value 
 
 
-def compute_avg() -> float:
-  avg_value: float = 0.0
+def compute_avg(data: list[int]) -> int:
+  avg_value: int = 0
   sum: int = 0
   i: int = 0
   for i in range(len(data)):
@@ -22,10 +23,11 @@ def compute_avg() -> float:
 
 
 def main():
-  min_value: float = compute_min()
+  data: list[int] = [-2, 3, 2, 11, -9]
+  min_value: int = compute_min(data)
   print('Minimum value: ')
   print(min_value)
-  avg_value: float = compute_avg()
+  avg_value: int = compute_avg(data)
   print('Average value: ')
   print(avg_value)
 

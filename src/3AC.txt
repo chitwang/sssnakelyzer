@@ -1,78 +1,150 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t18 = len@list;
-4:			__t19 = *(__t18);
-5:			return __t19;
+3:			__t38 = len@list;
+4:			__t39 = *(__t38);
+5:			return __t39;
 6:	end_func
 
-7:			x = 1;
-8:			y = 69;
-9:			z = 420;
-10:	begin_func fact
-11:			fact@n = pop_param;
-12:			__t0 = !(fact@n);
-13:			if_false __t0 goto 21;
-14:			__t1 = !(fact@n);
-15:			push_param __t1;
-16:			stack_pointer +xxx
-17:			call print, 1;
-18:			stack_pointer -xxx
-19:			none type function call ends
-20:			return 1;
-21:			__t2 = fact@n < 3;
-22:			if_false __t2 goto 24;
-23:			return fact@n;
-24:			__t3 = fact@n - 1;
-25:			push_param __t3;
-26:			stack_pointer +xxx
-27:			call fact, 1;
-28:			stack_pointer -xxx
-29:			__t4 = return_value;
-30:			__t5 = fact@n * __t4;
-31:			return __t5;
-32:	end_func
+7:	begin_func compute_min
+8:			compute_min@data = pop_param;
+9:			compute_min@min_value = 0;
+10:			compute_min@i = 0;
+11:			push_param compute_min@data;
+12:			stack_pointer +xxx
+13:			call len, 1;
+14:			stack_pointer -xxx
+15:			__t0 = return_value;
+16:			compute_min@i = 0;
+17:			__t18 = compute_min@i < __t0;
+18:			if_false __t18 goto 62;
+19:			push_param compute_min@i;
+20:			stack_pointer +xxx
+21:			call print, 1;
+22:			stack_pointer -xxx
+23:			none type function call ends
+24:			string print .LC0
+25:			__t1 = compute_min@min_value == 0;
+26:			if_false __t1 goto 39;
+27:			__t2 = compute_min@data;
+28:			__t3 = *(__t2);
+29:			__t4 = compute_min@i >= __t3;
+30:			if_false __t4 goto 32;
+31:			exit_out_of_bound
+32:			__t3 = compute_min@i * 8;
+33:			__t3 = __t3 + 8;
+34:			__t3 = __t2 + __t3;
+35:			__t6 = *(__t3);
+36:			compute_min@min_value = __t6;
+37:			compute_min@a = 4;
+38:			goto 60;
+39:			__t7 = compute_min@data;
+40:			__t8 = *(__t7);
+41:			__t9 = compute_min@i >= __t8;
+42:			if_false __t9 goto 44;
+43:			exit_out_of_bound
+44:			__t8 = compute_min@i * 8;
+45:			__t8 = __t8 + 8;
+46:			__t8 = __t7 + __t8;
+47:			__t11 = *(__t8);
+48:			__t12 = __t11 < compute_min@min_value;
+49:			if_false __t12 goto 60;
+50:			__t13 = compute_min@data;
+51:			__t14 = *(__t13);
+52:			__t15 = compute_min@i >= __t14;
+53:			if_false __t15 goto 55;
+54:			exit_out_of_bound
+55:			__t14 = compute_min@i * 8;
+56:			__t14 = __t14 + 8;
+57:			__t14 = __t13 + __t14;
+58:			__t17 = *(__t14);
+59:			compute_min@min_value = __t17;
+60:			compute_min@i = compute_min@i + 1;
+61:			goto 17;
+62:			return compute_min@min_value;
+63:	end_func
 
-33:	begin_func main
-34:			push_param 88;
-35:			stack_pointer +xxx
-36:			call allocmem, 1;
-37:			stack_pointer -xxx
-38:			__t6 = return_value;
-39:			*(__t6) = 10;
-40:			__t7 = __t6 + 8;
-41:			*(__t7) = 1;
-42:			__t8 = __t6 + 16;
-43:			*(__t8) = 2;
-44:			__t9 = __t6 + 24;
-45:			*(__t9) = 3;
-46:			__t10 = __t6 + 32;
-47:			*(__t10) = 4;
-48:			__t11 = __t6 + 40;
-49:			*(__t11) = 5;
-50:			__t12 = __t6 + 48;
-51:			*(__t12) = 6;
-52:			__t13 = __t6 + 56;
-53:			*(__t13) = 7;
-54:			__t14 = __t6 + 64;
-55:			*(__t14) = 8;
-56:			__t15 = __t6 + 72;
-57:			*(__t15) = 9;
-58:			__t16 = __t6 + 80;
-59:			*(__t16) = 10;
-60:			main@a = __t6;
-61:			push_param 6;
-62:			stack_pointer +xxx
-63:			call fact, 1;
-64:			stack_pointer -xxx
-65:			__t17 = return_value;
-66:			push_param __t17;
-67:			stack_pointer +xxx
-68:			call print, 1;
-69:			stack_pointer -xxx
-70:			none type function call ends
-71:	end_func
+64:	begin_func compute_avg
+65:			compute_avg@data = pop_param;
+66:			compute_avg@avg_value = 0;
+67:			compute_avg@sum = 0;
+68:			compute_avg@i = 0;
+69:			push_param compute_avg@data;
+70:			stack_pointer +xxx
+71:			call len, 1;
+72:			stack_pointer -xxx
+73:			__t19 = return_value;
+74:			compute_avg@i = 0;
+75:			__t25 = compute_avg@i < __t19;
+76:			if_false __t25 goto 89;
+77:			__t20 = compute_avg@data;
+78:			__t21 = *(__t20);
+79:			__t22 = compute_avg@i >= __t21;
+80:			if_false __t22 goto 82;
+81:			exit_out_of_bound
+82:			__t21 = compute_avg@i * 8;
+83:			__t21 = __t21 + 8;
+84:			__t21 = __t20 + __t21;
+85:			__t24 = *(__t21);
+86:			compute_avg@sum = compute_avg@sum + __t24;
+87:			compute_avg@i = compute_avg@i + 1;
+88:			goto 75;
+89:			push_param compute_avg@data;
+90:			stack_pointer +xxx
+91:			call len, 1;
+92:			stack_pointer -xxx
+93:			__t26 = return_value;
+94:			__t27 = compute_avg@sum / __t26;
+95:			return __t27;
+96:	end_func
 
-72:			stack_pointer +xxx
-73:			call main, 0;
-74:			stack_pointer -xxx
-75:			none type function call ends
+97:	begin_func main
+98:			__t28 = -(2);
+99:			__t29 = -(9);
+100:		push_param 48;
+101:		stack_pointer +xxx
+102:		call allocmem, 1;
+103:		stack_pointer -xxx
+104:		__t30 = return_value;
+105:		*(__t30) = 5;
+106:		__t31 = __t30 + 8;
+107:		*(__t31) = __t28;
+108:		__t32 = __t30 + 16;
+109:		*(__t32) = 3;
+110:		__t33 = __t30 + 24;
+111:		*(__t33) = 2;
+112:		__t34 = __t30 + 32;
+113:		*(__t34) = 11;
+114:		__t35 = __t30 + 40;
+115:		*(__t35) = __t29;
+116:		main@data = __t30;
+117:		push_param main@data;
+118:		stack_pointer +xxx
+119:		call compute_min, 1;
+120:		stack_pointer -xxx
+121:		__t36 = return_value;
+122:		main@min_value = __t36;
+123:		string print .LC1
+124:		push_param main@min_value;
+125:		stack_pointer +xxx
+126:		call print, 1;
+127:		stack_pointer -xxx
+128:		none type function call ends
+129:		push_param main@data;
+130:		stack_pointer +xxx
+131:		call compute_avg, 1;
+132:		stack_pointer -xxx
+133:		__t37 = return_value;
+134:		main@avg_value = __t37;
+135:		string print .LC2
+136:		push_param main@avg_value;
+137:		stack_pointer +xxx
+138:		call print, 1;
+139:		stack_pointer -xxx
+140:		none type function call ends
+141:end_func
+
+142:program start: 
+143:		stack_pointer +xxx
+144:		call main, 0;
+145:		stack_pointer -xxx
+146:		none type function call ends

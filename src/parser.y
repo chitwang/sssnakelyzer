@@ -10,10 +10,12 @@ extern int in_loop;
 int node_count = 0;
 int ins_count = 0;
 int temp_count = 0;
+int str_count = 0;
 bool our_debug = false;
 vector <string> nodes;
 vector <vector <int>> adj;
 vector <string> node_attr;
+map<string, string> string_list;
 vector <int> node_numbers;
 vector <node *> all_nodes;
 vector <quad> all_quads;
@@ -126,6 +128,12 @@ void print_help() {
 string get_new_temp() {
     string temp = "__t" + to_string(temp_count);
     temp_count++;
+    return temp;
+}
+
+string get_new_str_temp() {
+    string temp = ".LC" + to_string(str_count);
+    str_count++;
     return temp;
 }
 
@@ -363,6 +371,7 @@ string check_decl_before_use(string name , node *current_node) {
         current_node->is_var = true;
         current_node->var = existing_entry->mangled_name;
         current_node->sym_tab_entry = existing_entry;
+        current_node->str_var = existing_entry->str_var;
         return existing_entry -> type;
     }
 }
@@ -574,6 +583,7 @@ void set_var_class_func(int n1, int n2) {
     all_nodes[n1]->is_var = all_nodes[n2]->is_var;
     all_nodes[n1]->is_class = all_nodes[n2]->is_class;
     all_nodes[n1]->is_func = all_nodes[n2]->is_func;
+    all_nodes[n1]->str_var = all_nodes[n2]->str_var;
     if(all_nodes[n1]->is_func) all_nodes[n1]->sym_tab_func = all_nodes[n2]->sym_tab_func;
     return ;
 }
@@ -802,21 +812,23 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
 }
 | type_declaration DELIM_ASSIGN test {node_attr = {"=", "expr_stmt"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
-
     string arg1 = all_nodes[$3]->var;
     arg1 = check_star_and_make(all_nodes[$3], arg1);
     quad q("", "", "", "");
-    if((all_nodes[$1]->var)[0] == '*'){
+    if((all_nodes[$1]->var)[0] == '*') {
         q = quad((all_nodes[$1]->var).substr(1), arg1, "", "");
         q.make_code_from_store();
     }
-    else{
+    else {
         q = quad (all_nodes[$1]->var, arg1, "=", "");
         q.make_code_from_assignment();
     }
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
     all_nodes[$$]->ta_codes.push_back(q);
+    if(all_nodes[$1]->sym_tab_entry) {
+        all_nodes[$1]->sym_tab_entry->str_var = all_nodes[$3]->str_var;
+    }
 }
 | test augassign testlist {node_attr = {"expr_stmt"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count; node_count += 1;
     string op = all_nodes[$2]->name.substr(9);
@@ -872,7 +884,11 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
         q = quad(all_nodes[$1]->var, arg1, "", "");
         q.make_code_from_assignment();
     }
+    all_nodes[$1]->str_var = all_nodes[$3]->str_var;
     all_nodes[$$]->ta_codes.push_back(q);
+    if(all_nodes[$1]->sym_tab_entry) {
+        all_nodes[$1]->sym_tab_entry->str_var = all_nodes[$3]->str_var;
+    }
 }
 | test {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->append_tac(all_nodes[$1]);
@@ -928,6 +944,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
         if(!is_class) ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$3]->datatype];
         else ((symbol_table_class *)(current_table->parent_st))->object_size += 8;
     }
+    all_nodes[$$]->sym_tab_entry = new_entry;
 }
 | SELF_DOT NAME DELIM_COLON type_or_name {
     node_attr = {"self.", string("NAME ( ")+ strdup($2) + " )", ":", "type_declaration"};
@@ -965,6 +982,7 @@ type_declaration: NAME DELIM_COLON type_or_name {
     bool is_class = !is_not_class(all_nodes[$4]->datatype);
     if(!is_class) ((symbol_table_class *)(current_table->parent_st))->object_size += type_to_size[all_nodes[$4]->datatype];
     else ((symbol_table_class *)(current_table->parent_st))->object_size += 8;
+    all_nodes[$$]->sym_tab_entry = new_entry;
 }
 
 augassign: DELIM_ASSIGN_ADD {node_attr = {"+=", "augassign+="}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -1198,7 +1216,7 @@ elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite {node_attr = {"elif",":","e
     string op = "if_false";
     string arg1 = all_nodes[$2]->var;
     arg1 = check_star_and_make(all_nodes[$$], arg1);
-    string arg2 = "J+" + to_string(all_nodes[$4]->ta_codes.size() + 2);
+    string arg2 = "J+" + to_string(all_nodes[$4]->ta_codes.size() + 1);
     quad q("", arg1, op, arg2);
     q.make_code_from_conditional();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -1630,55 +1648,62 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1], all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
     all_nodes[$$]->append_tac(all_nodes[$3]);
-    for(int i=0;i<all_nodes[$3]->var_list.size();i++){
-    // for(int i=all_nodes[$3]->var_list.size()-1;i>=0;i--){
-        string arg1 = all_nodes[$3]->var_list[i];
-        arg1 = check_star_and_make(all_nodes[$$], arg1);
-        quad q("", arg1, "push_param", "");
-        q.make_code_push_param();
+    if(all_nodes[$1]->var == "print_str") {
+        quad q("", all_nodes[$3]->str_var, "", "");
+        q.make_code_from_print_str();
         all_nodes[$$]->ta_codes.push_back(q);
     }
-    int num_params = 0;
-    if(all_nodes[$1]->sym_tab_func) {
-        num_params = all_nodes[$1]->sym_tab_func->params.size();
-    }
-    quad q("", "+", "", "");
-    q.make_code_shift_pointer();
-    all_nodes[$$]->ta_codes.push_back(q);
-    if(all_nodes[$1]->var == "print_int" || all_nodes[$1]->var == "print_bol" || all_nodes[$1]->var == "print_flt" || all_nodes[$1]->var == "print_str") {
-        all_nodes[$1]->var = "print";
-    }
-    q = quad("", all_nodes[$1]->var, "call", to_string(num_params));
-    q.make_code_from_func_call();
-    all_nodes[$$]->ta_codes.push_back(q);
-    q = quad("", "-", "", "");
-    q.make_code_shift_pointer();
-    all_nodes[$$]->ta_codes.push_back(q);  
-    // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/){
-    //     string temp = get_new_temp();
-    //     // quad q1(temp, "pop_param", "=", "");
-    //     // q1.make_code_from_assignment();
-    //     quad q1(temp, "", "", "");
-    //     q1.make_code_from_return_val();
-    //     all_nodes[$$]->ta_codes.push_back(q1);
-    //     all_nodes[$$]->var = temp;
-    // }
-    // else {
-    //     string temp = "__t" + to_string(temp_count - 1);
-    //     all_nodes[$$]->var = temp;
-    // }
-    if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
-        quad q("", "", "", "");
-        q.make_code_from_none_return_val();
+    else {
+        for(int i=0;i<all_nodes[$3]->var_list.size();i++) {
+            string arg1 = all_nodes[$3]->var_list[i];
+            arg1 = check_star_and_make(all_nodes[$$], arg1);
+            quad q("", arg1, "push_param", "");
+            q.make_code_push_param();
+            all_nodes[$$]->ta_codes.push_back(q);
+        }
+        int num_params = 0;
+        if(all_nodes[$1]->sym_tab_func) {
+            num_params = all_nodes[$1]->sym_tab_func->params.size();
+        }
+        quad q("", "+", "", "");
+        q.make_code_shift_pointer();
         all_nodes[$$]->ta_codes.push_back(q);
-        all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
-    }
-    else{
-        string temp = get_new_temp();
-        quad q1(temp, "", "", "");
-        q1.make_code_from_return_val();
-        all_nodes[$$]->ta_codes.push_back(q1);
-        all_nodes[$$]->var = temp;
+        if(all_nodes[$1]->var == "print_int" || all_nodes[$1]->var == "print_bol" || all_nodes[$1]->var == "print_flt") {
+            all_nodes[$1]->var = "print";
+        }
+        
+        q = quad("", all_nodes[$1]->var, "call", to_string(num_params));
+        q.make_code_from_func_call();
+        all_nodes[$$]->ta_codes.push_back(q);
+        q = quad("", "-", "", "");
+        q.make_code_shift_pointer();
+        all_nodes[$$]->ta_codes.push_back(q);  
+        // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/){
+        //     string temp = get_new_temp();
+        //     // quad q1(temp, "pop_param", "=", "");
+        //     // q1.make_code_from_assignment();
+        //     quad q1(temp, "", "", "");
+        //     q1.make_code_from_return_val();
+        //     all_nodes[$$]->ta_codes.push_back(q1);
+        //     all_nodes[$$]->var = temp;
+        // }
+        // else {
+        //     string temp = "__t" + to_string(temp_count - 1);
+        //     all_nodes[$$]->var = temp;
+        // }
+        if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
+            quad q("", "", "", "");
+            q.make_code_from_none_return_val();
+            all_nodes[$$]->ta_codes.push_back(q);
+            all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
+        }
+        else {
+            string temp = get_new_temp();
+            quad q1(temp, "", "", "");
+            q1.make_code_from_return_val();
+            all_nodes[$$]->ta_codes.push_back(q1);
+            all_nodes[$$]->var = temp;
+        }
     }
 }
 
@@ -2001,28 +2026,6 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     }
 }
 
-/* | DELIM_LEFT_BRACKET DELIM_RIGHT_BRACKET {node_attr = {"[", "]", "atom"}; node_numbers = {node_count, node_count+1}; insert_node(); $$ = node_count + 2; node_count += 3; 
-    all_nodes[$$]->var = get_new_temp();
-    quad q0("", "8", "push_param", "");
-    q0.make_code_push_param();
-    all_nodes[$$]->ta_codes.push_back(q0);    
-    quad q("", "+", "", "");
-    q.make_code_shift_pointer();
-    all_nodes[$$]->ta_codes.push_back(q);  
-    q = quad("", "allocmem", "call", "1");
-    q.make_code_from_func_call();
-    all_nodes[$$]->ta_codes.push_back(q);  
-    q = quad("", "-", "", "");
-    q.make_code_shift_pointer();
-    all_nodes[$$]->ta_codes.push_back(q);  
-    quad q2(all_nodes[$$]->var, "pop_param", "=", "");
-    q2.make_code_from_assignment();
-    all_nodes[$$]->ta_codes.push_back(q2);
-    quad q1(string("*( " + all_nodes[$$]->var + " )"), "0", "=", "");
-    q1.make_code_from_assignment();
-    all_nodes[$$]->ta_codes.push_back(q1);
-} */
-
 | NAME {node_attr = {string("NAME ( ") + strdup($1) + " )", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; 
     all_nodes[$$]->datatype = check_decl_before_use(strdup($1), all_nodes[$$]);
     node_count += 2;
@@ -2035,7 +2038,14 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
 
 | STRING_LITERAL {node_attr = {string("STR ") + strdup($1), "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->datatype = "str";
-    all_nodes[$$]->var = strdup($1);
+    string str = strdup($1);
+    if(str[0] == '\'') {
+        str = "\"" + str.substr(1, str.size() - 2) + "\"";
+    }
+    string temp = get_new_str_temp();
+    all_nodes[$$]->var = str;
+    string_list[temp] = all_nodes[$$]->var;
+    all_nodes[$$]->str_var = temp;
 }
 
 | DELIM_ELLIPSIS {node_attr = {"...", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}
@@ -2140,6 +2150,7 @@ arglist: argument {node_attr = {"arglist"}; node_numbers = {$1}; insert_node(); 
     all_nodes[$$]->type_list.push_back(all_nodes[$1]->datatype);
     all_nodes[$$]->var_list.push_back(all_nodes[$1]->var);
     all_nodes[$$]->append_tac(all_nodes[$1]);
+    all_nodes[$$]->str_var = all_nodes[$1]->str_var;
 }
 | argument DELIM_COMMA arglist {node_attr = {",", "arglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->type_list = {all_nodes[$1]->datatype};
@@ -2153,12 +2164,14 @@ arglist: argument {node_attr = {"arglist"}; node_numbers = {$1}; insert_node(); 
     all_nodes[$$]->type_list.push_back(all_nodes[$1]->datatype);
     all_nodes[$$]->var_list.push_back(all_nodes[$1]->var);
     all_nodes[$$]->append_tac(all_nodes[$1]);
+    all_nodes[$$]->str_var = all_nodes[$1]->str_var;
 }
 
 argument: test {node_attr = {"argument"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1] -> datatype;
     all_nodes[$$]->var = all_nodes[$1]->var;
     all_nodes[$$]->append_tac(all_nodes[$1]);
+    all_nodes[$$]->str_var = all_nodes[$1]->str_var;
 }
 
 func_body_suite: single_stmt {node_attr = {"func_body_suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;

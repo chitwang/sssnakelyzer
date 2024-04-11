@@ -34,7 +34,8 @@ struct quad {
         PUSH_PARAM,
         EXIT,
         RETURN_VAL,
-        NONE_RETURN_VAL
+        NONE_RETURN_VAL,
+        PRINT_STR
     };
 
     quad();
@@ -57,6 +58,7 @@ struct quad {
     void make_code_pop_param();
     void make_code_from_return_val();
     void make_code_from_none_return_val();
+    void make_code_from_print_str();
     void check_jump(const int);
 };
 
@@ -69,6 +71,7 @@ public:
     bool is_class = false;
     string var = "undefined_var";
     string type = "";                   // To be used only if node is a terminal, empty otherwise. stores the token
+    string str_var = "";
     node* parent = NULL;
     vector <string> type_list = {};           // Used for typechecking
     vector <string> var_list = {};           // Used for typechecking
@@ -151,6 +154,7 @@ extern symbol_table_global *global_table;
 
 extern int temp_count;
 extern map<string, int> type_to_size;
+extern map<string, string> string_list;
 extern set<string> primitive_types;
 extern vector<node *> all_nodes;
 extern vector<quad> all_quads;

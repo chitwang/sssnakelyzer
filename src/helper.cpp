@@ -109,6 +109,11 @@ void quad::make_code_from_none_return_val() {
     arg2 = "";
 }
 
+void quad::make_code_from_print_str() {
+    made_from =  PRINT_STR;
+    code = "\t\tstring print " + arg1 + "\n";
+}
+
 void quad::make_code() {
     if(this -> made_from == BINARY){
         this -> make_code_from_binary();

@@ -13,6 +13,12 @@ def fact(n:int) -> int:
 	
 	return n * fact(n - 1)
 
+class B : 
+	def __init__(self, x:int) -> None:
+		self.x:int = x
+		fact(2)
+		fact(3)
+
 def main():
 	i:int
 
@@ -45,5 +51,7 @@ def main():
 	# num:int = 64 // 17
 	# print(num)
     # print(i)
+	obj:B = B(56)
+	print(obj.x)
 
 main()

@@ -1,4 +1,3 @@
-
 #include <bits/stdc++.h>
 #include "../include/global.hpp"
 
@@ -8,6 +7,7 @@ const int stack_offset = 8;
 int func_count = 0;
 map<string, string> func_name_map;
 extern node *root_node;
+extern map<string, string> string_list;
 
 instruction::instruction(){;}
 
@@ -914,6 +914,12 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);    
         }
     }
+    else if(q.made_from == quad::PRINT_STR){
+        ins = instruction("leaq", q.arg1 + "(%rip)", "%rdi");
+        insts.push_back(ins);
+        ins = instruction("call", "puts");
+        insts.push_back(ins);
+    }
     else if(q.made_from == quad::CAST){     // r(y) = (op) a(x)
         if(!isVariable(q.arg1)) {  // it is a constant
             ins = instruction("movq", "$" + q.arg1, "%rdx");
@@ -935,7 +941,7 @@ codegen::codegen() {        // initialize the data members
 }
 
 void codegen::append_ins(instruction ins) {
-    this -> code . push_back(ins);
+    this -> code.push_back(ins);
 }
 
 void codegen::get_tac_subroutines() {
@@ -965,11 +971,17 @@ void codegen::get_tac_subroutines() {
 void codegen::gen_global() {
     // @TODO
     instruction ins;
-    ins = instruction(".data", "", "", "", "segment");
+    ins = instruction(".section\t.rodata", "", "", "", "segment");
     this -> code.push_back(ins);
-
+    
     ins = instruction("integer_format:", ".asciz", "\"%ld\\n\"", "", "ins");
     this -> code.push_back(ins);
+    for(auto it:string_list){
+        ins = instruction(it.first + ":", "", "", "", "segment");
+        this->code.push_back(ins);
+        ins = instruction(".string", it.second);
+        this->code.push_back(ins);
+    }
 
     ins = instruction(".global", "main", "", "", "segment");      // define entry point
     this -> code.push_back(ins);
@@ -1055,6 +1067,9 @@ void codegen::gen_basic_block(vector<quad> BB, subroutine_table* sub_table) {
             insts = this -> make_x86_code(q, sub_table -> total_space - 8 * stack_offset, sub_table -> lookup_table[q.arg1].offset);
         }
         else if(q.made_from == quad::NONE_RETURN_VAL){
+            insts = this -> make_x86_code(q);
+        }
+        else if(q.made_from == quad::PRINT_STR){
             insts = this -> make_x86_code(q);
         }
         else{
@@ -1168,7 +1183,7 @@ subroutine_entry::subroutine_entry(string name, int offset) {
     this -> offset = offset;
 }
 
-subroutine_table::subroutine_table(){;}
+subroutine_table::subroutine_table(){}
 
 bool subroutine_table::isVariable(string s) {   // if the first character is a digit/-/+, then it is a constant and not a variable
     return !(s[0] >= '0' && s[0] <= '9') && (s[0] != '-') && (s[0] != '+');
