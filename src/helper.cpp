@@ -111,7 +111,12 @@ void quad::make_code_from_none_return_val() {
 
 void quad::make_code_from_print_str() {
     made_from =  PRINT_STR;
-    code = "\t\tstring print " + arg1 + "\n";
+    code = "\t\tstring print " + arg1 +  "\n";
+}
+
+void quad::make_code_from_new_str() {
+    made_from =  MAKE_STR;
+    code = "\t\tstring make " + arg1 + " into var " + result + "\n";
 }
 
 void quad::make_code() {

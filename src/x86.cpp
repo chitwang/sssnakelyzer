@@ -915,9 +915,15 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
         }
     }
     else if(q.made_from == quad::PRINT_STR){
-        ins = instruction("leaq", q.arg1 + "(%rip)", "%rdi");
+        ins = instruction("movq", to_string(x) + "(%rbp)", "%rdi");
         insts.push_back(ins);
         ins = instruction("call", "puts");
+        insts.push_back(ins);
+    }
+    else if(q.made_from == quad::MAKE_STR){
+        ins = instruction("leaq", q.arg1 + "(%rip)", "%rdi");
+        insts.push_back(ins);
+        ins = instruction("movq", "%rdi", to_string(x) + "(%rbp)");
         insts.push_back(ins);
     }
     else if(q.made_from == quad::CAST){     // r(y) = (op) a(x)
@@ -1070,7 +1076,12 @@ void codegen::gen_basic_block(vector<quad> BB, subroutine_table* sub_table) {
             insts = this -> make_x86_code(q);
         }
         else if(q.made_from == quad::PRINT_STR){
-            insts = this -> make_x86_code(q);
+            int y = sub_table -> lookup_table[q.arg1].offset;
+            insts = this -> make_x86_code(q, y);
+        }
+        else if(q.made_from == quad::MAKE_STR){
+            int y = sub_table -> lookup_table[q.result].offset;
+            insts = this -> make_x86_code(q, y);
         }
         else{
             insts = this -> make_x86_code(q);
@@ -1212,6 +1223,12 @@ void subroutine_table::construct_subroutine_table(vector<quad> subroutine_ins) {
             }
             else if(q.made_from == quad::GOTO){
                 continue;
+            }
+            else if(q.made_from == quad::MAKE_STR){
+                if(q.result != "" && this -> lookup_table.find(q.result) == this -> lookup_table.end() && isVariable(q.result)) {
+                    this -> lookup_table[q.result] = subroutine_entry(q.result, -stack_offset*local_offset);
+                    local_offset++;
+                }
             }
             else {
                 if(q.arg1 != "" && this -> lookup_table.find(q.arg1) == this -> lookup_table.end() && isVariable(q.arg1)) {

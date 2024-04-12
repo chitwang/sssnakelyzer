@@ -1649,7 +1649,8 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     node_count += 3;
     all_nodes[$$]->append_tac(all_nodes[$3]);
     if(all_nodes[$1]->var == "print_str") {
-        quad q("", all_nodes[$3]->str_var, "", "");
+        string arg1 = check_star_and_make(all_nodes[$$], all_nodes[$3]->var_list[0]);
+        quad q("", arg1, "", "");
         q.make_code_from_print_str();
         all_nodes[$$]->ta_codes.push_back(q);
     }
@@ -2043,9 +2044,12 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
         str = "\"" + str.substr(1, str.size() - 2) + "\"";
     }
     string temp = get_new_str_temp();
-    all_nodes[$$]->var = str;
-    string_list[temp] = all_nodes[$$]->var;
+    all_nodes[$$]->var = get_new_temp();
+    string_list[temp] = str;
     all_nodes[$$]->str_var = temp;
+    quad q(all_nodes[$$]->var, temp, "", "");
+    q.make_code_from_new_str();
+    all_nodes[$$]->ta_codes.push_back(q);
 }
 
 | DELIM_ELLIPSIS {node_attr = {"...", "atom"}; node_numbers = {node_count}; insert_node(); $$ = node_count + 1; node_count += 2;}

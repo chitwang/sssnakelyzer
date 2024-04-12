@@ -35,7 +35,8 @@ struct quad {
         EXIT,
         RETURN_VAL,
         NONE_RETURN_VAL,
-        PRINT_STR
+        PRINT_STR,
+        MAKE_STR
     };
 
     quad();
@@ -59,6 +60,7 @@ struct quad {
     void make_code_from_return_val();
     void make_code_from_none_return_val();
     void make_code_from_print_str();
+    void make_code_from_new_str();
     void check_jump(const int);
 };
 
