@@ -3,15 +3,13 @@
 .LC0:
 		.string	"List Index OutofBound!"
 .LC1:
-		.string	"Hello\n"
+		.string	"aewgergrhregherg"
 .LC2:
-		.string	"Gello"
+		.string	"bdssefe"
 .LC3:
-		.string	"a"
+		.string	"s is greater"
 .LC4:
-		.string	"b"
-.LC5:
-		.string	"c"
+		.string	"t is greater"
 .global	main
 .text
 
@@ -28,16 +26,16 @@ func1:
 		pushq	%r15
 		sub	$16,	%rsp
 
-		# __t18 = len@list;
+		# __t8 = len@list;
 		movq	16(%rbp),	%rdx
 		movq	%rdx,	-64(%rbp)
 
-		# __t19 = *(__t18);
+		# __t9 = *(__t8);
 		movq	-64(%rbp),	%rdx
 		movq	(%rdx),	%rdx
 		movq	%rdx,	-72(%rbp)
 
-		# return __t19;
+		# return __t9;
 		movq	-72(%rbp),	%rax
 		add	$16,	%rsp
 		popq	%r15
@@ -75,7 +73,7 @@ func2:
 		pushq	%r13
 		pushq	%r14
 		pushq	%r15
-		sub	$168,	%rsp
+		sub	$88,	%rsp
 
 		# string make .LC1 into var __t0
 		leaq	.LC1(%rip),	%rdi
@@ -85,16 +83,15 @@ func2:
 		movq	-64(%rbp),	%rdx
 		movq	%rdx,	-72(%rbp)
 
-		# __t1 = 1 + 4;
-		movq	$1,	%rdx
-		add	$4,	%rdx
-		movq	%rdx,	-80(%rbp)
+		# string make .LC2 into var __t1
+		leaq	.LC2(%rip),	%rdi
+		movq	%rdi,	-80(%rbp)
 
-		# main@ar = __t1;
+		# main@t = __t1;
 		movq	-80(%rbp),	%rdx
 		movq	%rdx,	-88(%rbp)
 
-		# push_param main@ar;
+		# push_param main@s;
 		pushq	%rax
 		pushq	%rcx
 		pushq	%rdx
@@ -102,7 +99,51 @@ func2:
 		pushq	%r9
 		pushq	%r10
 		pushq	%r11
+		pushq	-72(%rbp)
+
+		# push_param main@t;
 		pushq	-88(%rbp)
+
+		# call strcmp1, 2;
+		call	strcmp1
+		add	$16,	%rsp
+
+		# __t2 = return_value;
+		mov	%rax,	-96(%rbp)
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# __t3 = __t2 > 0;
+		movq	-96(%rbp),	%rdx
+		movq	$0,	%rcx
+		cmp	%rdx,	%rcx
+		jl	1f
+		movq	$0,	%rdx
+		jmp	2f
+1:
+		movq	$1,	%rdx
+		jmp	2f
+2:
+		movq	%rdx,	-104(%rbp)
+
+		# main@a = __t3;
+		movq	-104(%rbp),	%rdx
+		movq	%rdx,	-112(%rbp)
+
+		# push_param main@a;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-112(%rbp)
 
 		# call print, 1;
 		call	print
@@ -117,214 +158,74 @@ func2:
 		popq	%rcx
 		popq	%rax
 
-		# string print main@s
-		movq	-72(%rbp),	%rdi
-		call	puts
+		# push_param main@s;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-72(%rbp)
 
-		# string make .LC2 into var __t2
-		leaq	.LC2(%rip),	%rdi
-		movq	%rdi,	-96(%rbp)
+		# push_param main@t;
+		pushq	-88(%rbp)
 
-		# string print __t2
-		movq	-96(%rbp),	%rdi
-		call	puts
+		# call strcmp1, 2;
+		call	strcmp1
+		add	$16,	%rsp
 
-		# string make .LC3 into var __t3
+		# __t4 = return_value;
+		mov	%rax,	-120(%rbp)
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# __t5 = __t4 > 0;
+		movq	-120(%rbp),	%rdx
+		movq	$0,	%rcx
+		cmp	%rdx,	%rcx
+		jl	1f
+		movq	$0,	%rdx
+		jmp	2f
+1:
+		movq	$1,	%rdx
+		jmp	2f
+2:
+		movq	%rdx,	-128(%rbp)
+
+		# if_false __t5 goto 36;
+		movq	-128(%rbp),	%rdx
+		cmp	$0,	%rdx
+		je	L36
+
+		# string make .LC3 into var __t6
 		leaq	.LC3(%rip),	%rdi
-		movq	%rdi,	-104(%rbp)
+		movq	%rdi,	-136(%rbp)
 
-		# string make .LC4 into var __t4
+		# string print __t6
+		movq	-136(%rbp),	%rdi
+		call	puts
+
+		# goto 38;
+		jmp	L38
+
+		# string make .LC4 into var __t7
+L36:
 		leaq	.LC4(%rip),	%rdi
-		movq	%rdi,	-112(%rbp)
+		movq	%rdi,	-144(%rbp)
 
-		# string make .LC5 into var __t5
-		leaq	.LC5(%rip),	%rdi
-		movq	%rdi,	-120(%rbp)
-
-		# push_param 32;
-		pushq	%rax
-		pushq	%rcx
-		pushq	%rdx
-		pushq	%r8
-		pushq	%r9
-		pushq	%r10
-		pushq	%r11
-		pushq	$32
-
-		# call allocmem, 1;
-		call	allocmem
-		add	$8,	%rsp
-
-		# __t6 = return_value;
-		mov	%rax,	-128(%rbp)
-		popq	%r11
-		popq	%r10
-		popq	%r9
-		popq	%r8
-		popq	%rdx
-		popq	%rcx
-		popq	%rax
-
-		# *(__t6) = 3;
-		movq	$3,	%rax
-		movq	-128(%rbp),	%rdx
-		movq	%rax,	(%rdx)
-
-		# __t7 = __t6 + 8;
-		movq	-128(%rbp),	%rdx
-		add	$8,	%rdx
-		movq	%rdx,	-136(%rbp)
-
-		# *(__t7) = __t3;
-		movq	-104(%rbp),	%rax
-		movq	-136(%rbp),	%rdx
-		movq	%rax,	(%rdx)
-
-		# __t8 = __t6 + 16;
-		movq	-128(%rbp),	%rdx
-		add	$16,	%rdx
-		movq	%rdx,	-144(%rbp)
-
-		# *(__t8) = __t4;
-		movq	-112(%rbp),	%rax
-		movq	-144(%rbp),	%rdx
-		movq	%rax,	(%rdx)
-
-		# __t9 = __t6 + 24;
-		movq	-128(%rbp),	%rdx
-		add	$24,	%rdx
-		movq	%rdx,	-152(%rbp)
-
-		# *(__t9) = __t5;
-		movq	-120(%rbp),	%rax
-		movq	-152(%rbp),	%rdx
-		movq	%rax,	(%rdx)
-
-		# main@a = __t6;
-		movq	-128(%rbp),	%rdx
-		movq	%rdx,	-160(%rbp)
-
-		# push_param main@a;
-		pushq	%rax
-		pushq	%rcx
-		pushq	%rdx
-		pushq	%r8
-		pushq	%r9
-		pushq	%r10
-		pushq	%r11
-		pushq	-160(%rbp)
-
-		# call len, 1;
-		call	func1
-		add	$8,	%rsp
-
-		# __t10 = return_value;
-		mov	%rax,	-168(%rbp)
-		popq	%r11
-		popq	%r10
-		popq	%r9
-		popq	%r8
-		popq	%rdx
-		popq	%rcx
-		popq	%rax
-
-		# __t11 = __t10 + 1;
-		movq	-168(%rbp),	%rdx
-		add	$1,	%rdx
-		movq	%rdx,	-176(%rbp)
-
-		# main@i = 0;
-		movq	$0,	-184(%rbp)
-
-		# __t17 = main@i < __t11;
-L43:
-		movq	-184(%rbp),	%rdx
-		movq	-176(%rbp),	%rcx
-		cmp	%rdx,	%rcx
-		jg	1f
-		movq	$0,	%rdx
-		jmp	2f
-1:
-		movq	$1,	%rdx
-		jmp	2f
-2:
-		movq	%rdx,	-192(%rbp)
-
-		# if_false __t17 goto 57;
-		movq	-192(%rbp),	%rdx
-		cmp	$0,	%rdx
-		je	L57
-
-		# __t12 = main@a;
-		movq	-160(%rbp),	%rdx
-		movq	%rdx,	-200(%rbp)
-
-		# __t13 = *(__t12);
-		movq	-200(%rbp),	%rdx
-		movq	(%rdx),	%rdx
-		movq	%rdx,	-208(%rbp)
-
-		# __t14 = main@i >= __t13;
-		movq	-184(%rbp),	%rdx
-		movq	-208(%rbp),	%rcx
-		cmp	%rdx,	%rcx
-		jle	1f
-		movq	$0,	%rdx
-		jmp	2f
-1:
-		movq	$1,	%rdx
-		jmp	2f
-2:
-		movq	%rdx,	-216(%rbp)
-
-		# if_false __t14 goto 50;
-		movq	-216(%rbp),	%rdx
-		cmp	$0,	%rdx
-		je	L50
-
-		# exit_out_of_bound
-		leaq	.LC0(%rip),	%rdi
+		# string print __t7
+		movq	-144(%rbp),	%rdi
 		call	puts
-		movq	$60,	%rax
-		xor	%rdi,	%rdi
-		syscall
-
-		# __t13 = main@i * 8;
-L50:
-		movq	-184(%rbp),	%rdx
-		imul	$8,	%rdx
-		movq	%rdx,	-208(%rbp)
-
-		# __t13 = __t13 + 8;
-		movq	-208(%rbp),	%rdx
-		add	$8,	%rdx
-		movq	%rdx,	-208(%rbp)
-
-		# __t13 = __t12 + __t13;
-		movq	-200(%rbp),	%rdx
-		add	-208(%rbp),	%rdx
-		movq	%rdx,	-208(%rbp)
-
-		# __t16 = *(__t13);
-		movq	-208(%rbp),	%rdx
-		movq	(%rdx),	%rdx
-		movq	%rdx,	-224(%rbp)
-
-		# string print __t16
-		movq	-224(%rbp),	%rdi
-		call	puts
-
-		# main@i = main@i + 1;
-		movq	-184(%rbp),	%rdx
-		add	$1,	%rdx
-		movq	%rdx,	-184(%rbp)
-
-		# goto 43;
-		jmp	L43
 
 		# d_func
 
-L57:
+L38:
 		movq	$60,	%rax
 		xor	%rdi,	%rdi
 		syscall
@@ -360,6 +261,51 @@ is_print_aligned:
     call printf
     
 print_done: 
+
+    popq %r15
+    popq %r14
+    popq %r13
+    popq %r12
+    popq %rsi
+    popq %rdi
+    popq %rbx
+    popq %rbp
+
+    ret
+
+
+strcmp1:
+    pushq	%rbp
+    mov	%rsp,	%rbp
+    pushq	%rbx
+    pushq	%rdi
+    pushq	%rsi
+    pushq	%r12
+    pushq	%r13
+    pushq	%r14
+    pushq	%r15
+
+    testq $15, %rsp
+    jz is_aligned
+
+    pushq $0                 # align to 16 bytes
+
+    movq  24(%rbp), %rdi      
+    movq  16(%rbp), %rsi
+    xor %rax, %rax          
+    call strcmp
+    cdqe
+    add $8, %rsp
+    jmp cmp_done
+
+is_aligned:
+
+    movq  24(%rbp), %rdi      
+    movq  16(%rbp), %rsi
+    xor %rax, %rax          
+    call strcmp
+    cdqe
+cmp_done: 
 
     popq %r15
     popq %r14

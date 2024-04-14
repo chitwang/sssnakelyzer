@@ -41,3 +41,48 @@ print_done:
     popq %rbp
 
     ret
+
+
+strcmp1:
+    pushq	%rbp
+    mov	%rsp,	%rbp
+    pushq	%rbx
+    pushq	%rdi
+    pushq	%rsi
+    pushq	%r12
+    pushq	%r13
+    pushq	%r14
+    pushq	%r15
+
+    testq $15, %rsp
+    jz is_aligned
+
+    pushq $0                 # align to 16 bytes
+
+    movq  24(%rbp), %rdi      
+    movq  16(%rbp), %rsi
+    xor %rax, %rax          
+    call strcmp
+    cdqe
+    add $8, %rsp
+    jmp cmp_done
+
+is_aligned:
+
+    movq  24(%rbp), %rdi      
+    movq  16(%rbp), %rsi
+    xor %rax, %rax          
+    call strcmp
+    cdqe
+cmp_done: 
+
+    popq %r15
+    popq %r14
+    popq %r13
+    popq %r12
+    popq %rsi
+    popq %rdi
+    popq %rbx
+    popq %rbp
+
+    ret

@@ -1161,6 +1161,7 @@ void codegen::gen_tac_basic_block(vector<quad> subroutine, subroutine_table* sub
 void codegen::gen_fixed_subroutines() {
     func_name_map["print"] = "print";
     func_name_map["allocmem"] = "allocmem";
+    func_name_map["strcmp1"] = "strcmp1";
 }
 
 void codegen::gen_text() {

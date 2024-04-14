@@ -1462,7 +1462,7 @@ comparison: expr {node_attr = {"comparison"}; node_numbers = {$1}; insert_node()
         q = quad("", "+", "", "");
         q.make_code_shift_pointer();
         all_nodes[$$]->ta_codes.push_back(q);
-        q = quad("", "strcmp", "call", "2");
+        q = quad("", "strcmp1", "call", "2");
         q.make_code_from_func_call();
         all_nodes[$$]->ta_codes.push_back(q);
         q = quad("", "-", "", "");
