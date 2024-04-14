@@ -1,40 +1,165 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t8 = len@list;
-4:			__t9 = *(__t8);
-5:			return __t9;
+3:			__t60 = len@list;
+4:			__t61 = *(__t60);
+5:			return __t61;
 6:	end_func
 
-7:	begin_func main
-8:			string make .LC1 into var __t0
-9:			main@s = __t0;
-10:			string make .LC2 into var __t1
-11:			main@t = __t1;
-12:			push_param main@s;
-13:			push_param main@t;
-14:			stack_pointer +xxx
-15:			call strcmp1, 2;
-16:			stack_pointer -xxx
-17:			__t2 = return_value;
-18:			__t3 = __t2 > 0;
-19:			main@a = __t3;
-20:			push_param main@a;
+7:	begin_func bubbleSort
+8:			bubbleSort@array = pop_param;
+9:			bubbleSort@i = 0;
+10:			push_param bubbleSort@array;
+11:			stack_pointer +xxx
+12:			call len, 1;
+13:			stack_pointer -xxx
+14:			__t0 = return_value;
+15:			bubbleSort@i = 0;
+16:			__t39 = bubbleSort@i < __t0;
+17:			if_false __t39 goto 104;
+18:			bubbleSort@swapped = 0;
+19:			bubbleSort@j = 0;
+20:			push_param bubbleSort@array;
 21:			stack_pointer +xxx
-22:			call print, 1;
+22:			call len, 1;
 23:			stack_pointer -xxx
-24:			none type function call ends
-25:			push_param main@s;
-26:			push_param main@t;
-27:			stack_pointer +xxx
-28:			call strcmp1, 2;
-29:			stack_pointer -xxx
-30:			__t4 = return_value;
-31:			__t5 = __t4 > 0;
-32:			if_false __t5 goto 36;
-33:			string make .LC3 into var __t6
-34:			string print __t6
-35:			goto 38;
-36:			string make .LC4 into var __t7
-37:			string print __t7
-38:	end_func
+24:			__t1 = return_value;
+25:			__t2 = __t1 - bubbleSort@i;
+26:			__t3 = __t2 - 1;
+27:			bubbleSort@j = 0;
+28:			__t37 = bubbleSort@j < __t3;
+29:			if_false __t37 goto 99;
+30:			__t4 = bubbleSort@array;
+31:			__t5 = *(__t4);
+32:			__t6 = bubbleSort@j >= __t5;
+33:			if_false __t6 goto 35;
+34:			exit_out_of_bound
+35:			__t5 = bubbleSort@j * 8;
+36:			__t5 = __t5 + 8;
+37:			__t5 = __t4 + __t5;
+38:			__t13 = *(__t5);
+39:			__t9 = bubbleSort@array;
+40:			__t8 = bubbleSort@j + 1;
+41:			__t10 = *(__t9);
+42:			__t11 = __t8 >= __t10;
+43:			if_false __t11 goto 45;
+44:			exit_out_of_bound
+45:			__t10 = __t8 * 8;
+46:			__t10 = __t10 + 8;
+47:			__t10 = __t9 + __t10;
+48:			__t14 = *(__t10);
+49:			push_param __t13;
+50:			push_param __t14;
+51:			stack_pointer +xxx
+52:			call strcmp1, 2;
+53:			stack_pointer -xxx
+54:			__t15 = return_value;
+55:			__t16 = __t15 > 0;
+56:			if_false __t16 goto 97;
+57:			__t17 = bubbleSort@array;
+58:			__t18 = *(__t17);
+59:			__t19 = bubbleSort@j >= __t18;
+60:			if_false __t19 goto 62;
+61:			exit_out_of_bound
+62:			__t18 = bubbleSort@j * 8;
+63:			__t18 = __t18 + 8;
+64:			__t18 = __t17 + __t18;
+65:			__t21 = *(__t18);
+66:			bubbleSort@temp = __t21;
+67:			__t22 = bubbleSort@array;
+68:			__t23 = *(__t22);
+69:			__t24 = bubbleSort@j >= __t23;
+70:			if_false __t24 goto 72;
+71:			exit_out_of_bound
+72:			__t23 = bubbleSort@j * 8;
+73:			__t23 = __t23 + 8;
+74:			__t23 = __t22 + __t23;
+75:			__t27 = bubbleSort@array;
+76:			__t26 = bubbleSort@j + 1;
+77:			__t28 = *(__t27);
+78:			__t29 = __t26 >= __t28;
+79:			if_false __t29 goto 81;
+80:			exit_out_of_bound
+81:			__t28 = __t26 * 8;
+82:			__t28 = __t28 + 8;
+83:			__t28 = __t27 + __t28;
+84:			__t31 = *(__t28);
+85:			*(__t23) = __t31;
+86:			__t33 = bubbleSort@array;
+87:			__t32 = bubbleSort@j + 1;
+88:			__t34 = *(__t33);
+89:			__t35 = __t32 >= __t34;
+90:			if_false __t35 goto 92;
+91:			exit_out_of_bound
+92:			__t34 = __t32 * 8;
+93:			__t34 = __t34 + 8;
+94:			__t34 = __t33 + __t34;
+95:			*(__t34) = bubbleSort@temp;
+96:			bubbleSort@swapped = 1;
+97:			bubbleSort@j = bubbleSort@j + 1;
+98:			goto 28;
+99:			__t38 = !(bubbleSort@swapped);
+100:		if_false __t38 goto 102;
+101:		goto 104;
+102:		bubbleSort@i = bubbleSort@i + 1;
+103:		goto 16;
+104:end_func
 
+105:begin_func main
+106:		string make .LC1 into var __t40
+107:		string make .LC2 into var __t41
+108:		string make .LC3 into var __t42
+109:		string make .LC4 into var __t43
+110:		string make .LC5 into var __t44
+111:		string make .LC6 into var __t45
+112:		push_param 56;
+113:		stack_pointer +xxx
+114:		call allocmem, 1;
+115:		stack_pointer -xxx
+116:		__t46 = return_value;
+117:		*(__t46) = 6;
+118:		__t47 = __t46 + 8;
+119:		*(__t47) = __t40;
+120:		__t48 = __t46 + 16;
+121:		*(__t48) = __t41;
+122:		__t49 = __t46 + 24;
+123:		*(__t49) = __t42;
+124:		__t50 = __t46 + 32;
+125:		*(__t50) = __t43;
+126:		__t51 = __t46 + 40;
+127:		*(__t51) = __t44;
+128:		__t52 = __t46 + 48;
+129:		*(__t52) = __t45;
+130:		main@data = __t46;
+131:		push_param main@data;
+132:		stack_pointer +xxx
+133:		call bubbleSort, 1;
+134:		stack_pointer -xxx
+135:		none type function call ends
+136:		main@i = 0;
+137:		push_param main@data;
+138:		stack_pointer +xxx
+139:		call len, 1;
+140:		stack_pointer -xxx
+141:		__t53 = return_value;
+142:		main@i = 0;
+143:		__t59 = main@i < __t53;
+144:		if_false __t59 goto 157;
+145:		__t54 = main@data;
+146:		__t55 = *(__t54);
+147:		__t56 = main@i >= __t55;
+148:		if_false __t56 goto 150;
+149:		exit_out_of_bound
+150:		__t55 = main@i * 8;
+151:		__t55 = __t55 + 8;
+152:		__t55 = __t54 + __t55;
+153:		__t58 = *(__t55);
+154:		string print __t58
+155:		main@i = main@i + 1;
+156:		goto 143;
+157:end_func
+
+158:program start: 
+159:		stack_pointer +xxx
+160:		call main, 0;
+161:		stack_pointer -xxx
+162:		none type function call ends

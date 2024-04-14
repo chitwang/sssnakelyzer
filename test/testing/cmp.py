@@ -7,3 +7,5 @@ def main():
         print("s is greater")
     else:
         print("t is greater")
+
+    d:list[str] = ""
