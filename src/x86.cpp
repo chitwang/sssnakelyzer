@@ -926,6 +926,19 @@ vector<instruction> codegen::make_x86_code(quad q, int x, int y, int z) {
         ins = instruction("movq", "%rdi", to_string(x) + "(%rbp)");
         insts.push_back(ins);
     }
+    else if(q.made_from == quad::EXIT){
+        ins = instruction("leaq", ".LC0(%rip)", "%rdi");
+        insts.push_back(ins);
+        ins = instruction("call", "puts");
+        insts.push_back(ins);
+        ins = instruction("movq", "$60", "%rax");
+        insts.push_back(ins);
+        ins = instruction("xor", "%rdi", "%rdi");
+        insts.push_back(ins);
+        ins = instruction("syscall");
+        insts.push_back(ins);
+
+    }
     else if(q.made_from == quad::CAST){     // r(y) = (op) a(x)
         if(!isVariable(q.arg1)) {  // it is a constant
             ins = instruction("movq", "$" + q.arg1, "%rdx");
@@ -982,6 +995,10 @@ void codegen::gen_global() {
     
     ins = instruction("integer_format:", ".asciz", "\"%ld\\n\"", "", "ins");
     this -> code.push_back(ins);
+    ins = instruction(".LC0:", "", "", "", "segment");
+    this->code.push_back(ins);
+    ins = instruction(".string", "\"List Index OutofBound!\"");
+    this->code.push_back(ins);
     for(auto it:string_list){
         ins = instruction(it.first + ":", "", "", "", "segment");
         this->code.push_back(ins);
@@ -1082,6 +1099,9 @@ void codegen::gen_basic_block(vector<quad> BB, subroutine_table* sub_table) {
         else if(q.made_from == quad::MAKE_STR){
             int y = sub_table -> lookup_table[q.result].offset;
             insts = this -> make_x86_code(q, y);
+        }
+        else if(q.made_from == quad::EXIT){
+            insts = this->make_x86_code(q);
         }
         else{
             insts = this -> make_x86_code(q);

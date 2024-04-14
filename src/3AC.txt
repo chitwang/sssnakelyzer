@@ -1,97 +1,64 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t21 = len@list;
-4:			__t22 = *(__t21);
-5:			return __t22;
+3:			__t18 = len@list;
+4:			__t19 = *(__t18);
+5:			return __t19;
 6:	end_func
 
-7:	begin_func ShiftReduceParser@__init__
-8:			ShiftReduceParser@__init__@name_ = pop_param;
-9:			self = pop_param;
-10:			__t0 = self + 0;
-11:			*(__t0) = ShiftReduceParser@__init__@name_;
-12:	end_func
+7:	begin_func main
+8:			string make .LC1 into var __t0
+9:			main@s = __t0;
+10:			__t1 = 1 + 4;
+11:			main@ar = __t1;
+12:			push_param main@ar;
+13:			stack_pointer +xxx
+14:			call print, 1;
+15:			stack_pointer -xxx
+16:			none type function call ends
+17:			string print main@s
+18:			string make .LC2 into var __t2
+19:			string print __t2
+20:			string make .LC3 into var __t3
+21:			string make .LC4 into var __t4
+22:			string make .LC5 into var __t5
+23:			push_param 32;
+24:			stack_pointer +xxx
+25:			call allocmem, 1;
+26:			stack_pointer -xxx
+27:			__t6 = return_value;
+28:			*(__t6) = 3;
+29:			__t7 = __t6 + 8;
+30:			*(__t7) = __t3;
+31:			__t8 = __t6 + 16;
+32:			*(__t8) = __t4;
+33:			__t9 = __t6 + 24;
+34:			*(__t9) = __t5;
+35:			main@a = __t6;
+36:			push_param main@a;
+37:			stack_pointer +xxx
+38:			call len, 1;
+39:			stack_pointer -xxx
+40:			__t10 = return_value;
+41:			__t11 = __t10 + 1;
+42:			main@i = 0;
+43:			__t17 = main@i < __t11;
+44:			if_false __t17 goto 57;
+45:			__t12 = main@a;
+46:			__t13 = *(__t12);
+47:			__t14 = main@i >= __t13;
+48:			if_false __t14 goto 50;
+49:			exit_out_of_bound
+50:			__t13 = main@i * 8;
+51:			__t13 = __t13 + 8;
+52:			__t13 = __t12 + __t13;
+53:			__t16 = *(__t13);
+54:			string print __t16
+55:			main@i = main@i + 1;
+56:			goto 43;
+57:	end_func
 
-13:	begin_func LR0Parser@__init__
-14:			LR0Parser@__init__@parentname_ = pop_param;
-15:			LR0Parser@__init__@myname_ = pop_param;
-16:			self = pop_param;
-17:			__t1 = self + 8;
-18:			*(__t1) = LR0Parser@__init__@myname_;
-19:			__t2 = self + 0;
-20:			*(__t2) = LR0Parser@__init__@parentname_;
-21:	end_func
-
-22:	begin_func CLRParser@__init__
-23:			CLRParser@__init__@parentname_ = pop_param;
-24:			CLRParser@__init__@myname_ = pop_param;
-25:			self = pop_param;
-26:			__t3 = self + 8;
-27:			*(__t3) = CLRParser@__init__@myname_;
-28:			__t4 = self + 0;
-29:			*(__t4) = CLRParser@__init__@parentname_;
-30:	end_func
-
-31:	begin_func LALRParser@__init__
-32:			LALRParser@__init__@srname_ = pop_param;
-33:			LALRParser@__init__@clrname_ = pop_param;
-34:			LALRParser@__init__@myname_ = pop_param;
-35:			self = pop_param;
-36:			__t5 = self + 16;
-37:			*(__t5) = LALRParser@__init__@myname_;
-38:			__t6 = self + 8;
-39:			*(__t6) = LALRParser@__init__@clrname_;
-40:			__t7 = self + 0;
-41:			*(__t7) = LALRParser@__init__@srname_;
-42:	end_func
-
-43:	begin_func LALRParser@foo
-44:			self = pop_param;
-45:			LALRParser@foo@a = 5;
-46:			string make .LC0 into var __t8
-47:			string print __t8
-48:			__t9 = self + 0;
-49:			__t10 = *(__t9);
-50:			string print __t10
-51:			string make .LC1 into var __t11
-52:			string print __t11
-53:			__t12 = self + 8;
-54:			__t13 = *(__t12);
-55:			string print __t13
-56:			string make .LC2 into var __t14
-57:			string print __t14
-58:			__t15 = self + 16;
-59:			__t16 = *(__t15);
-60:			string print __t16
-61:	end_func
-
-62:	begin_func main
-63:			push_param 24;
-64:			stack_pointer +xxx
-65:			call allocmem, 1;
-66:			stack_pointer -xxx
-67:			__t20 = return_value;
-68:			push_param __t20;
-69:			string make .LC3 into var __t17
-70:			string make .LC4 into var __t18
-71:			string make .LC5 into var __t19
-72:			push_param __t17;
-73:			push_param __t18;
-74:			push_param __t19;
-75:			stack_pointer +xxx
-76:			call LALRParser@__init__, 4;
-77:			stack_pointer -xxx
-78:			none type function call ends
-79:			main@obj = __t20;
-80:			push_param main@obj;
-81:			stack_pointer +xxx
-82:			call LALRParser@foo, 1;
-83:			stack_pointer -xxx
-84:			none type function call ends
-85:	end_func
-
-86:	program start: 
-87:			stack_pointer +xxx
-88:			call main, 0;
-89:			stack_pointer -xxx
-90:			none type function call ends
+58:	program start: 
+59:			stack_pointer +xxx
+60:			call main, 0;
+61:			stack_pointer -xxx
+62:			none type function call ends

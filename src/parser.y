@@ -10,7 +10,7 @@ extern int in_loop;
 int node_count = 0;
 int ins_count = 0;
 int temp_count = 0;
-int str_count = 0;
+int str_count = 1;
 bool our_debug = false;
 vector <string> nodes;
 vector <vector <int>> adj;
@@ -512,6 +512,7 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
                 quad q2("", temp , "push_param", "");
                 q2.make_code_push_param();
                 current_node->ta_codes.push_back(q2);
+                current_node->var = temp;  /// chitwan
                 return check_constructor(typeLeft, actual_params, leftnode); 
             }
             else {
@@ -540,6 +541,9 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
         for(int i = 0; i < actual_params.size(); i++) {
             is_compatible(actual_params[i], func_table -> params[i + flag]-> type);
         }
+        // if(func_table -> return_type == "None"){
+        //     current_node->var = 
+        // }
         return func_table -> return_type;
     }
     return "UNDEFINED";
@@ -1696,7 +1700,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
             quad q("", "", "", "");
             q.make_code_from_none_return_val();
             all_nodes[$$]->ta_codes.push_back(q);
-            all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
+            // all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
         }
         else {
             string temp = get_new_temp();
@@ -1859,7 +1863,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         quad q("", "", "", "");
         q.make_code_from_none_return_val();
         all_nodes[$$]->ta_codes.push_back(q);
-        all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
+        // all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
     }
     else{
         string temp = get_new_temp();
