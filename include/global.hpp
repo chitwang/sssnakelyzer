@@ -73,7 +73,7 @@ public:
     bool is_class = false;
     string var = "undefined_var";
     string type = "";                   // To be used only if node is a terminal, empty otherwise. stores the token
-    string str_var = "";
+    // string str_var = "";
     node* parent = NULL;
     vector <string> type_list = {};           // Used for typechecking
     vector <string> var_list = {};           // Used for typechecking

@@ -371,7 +371,6 @@ string check_decl_before_use(string name , node *current_node) {
         current_node->is_var = true;
         current_node->var = existing_entry->mangled_name;
         current_node->sym_tab_entry = existing_entry;
-        current_node->str_var = existing_entry->str_var;
         return existing_entry -> type;
     }
 }
@@ -587,7 +586,6 @@ void set_var_class_func(int n1, int n2) {
     all_nodes[n1]->is_var = all_nodes[n2]->is_var;
     all_nodes[n1]->is_class = all_nodes[n2]->is_class;
     all_nodes[n1]->is_func = all_nodes[n2]->is_func;
-    all_nodes[n1]->str_var = all_nodes[n2]->str_var;
     if(all_nodes[n1]->is_func) all_nodes[n1]->sym_tab_func = all_nodes[n2]->sym_tab_func;
     return ;
 }
@@ -830,9 +828,6 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
     all_nodes[$$]->append_tac(all_nodes[$1]);
     all_nodes[$$]->append_tac(all_nodes[$3]);
     all_nodes[$$]->ta_codes.push_back(q);
-    if(all_nodes[$1]->sym_tab_entry) {
-        all_nodes[$1]->sym_tab_entry->str_var = all_nodes[$3]->str_var;
-    }
 }
 | test augassign testlist {node_attr = {"expr_stmt"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count; node_count += 1;
     string op = all_nodes[$2]->name.substr(9);
@@ -888,11 +883,7 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
         q = quad(all_nodes[$1]->var, arg1, "", "");
         q.make_code_from_assignment();
     }
-    all_nodes[$1]->str_var = all_nodes[$3]->str_var;
     all_nodes[$$]->ta_codes.push_back(q);
-    if(all_nodes[$1]->sym_tab_entry) {
-        all_nodes[$1]->sym_tab_entry->str_var = all_nodes[$3]->str_var;
-    }
 }
 | test {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->append_tac(all_nodes[$1]);
@@ -2050,7 +2041,6 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     string temp = get_new_str_temp();
     all_nodes[$$]->var = get_new_temp();
     string_list[temp] = str;
-    all_nodes[$$]->str_var = temp;
     quad q(all_nodes[$$]->var, temp, "", "");
     q.make_code_from_new_str();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -2158,7 +2148,6 @@ arglist: argument {node_attr = {"arglist"}; node_numbers = {$1}; insert_node(); 
     all_nodes[$$]->type_list.push_back(all_nodes[$1]->datatype);
     all_nodes[$$]->var_list.push_back(all_nodes[$1]->var);
     all_nodes[$$]->append_tac(all_nodes[$1]);
-    all_nodes[$$]->str_var = all_nodes[$1]->str_var;
 }
 | argument DELIM_COMMA arglist {node_attr = {",", "arglist"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     all_nodes[$$]->type_list = {all_nodes[$1]->datatype};
@@ -2172,14 +2161,12 @@ arglist: argument {node_attr = {"arglist"}; node_numbers = {$1}; insert_node(); 
     all_nodes[$$]->type_list.push_back(all_nodes[$1]->datatype);
     all_nodes[$$]->var_list.push_back(all_nodes[$1]->var);
     all_nodes[$$]->append_tac(all_nodes[$1]);
-    all_nodes[$$]->str_var = all_nodes[$1]->str_var;
 }
 
 argument: test {node_attr = {"argument"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->datatype = all_nodes[$1] -> datatype;
     all_nodes[$$]->var = all_nodes[$1]->var;
     all_nodes[$$]->append_tac(all_nodes[$1]);
-    all_nodes[$$]->str_var = all_nodes[$1]->str_var;
 }
 
 func_body_suite: single_stmt {node_attr = {"func_body_suite"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;

@@ -1,165 +1,380 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t60 = len@list;
-4:			__t61 = *(__t60);
-5:			return __t61;
+3:			__t69 = len@list;
+4:			__t70 = *(__t69);
+5:			return __t70;
 6:	end_func
 
-7:	begin_func bubbleSort
-8:			bubbleSort@array = pop_param;
-9:			bubbleSort@i = 0;
-10:			push_param bubbleSort@array;
-11:			stack_pointer +xxx
-12:			call len, 1;
-13:			stack_pointer -xxx
-14:			__t0 = return_value;
-15:			bubbleSort@i = 0;
-16:			__t39 = bubbleSort@i < __t0;
-17:			if_false __t39 goto 104;
-18:			bubbleSort@swapped = 0;
-19:			bubbleSort@j = 0;
-20:			push_param bubbleSort@array;
-21:			stack_pointer +xxx
-22:			call len, 1;
-23:			stack_pointer -xxx
-24:			__t1 = return_value;
-25:			__t2 = __t1 - bubbleSort@i;
-26:			__t3 = __t2 - 1;
-27:			bubbleSort@j = 0;
-28:			__t37 = bubbleSort@j < __t3;
-29:			if_false __t37 goto 99;
-30:			__t4 = bubbleSort@array;
-31:			__t5 = *(__t4);
-32:			__t6 = bubbleSort@j >= __t5;
-33:			if_false __t6 goto 35;
-34:			exit_out_of_bound
-35:			__t5 = bubbleSort@j * 8;
-36:			__t5 = __t5 + 8;
-37:			__t5 = __t4 + __t5;
-38:			__t13 = *(__t5);
-39:			__t9 = bubbleSort@array;
-40:			__t8 = bubbleSort@j + 1;
-41:			__t10 = *(__t9);
-42:			__t11 = __t8 >= __t10;
-43:			if_false __t11 goto 45;
-44:			exit_out_of_bound
-45:			__t10 = __t8 * 8;
-46:			__t10 = __t10 + 8;
-47:			__t10 = __t9 + __t10;
-48:			__t14 = *(__t10);
-49:			push_param __t13;
-50:			push_param __t14;
-51:			stack_pointer +xxx
-52:			call strcmp1, 2;
-53:			stack_pointer -xxx
-54:			__t15 = return_value;
-55:			__t16 = __t15 > 0;
-56:			if_false __t16 goto 97;
-57:			__t17 = bubbleSort@array;
-58:			__t18 = *(__t17);
-59:			__t19 = bubbleSort@j >= __t18;
-60:			if_false __t19 goto 62;
-61:			exit_out_of_bound
-62:			__t18 = bubbleSort@j * 8;
-63:			__t18 = __t18 + 8;
-64:			__t18 = __t17 + __t18;
-65:			__t21 = *(__t18);
-66:			bubbleSort@temp = __t21;
-67:			__t22 = bubbleSort@array;
-68:			__t23 = *(__t22);
-69:			__t24 = bubbleSort@j >= __t23;
-70:			if_false __t24 goto 72;
-71:			exit_out_of_bound
-72:			__t23 = bubbleSort@j * 8;
-73:			__t23 = __t23 + 8;
-74:			__t23 = __t22 + __t23;
-75:			__t27 = bubbleSort@array;
-76:			__t26 = bubbleSort@j + 1;
-77:			__t28 = *(__t27);
-78:			__t29 = __t26 >= __t28;
-79:			if_false __t29 goto 81;
-80:			exit_out_of_bound
-81:			__t28 = __t26 * 8;
-82:			__t28 = __t28 + 8;
-83:			__t28 = __t27 + __t28;
-84:			__t31 = *(__t28);
-85:			*(__t23) = __t31;
-86:			__t33 = bubbleSort@array;
-87:			__t32 = bubbleSort@j + 1;
-88:			__t34 = *(__t33);
-89:			__t35 = __t32 >= __t34;
-90:			if_false __t35 goto 92;
-91:			exit_out_of_bound
-92:			__t34 = __t32 * 8;
-93:			__t34 = __t34 + 8;
-94:			__t34 = __t33 + __t34;
-95:			*(__t34) = bubbleSort@temp;
-96:			bubbleSort@swapped = 1;
-97:			bubbleSort@j = bubbleSort@j + 1;
-98:			goto 28;
-99:			__t38 = !(bubbleSort@swapped);
-100:		if_false __t38 goto 102;
-101:		goto 104;
-102:		bubbleSort@i = bubbleSort@i + 1;
-103:		goto 16;
-104:end_func
+7:	begin_func GrandParent@__init__
+8:			self = pop_param;
+9:			__t0 = self + 0;
+10:			*(__t0) = 0;
+11:	end_func
 
-105:begin_func main
-106:		string make .LC1 into var __t40
-107:		string make .LC2 into var __t41
-108:		string make .LC3 into var __t42
-109:		string make .LC4 into var __t43
-110:		string make .LC5 into var __t44
-111:		string make .LC6 into var __t45
-112:		push_param 56;
-113:		stack_pointer +xxx
-114:		call allocmem, 1;
-115:		stack_pointer -xxx
-116:		__t46 = return_value;
-117:		*(__t46) = 6;
-118:		__t47 = __t46 + 8;
-119:		*(__t47) = __t40;
-120:		__t48 = __t46 + 16;
-121:		*(__t48) = __t41;
-122:		__t49 = __t46 + 24;
-123:		*(__t49) = __t42;
-124:		__t50 = __t46 + 32;
-125:		*(__t50) = __t43;
-126:		__t51 = __t46 + 40;
-127:		*(__t51) = __t44;
-128:		__t52 = __t46 + 48;
-129:		*(__t52) = __t45;
-130:		main@data = __t46;
-131:		push_param main@data;
-132:		stack_pointer +xxx
-133:		call bubbleSort, 1;
-134:		stack_pointer -xxx
-135:		none type function call ends
-136:		main@i = 0;
-137:		push_param main@data;
-138:		stack_pointer +xxx
-139:		call len, 1;
-140:		stack_pointer -xxx
-141:		__t53 = return_value;
-142:		main@i = 0;
-143:		__t59 = main@i < __t53;
-144:		if_false __t59 goto 157;
-145:		__t54 = main@data;
-146:		__t55 = *(__t54);
-147:		__t56 = main@i >= __t55;
-148:		if_false __t56 goto 150;
-149:		exit_out_of_bound
-150:		__t55 = main@i * 8;
-151:		__t55 = __t55 + 8;
-152:		__t55 = __t54 + __t55;
-153:		__t58 = *(__t55);
-154:		string print __t58
-155:		main@i = main@i + 1;
-156:		goto 143;
-157:end_func
+12:	begin_func GrandParent@show
+13:			GrandParent@show@num = pop_param;
+14:			self = pop_param;
+15:			string make .LC1 into var __t1
+16:			string print __t1
+17:			push_param GrandParent@show@num;
+18:			stack_pointer +xxx
+19:			call print, 1;
+20:			stack_pointer -xxx
+21:			none type function call ends
+22:			__t2 = self + 0;
+23:			__t3 = *(__t2);
+24:			push_param __t3;
+25:			stack_pointer +xxx
+26:			call print, 1;
+27:			stack_pointer -xxx
+28:			none type function call ends
+29:			__t4 = self + 0;
+30:			__t5 = *(__t4);
+31:			return __t5;
+32:	end_func
 
-158:program start: 
-159:		stack_pointer +xxx
-160:		call main, 0;
-161:		stack_pointer -xxx
-162:		none type function call ends
+33:	begin_func Parent@__init__
+34:			Parent@__init__@num = pop_param;
+35:			self = pop_param;
+36:			__t6 = self + 8;
+37:			*(__t6) = Parent@__init__@num;
+38:			__t7 = self + 0;
+39:			*(__t7) = 1;
+40:	end_func
+
+41:	begin_func Parent@ret_grand_parent
+42:			self = pop_param;
+43:			push_param 8;
+44:			stack_pointer +xxx
+45:			call allocmem, 1;
+46:			stack_pointer -xxx
+47:			__t8 = return_value;
+48:			push_param __t8;
+49:			stack_pointer +xxx
+50:			call GrandParent@__init__, 1;
+51:			stack_pointer -xxx
+52:			none type function call ends
+53:			Parent@ret_grand_parent@g1 = __t8;
+54:			push_param 8;
+55:			stack_pointer +xxx
+56:			call allocmem, 1;
+57:			stack_pointer -xxx
+58:			__t9 = return_value;
+59:			push_param __t9;
+60:			stack_pointer +xxx
+61:			call GrandParent@__init__, 1;
+62:			stack_pointer -xxx
+63:			none type function call ends
+64:			Parent@ret_grand_parent@g2 = __t9;
+65:			push_param 8;
+66:			stack_pointer +xxx
+67:			call allocmem, 1;
+68:			stack_pointer -xxx
+69:			__t10 = return_value;
+70:			push_param __t10;
+71:			stack_pointer +xxx
+72:			call GrandParent@__init__, 1;
+73:			stack_pointer -xxx
+74:			none type function call ends
+75:			Parent@ret_grand_parent@g3 = __t10;
+76:			push_param 8;
+77:			stack_pointer +xxx
+78:			call allocmem, 1;
+79:			stack_pointer -xxx
+80:			__t11 = return_value;
+81:			push_param __t11;
+82:			stack_pointer +xxx
+83:			call GrandParent@__init__, 1;
+84:			stack_pointer -xxx
+85:			none type function call ends
+86:			Parent@ret_grand_parent@g4 = __t11;
+87:			push_param 40;
+88:			stack_pointer +xxx
+89:			call allocmem, 1;
+90:			stack_pointer -xxx
+91:			__t12 = return_value;
+92:			*(__t12) = 4;
+93:			__t13 = __t12 + 8;
+94:			*(__t13) = Parent@ret_grand_parent@g1;
+95:			__t14 = __t12 + 16;
+96:			*(__t14) = Parent@ret_grand_parent@g2;
+97:			__t15 = __t12 + 24;
+98:			*(__t15) = Parent@ret_grand_parent@g3;
+99:			__t16 = __t12 + 32;
+100:		*(__t16) = Parent@ret_grand_parent@g4;
+101:		return __t12;
+102:end_func
+
+103:begin_func Child@__init__
+104:		Child@__init__@b = pop_param;
+105:		Child@__init__@num = pop_param;
+106:		Child@__init__@name = pop_param;
+107:		self = pop_param;
+108:		__t17 = self + 8;
+109:		*(__t17) = Child@__init__@num;
+110:		__t18 = self + 16;
+111:		*(__t18) = Child@__init__@name;
+112:		__t19 = self + 0;
+113:		*(__t19) = Child@__init__@b;
+114:end_func
+
+115:begin_func Child@ret_parent
+116:		self = pop_param;
+117:		push_param 16;
+118:		stack_pointer +xxx
+119:		call allocmem, 1;
+120:		stack_pointer -xxx
+121:		__t20 = return_value;
+122:		push_param __t20;
+123:		push_param 1;
+124:		stack_pointer +xxx
+125:		call Parent@__init__, 2;
+126:		stack_pointer -xxx
+127:		none type function call ends
+128:		Child@ret_parent@p1 = __t20;
+129:		push_param 16;
+130:		stack_pointer +xxx
+131:		call allocmem, 1;
+132:		stack_pointer -xxx
+133:		__t21 = return_value;
+134:		push_param __t21;
+135:		push_param 2;
+136:		stack_pointer +xxx
+137:		call Parent@__init__, 2;
+138:		stack_pointer -xxx
+139:		none type function call ends
+140:		Child@ret_parent@p2 = __t21;
+141:		push_param 16;
+142:		stack_pointer +xxx
+143:		call allocmem, 1;
+144:		stack_pointer -xxx
+145:		__t22 = return_value;
+146:		push_param __t22;
+147:		push_param 3;
+148:		stack_pointer +xxx
+149:		call Parent@__init__, 2;
+150:		stack_pointer -xxx
+151:		none type function call ends
+152:		Child@ret_parent@p3 = __t22;
+153:		push_param 16;
+154:		stack_pointer +xxx
+155:		call allocmem, 1;
+156:		stack_pointer -xxx
+157:		__t23 = return_value;
+158:		push_param __t23;
+159:		push_param 4;
+160:		stack_pointer +xxx
+161:		call Parent@__init__, 2;
+162:		stack_pointer -xxx
+163:		none type function call ends
+164:		Child@ret_parent@p4 = __t23;
+165:		push_param 16;
+166:		stack_pointer +xxx
+167:		call allocmem, 1;
+168:		stack_pointer -xxx
+169:		__t24 = return_value;
+170:		push_param __t24;
+171:		push_param 5;
+172:		stack_pointer +xxx
+173:		call Parent@__init__, 2;
+174:		stack_pointer -xxx
+175:		none type function call ends
+176:		Child@ret_parent@p5 = __t24;
+177:		push_param 16;
+178:		stack_pointer +xxx
+179:		call allocmem, 1;
+180:		stack_pointer -xxx
+181:		__t25 = return_value;
+182:		push_param __t25;
+183:		push_param 6;
+184:		stack_pointer +xxx
+185:		call Parent@__init__, 2;
+186:		stack_pointer -xxx
+187:		none type function call ends
+188:		Child@ret_parent@p6 = __t25;
+189:		push_param 16;
+190:		stack_pointer +xxx
+191:		call allocmem, 1;
+192:		stack_pointer -xxx
+193:		__t26 = return_value;
+194:		push_param __t26;
+195:		push_param 7;
+196:		stack_pointer +xxx
+197:		call Parent@__init__, 2;
+198:		stack_pointer -xxx
+199:		none type function call ends
+200:		Child@ret_parent@p7 = __t26;
+201:		push_param 16;
+202:		stack_pointer +xxx
+203:		call allocmem, 1;
+204:		stack_pointer -xxx
+205:		__t27 = return_value;
+206:		push_param __t27;
+207:		push_param 8;
+208:		stack_pointer +xxx
+209:		call Parent@__init__, 2;
+210:		stack_pointer -xxx
+211:		none type function call ends
+212:		Child@ret_parent@p8 = __t27;
+213:		push_param 16;
+214:		stack_pointer +xxx
+215:		call allocmem, 1;
+216:		stack_pointer -xxx
+217:		__t28 = return_value;
+218:		push_param __t28;
+219:		push_param 9;
+220:		stack_pointer +xxx
+221:		call Parent@__init__, 2;
+222:		stack_pointer -xxx
+223:		none type function call ends
+224:		Child@ret_parent@p9 = __t28;
+225:		push_param 16;
+226:		stack_pointer +xxx
+227:		call allocmem, 1;
+228:		stack_pointer -xxx
+229:		__t29 = return_value;
+230:		push_param __t29;
+231:		push_param 10;
+232:		stack_pointer +xxx
+233:		call Parent@__init__, 2;
+234:		stack_pointer -xxx
+235:		none type function call ends
+236:		Child@ret_parent@p10 = __t29;
+237:		push_param 88;
+238:		stack_pointer +xxx
+239:		call allocmem, 1;
+240:		stack_pointer -xxx
+241:		__t30 = return_value;
+242:		*(__t30) = 10;
+243:		__t31 = __t30 + 8;
+244:		*(__t31) = Child@ret_parent@p1;
+245:		__t32 = __t30 + 16;
+246:		*(__t32) = Child@ret_parent@p2;
+247:		__t33 = __t30 + 24;
+248:		*(__t33) = Child@ret_parent@p3;
+249:		__t34 = __t30 + 32;
+250:		*(__t34) = Child@ret_parent@p4;
+251:		__t35 = __t30 + 40;
+252:		*(__t35) = Child@ret_parent@p5;
+253:		__t36 = __t30 + 48;
+254:		*(__t36) = Child@ret_parent@p6;
+255:		__t37 = __t30 + 56;
+256:		*(__t37) = Child@ret_parent@p7;
+257:		__t38 = __t30 + 64;
+258:		*(__t38) = Child@ret_parent@p8;
+259:		__t39 = __t30 + 72;
+260:		*(__t39) = Child@ret_parent@p9;
+261:		__t40 = __t30 + 80;
+262:		*(__t40) = Child@ret_parent@p10;
+263:		Child@ret_parent@obj = __t30;
+264:		return Child@ret_parent@obj;
+265:end_func
+
+266:begin_func Child@display
+267:		self = pop_param;
+268:		__t41 = self + 16;
+269:		__t42 = *(__t41);
+270:		string print __t42
+271:		__t43 = self + 8;
+272:		__t44 = *(__t43);
+273:		push_param __t44;
+274:		stack_pointer +xxx
+275:		call print, 1;
+276:		stack_pointer -xxx
+277:		none type function call ends
+278:end_func
+
+279:begin_func main
+280:		push_param 24;
+281:		stack_pointer +xxx
+282:		call allocmem, 1;
+283:		stack_pointer -xxx
+284:		__t46 = return_value;
+285:		push_param __t46;
+286:		string make .LC2 into var __t45
+287:		push_param __t45;
+288:		push_param 100;
+289:		push_param 1;
+290:		stack_pointer +xxx
+291:		call Child@__init__, 4;
+292:		stack_pointer -xxx
+293:		none type function call ends
+294:		main@c = __t46;
+295:		push_param 8;
+296:		stack_pointer +xxx
+297:		call allocmem, 1;
+298:		stack_pointer -xxx
+299:		__t47 = return_value;
+300:		push_param __t47;
+301:		stack_pointer +xxx
+302:		call GrandParent@__init__, 1;
+303:		stack_pointer -xxx
+304:		none type function call ends
+305:		main@obj = __t47;
+306:		push_param main@c;
+307:		stack_pointer +xxx
+308:		call Child@ret_parent, 1;
+309:		stack_pointer -xxx
+310:		__t48 = return_value;
+311:		__t49 = __t48;
+312:		__t50 = *(__t49);
+313:		__t51 = 3 >= __t50;
+314:		if_false __t51 goto 316;
+315:		exit_out_of_bound
+316:		__t50 = 3 * 8;
+317:		__t50 = __t50 + 8;
+318:		__t50 = __t49 + __t50;
+319:		__t53 = *(__t50);
+320:		push_param __t53;
+321:		stack_pointer +xxx
+322:		call Parent@ret_grand_parent, 1;
+323:		stack_pointer -xxx
+324:		__t54 = return_value;
+325:		__t55 = __t54;
+326:		__t56 = *(__t55);
+327:		__t57 = 1 >= __t56;
+328:		if_false __t57 goto 330;
+329:		exit_out_of_bound
+330:		__t56 = 1 * 8;
+331:		__t56 = __t56 + 8;
+332:		__t56 = __t55 + __t56;
+333:		__t59 = *(__t56);
+334:		push_param __t59;
+335:		push_param main@c;
+336:		stack_pointer +xxx
+337:		call Child@ret_parent, 1;
+338:		stack_pointer -xxx
+339:		__t60 = return_value;
+340:		__t61 = __t60;
+341:		__t62 = *(__t61);
+342:		__t63 = 9 >= __t62;
+343:		if_false __t63 goto 345;
+344:		exit_out_of_bound
+345:		__t62 = 9 * 8;
+346:		__t62 = __t62 + 8;
+347:		__t62 = __t61 + __t62;
+348:		__t66 = *(__t62);
+349:		__t65 = __t66 + 8;
+350:		__t67 = *(__t65);
+351:		push_param __t67;
+352:		stack_pointer +xxx
+353:		call GrandParent@show, 2;
+354:		stack_pointer -xxx
+355:		__t68 = return_value;
+356:		push_param __t68;
+357:		stack_pointer +xxx
+358:		call print, 1;
+359:		stack_pointer -xxx
+360:		none type function call ends
+361:		push_param main@c;
+362:		stack_pointer +xxx
+363:		call Child@display, 1;
+364:		stack_pointer -xxx
+365:		none type function call ends
+366:end_func
+
+367:program start: 
+368:		stack_pointer +xxx
+369:		call main, 0;
+370:		stack_pointer -xxx
+371:		none type function call ends
