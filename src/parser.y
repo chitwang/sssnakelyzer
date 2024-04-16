@@ -119,10 +119,11 @@ void print_help() {
     cout << endl;
     cout << "--output=<output_file_path> \t: Output file specification (default is 3AC.txt)" << endl;
     cout << "--help \t\t\t\t: Instruction regarding usage instructions and options" << endl;
+    cout << "--symbtab \t\t\t: Print the symbol tables in separate .csv files" << endl;
+    cout << "--no-save-temps \t\t: To remove temporary files after execution (by default they are saved)" << endl;
     cout << "--verbose1 \t\t\t: Prints our custom debug statements while reducing a production" << endl;
     cout << "--verbose2 \t\t\t: Prints the complete stack trace of the parser execution" << endl;
     cout << endl;
-    exit(1);
 }
 
 string get_new_temp() {
@@ -2232,8 +2233,9 @@ int main(int argc, char* argv[]) {
     current_table = global_table;
     temp_table = NULL;
     bool help_flag = false;
+    bool print_symbtab = false;
     string input_file = "";
-    string output_file = "3AC.txt";
+    string output_file = "code.s";
 
     for(int i = 1; i < argc; i++) {
         string s = argv[i];
@@ -2249,10 +2251,17 @@ int main(int argc, char* argv[]) {
             our_debug = true;
             continue;
         }
+        if(s == "--symbtab") {
+            print_symbtab = true;
+        }
+        if(s == "--no-save-temps") {
+            // Do nothing
+        }
         if(s.length() <= 7) {
             cerr << "Wrong flag used!!" << endl;
             cout << endl;
             print_help();
+            exit(1);
         }
         if(s.substr(0, 8) == "--input=") {
             input_file = s.substr(8);
@@ -2264,19 +2273,25 @@ int main(int argc, char* argv[]) {
             cerr << "Wrong flag used!!" << endl;
             cout << endl;
             print_help();
+            exit(1);
         }
     }
 
     if(!help_flag && input_file.empty()) {
         cout << "Input file not specified!" << endl;
         cout << endl;
-        help_flag = 1;
+        print_help();
+        exit(1);
     }
 
     if(help_flag) {
         print_help();
     }
-
+    
+    if(input_file == "") {
+        exit(1);
+    }
+    
     if(input_file != "") {
         freopen(input_file.c_str(), "r", stdin);
     }
@@ -2284,16 +2299,20 @@ int main(int argc, char* argv[]) {
     global_table->add_Print();
     global_table->add_Len();
     yyparse();
+    
     root_node = all_nodes.back();
-    global_table->make_csv_wrapper("st.csv");
+
+    if(print_symbtab) {
+        global_table->make_csv_wrapper("st.csv");
+    }
     
     ins_count = 1; 
-    root_node->print_tac(output_file);
-    codegen* gen = new codegen();
+    root_node->print_tac("3AC.txt");
+    task_struct* gen = new task_struct();
     gen->gen_global();
     gen->gen_text(); 
 
-    gen->print_code("code.s");
+    gen->print_code(output_file);
     return 0;
 }
 

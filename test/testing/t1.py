@@ -1,5 +1,5 @@
 def main():
-    i : int = 42
+    i = 42
     print(i)
     j : int = 43  
     string : str = "Hello, World!"

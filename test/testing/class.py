@@ -36,6 +36,7 @@ class Person2:
 
 def add(a : int, b : int) -> int:
     return a + b
+
 class Person3:
     def __init__(self, name : str, age : int) -> None:
         self.name : str = name

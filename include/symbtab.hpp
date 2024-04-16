@@ -14,7 +14,6 @@ public:
     int offset = 0; // offset for field declarations 
     int dimensions = 0;
     bool initialized = false;   // FIELD DECLARATIONS are initialized with default values
-    // string str_var = "";
     string name;
     string mangled_name;
     string type;
