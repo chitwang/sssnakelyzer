@@ -56,9 +56,9 @@ class Child(Parent):
 def main():
   c:Child = Child("Yello", 100, True)
   obj:GrandParent = GrandParent()
-  # print(c.ret_parent()[9].num)
+  print(c.ret_parent()[9].num)
   # print(c.ret_parent()[3].ret_grand_parent()[1].show())
-  # print(c.ret_parent()[3].ret_grand_parent()[1].show(5))
+  print(c.ret_parent()[3].ret_grand_parent()[1].show(5))
   print(c.ret_parent()[3].ret_grand_parent()[1].show(c.ret_parent()[9].num))
   # print(obj.show(1))
   c.display()

@@ -1,8 +1,8 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t69 = len@list;
-4:			__t70 = *(__t69);
-5:			return __t70;
+3:			__t90 = len@list;
+4:			__t91 = *(__t90);
+5:			return __t91;
 6:	end_func
 
 7:	begin_func GrandParent@__init__
@@ -285,13 +285,13 @@
 278:end_func
 
 279:begin_func main
-280:		push_param 24;
-281:		stack_pointer +xxx
-282:		call allocmem, 1;
-283:		stack_pointer -xxx
-284:		__t46 = return_value;
-285:		push_param __t46;
-286:		string make .LC2 into var __t45
+280:		string make .LC2 into var __t45
+281:		push_param 24;
+282:		stack_pointer +xxx
+283:		call allocmem, 1;
+284:		stack_pointer -xxx
+285:		__t46 = return_value;
+286:		push_param __t46;
 287:		push_param __t45;
 288:		push_param 100;
 289:		push_param 1;
@@ -318,63 +318,123 @@
 310:		__t48 = return_value;
 311:		__t49 = __t48;
 312:		__t50 = *(__t49);
-313:		__t51 = 3 >= __t50;
+313:		__t51 = 9 >= __t50;
 314:		if_false __t51 goto 316;
 315:		exit_out_of_bound
-316:		__t50 = 3 * 8;
+316:		__t50 = 9 * 8;
 317:		__t50 = __t50 + 8;
 318:		__t50 = __t49 + __t50;
-319:		__t53 = *(__t50);
-320:		push_param __t53;
-321:		stack_pointer +xxx
-322:		call Parent@ret_grand_parent, 1;
-323:		stack_pointer -xxx
-324:		__t54 = return_value;
-325:		__t55 = __t54;
-326:		__t56 = *(__t55);
-327:		__t57 = 1 >= __t56;
-328:		if_false __t57 goto 330;
-329:		exit_out_of_bound
-330:		__t56 = 1 * 8;
-331:		__t56 = __t56 + 8;
-332:		__t56 = __t55 + __t56;
-333:		__t59 = *(__t56);
-334:		push_param __t59;
-335:		push_param main@c;
-336:		stack_pointer +xxx
-337:		call Child@ret_parent, 1;
-338:		stack_pointer -xxx
-339:		__t60 = return_value;
-340:		__t61 = __t60;
-341:		__t62 = *(__t61);
-342:		__t63 = 9 >= __t62;
-343:		if_false __t63 goto 345;
-344:		exit_out_of_bound
-345:		__t62 = 9 * 8;
-346:		__t62 = __t62 + 8;
-347:		__t62 = __t61 + __t62;
-348:		__t66 = *(__t62);
-349:		__t65 = __t66 + 8;
-350:		__t67 = *(__t65);
-351:		push_param __t67;
-352:		stack_pointer +xxx
-353:		call GrandParent@show, 2;
-354:		stack_pointer -xxx
-355:		__t68 = return_value;
-356:		push_param __t68;
+319:		__t54 = *(__t50);
+320:		__t53 = __t54 + 8;
+321:		__t55 = *(__t53);
+322:		push_param __t55;
+323:		stack_pointer +xxx
+324:		call print, 1;
+325:		stack_pointer -xxx
+326:		none type function call ends
+327:		push_param main@c;
+328:		stack_pointer +xxx
+329:		call Child@ret_parent, 1;
+330:		stack_pointer -xxx
+331:		__t56 = return_value;
+332:		__t57 = __t56;
+333:		__t58 = *(__t57);
+334:		__t59 = 3 >= __t58;
+335:		if_false __t59 goto 337;
+336:		exit_out_of_bound
+337:		__t58 = 3 * 8;
+338:		__t58 = __t58 + 8;
+339:		__t58 = __t57 + __t58;
+340:		__t61 = *(__t58);
+341:		push_param __t61;
+342:		stack_pointer +xxx
+343:		call Parent@ret_grand_parent, 1;
+344:		stack_pointer -xxx
+345:		__t62 = return_value;
+346:		__t63 = __t62;
+347:		__t64 = *(__t63);
+348:		__t65 = 1 >= __t64;
+349:		if_false __t65 goto 351;
+350:		exit_out_of_bound
+351:		__t64 = 1 * 8;
+352:		__t64 = __t64 + 8;
+353:		__t64 = __t63 + __t64;
+354:		__t67 = *(__t64);
+355:		push_param __t67;
+356:		push_param 5;
 357:		stack_pointer +xxx
-358:		call print, 1;
+358:		call GrandParent@show, 2;
 359:		stack_pointer -xxx
-360:		none type function call ends
-361:		push_param main@c;
+360:		__t68 = return_value;
+361:		push_param __t68;
 362:		stack_pointer +xxx
-363:		call Child@display, 1;
+363:		call print, 1;
 364:		stack_pointer -xxx
 365:		none type function call ends
-366:end_func
+366:		push_param main@c;
+367:		stack_pointer +xxx
+368:		call Child@ret_parent, 1;
+369:		stack_pointer -xxx
+370:		__t69 = return_value;
+371:		__t70 = __t69;
+372:		__t71 = *(__t70);
+373:		__t72 = 3 >= __t71;
+374:		if_false __t72 goto 376;
+375:		exit_out_of_bound
+376:		__t71 = 3 * 8;
+377:		__t71 = __t71 + 8;
+378:		__t71 = __t70 + __t71;
+379:		__t74 = *(__t71);
+380:		push_param __t74;
+381:		stack_pointer +xxx
+382:		call Parent@ret_grand_parent, 1;
+383:		stack_pointer -xxx
+384:		__t75 = return_value;
+385:		__t76 = __t75;
+386:		__t77 = *(__t76);
+387:		__t78 = 1 >= __t77;
+388:		if_false __t78 goto 390;
+389:		exit_out_of_bound
+390:		__t77 = 1 * 8;
+391:		__t77 = __t77 + 8;
+392:		__t77 = __t76 + __t77;
+393:		push_param main@c;
+394:		stack_pointer +xxx
+395:		call Child@ret_parent, 1;
+396:		stack_pointer -xxx
+397:		__t80 = return_value;
+398:		__t81 = __t80;
+399:		__t82 = *(__t81);
+400:		__t83 = 9 >= __t82;
+401:		if_false __t83 goto 403;
+402:		exit_out_of_bound
+403:		__t82 = 9 * 8;
+404:		__t82 = __t82 + 8;
+405:		__t82 = __t81 + __t82;
+406:		__t86 = *(__t82);
+407:		__t85 = __t86 + 8;
+408:		__t87 = *(__t77);
+409:		push_param __t87;
+410:		__t88 = *(__t85);
+411:		push_param __t88;
+412:		stack_pointer +xxx
+413:		call GrandParent@show, 2;
+414:		stack_pointer -xxx
+415:		__t89 = return_value;
+416:		push_param __t89;
+417:		stack_pointer +xxx
+418:		call print, 1;
+419:		stack_pointer -xxx
+420:		none type function call ends
+421:		push_param main@c;
+422:		stack_pointer +xxx
+423:		call Child@display, 1;
+424:		stack_pointer -xxx
+425:		none type function call ends
+426:end_func
 
-367:program start: 
-368:		stack_pointer +xxx
-369:		call main, 0;
-370:		stack_pointer -xxx
-371:		none type function call ends
+427:program start: 
+428:		stack_pointer +xxx
+429:		call main, 0;
+430:		stack_pointer -xxx
+431:		none type function call ends

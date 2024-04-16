@@ -395,12 +395,13 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
             exit(1);
         }
         else {
-            b = check_star_and_make(current_node, b);
-            quad q0("", b , "push_param", "");
-            q0.make_code_push_param();
-            current_node->ta_codes.push_back(q0);
+            // b = check_star_and_make(current_node, b);
+            // quad q0("", b , "push_param", "");
+            // q0.make_code_push_param();
+            // current_node->ta_codes.push_back(q0);
             current_node -> var = function_entry->mangled_name;
             current_node -> is_func = true;
+            current_node -> is_class_func = b;
             current_node -> sym_tab_func = function_entry;
             return function_entry -> return_type;
         }
@@ -1640,9 +1641,9 @@ atom_expr: atom { node_attr = {"atom_expr"}; node_numbers = {$1}; insert_node();
 
 trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     all_nodes[$$]->append_tac(all_nodes[$1]);  // chitwan -- missing tha ye
+    all_nodes[$$]->append_tac(all_nodes[$3]);
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1], all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
-    all_nodes[$$]->append_tac(all_nodes[$3]);
     if(all_nodes[$1]->var == "print_str") {
         string arg1 = check_star_and_make(all_nodes[$$], all_nodes[$3]->var_list[0]);
         quad q("", arg1, "", "");
@@ -1650,6 +1651,13 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         all_nodes[$$]->ta_codes.push_back(q);
     }
     else {
+        if(all_nodes[$1]->is_class_func != ""){
+            string b = all_nodes[$1]->is_class_func;
+            b = check_star_and_make(all_nodes[$$], b);
+            quad q0("", b , "push_param", "");
+            q0.make_code_push_param();
+            all_nodes[$$]->ta_codes.push_back(q0);
+        }
         for(int i=0;i<all_nodes[$3]->var_list.size();i++) {
             string arg1 = all_nodes[$3]->var_list[i];
             arg1 = check_star_and_make(all_nodes[$$], arg1);
@@ -1674,24 +1682,10 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         q = quad("", "-", "", "");
         q.make_code_shift_pointer();
         all_nodes[$$]->ta_codes.push_back(q);  
-        // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/){
-        //     string temp = get_new_temp();
-        //     // quad q1(temp, "pop_param", "=", "");
-        //     // q1.make_code_from_assignment();
-        //     quad q1(temp, "", "", "");
-        //     q1.make_code_from_return_val();
-        //     all_nodes[$$]->ta_codes.push_back(q1);
-        //     all_nodes[$$]->var = temp;
-        // }
-        // else {
-        //     string temp = "__t" + to_string(temp_count - 1);
-        //     all_nodes[$$]->var = temp;
-        // }
         if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
             quad q("", "", "", "");
             q.make_code_from_none_return_val();
             all_nodes[$$]->ta_codes.push_back(q);
-            // all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
         }
         else {
             string temp = get_new_temp();
@@ -1707,6 +1701,13 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->append_tac(all_nodes[$1]); // chitwan -- ye missing tha
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
+    if(all_nodes[$1]->is_class_func != ""){
+        string b = all_nodes[$1]->is_class_func;
+        b = check_star_and_make(all_nodes[$$], b);
+        quad q0("", b , "push_param", "");
+        q0.make_code_push_param();
+        all_nodes[$$]->ta_codes.push_back(q0);
+    }
     int num_params = 0;
     if(all_nodes[$1]->sym_tab_func) {
         num_params = all_nodes[$1]->sym_tab_func->params.size();
@@ -1720,19 +1721,6 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q = quad("", "-", "", "");
     q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
-    // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/) {
-    //     string temp = get_new_temp();
-    //     // quad q1(temp, "pop_param", "=", "");
-    //     // q1.make_code_from_assignment();
-    //     quad q1(temp, "", "", "");
-    //     q1.make_code_from_return_val();
-    //     all_nodes[$$]->ta_codes.push_back(q1);
-    //     all_nodes[$$]->var = temp;
-    // }
-    // else {
-    //     string temp = "__t" + to_string(temp_count - 1);
-    //     all_nodes[$$]->var = temp;
-    // }
     if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
         quad q("", "", "", "");
         q.make_code_from_none_return_val();
@@ -1812,9 +1800,16 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
 }
 | trailored_atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(", ")", "trailored_atom"}; node_numbers = {$1, node_count, $3, node_count + 1}; insert_node(); $$ = node_count + 2;
     all_nodes[$$]->append_tac(all_nodes[$1]); // chitwan -- ye missing tha
+    all_nodes[$$]->append_tac(all_nodes[$3]);
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer", "", all_nodes[$3]->type_list);
     node_count += 3;
-    all_nodes[$$]->append_tac(all_nodes[$3]);
+    if(all_nodes[$1]->is_class_func != ""){
+        string b = all_nodes[$1]->is_class_func;
+        b = check_star_and_make(all_nodes[$$], b);
+        quad q0("", b , "push_param", "");
+        q0.make_code_push_param();
+        all_nodes[$$]->ta_codes.push_back(q0);
+    }
     for(int i=0;i<all_nodes[$3]->var_list.size();i++){
     // for(int i=all_nodes[$3]->var_list.size()-1;i>=0;i--){
         string arg1 = all_nodes[$3]->var_list[i];
@@ -1836,25 +1831,10 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q = quad("", "-", "", "");
     q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
-
-    // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/){
-    //     string temp = get_new_temp();
-    //     // quad q1(temp, "pop_param", "=", "");
-    //     // q1.make_code_from_assignment();
-    //     quad q1(temp, "", "", "");
-    //     q1.make_code_from_return_val();
-    //     all_nodes[$$]->ta_codes.push_back(q1);
-    //     all_nodes[$$]->var = temp;
-    // }
-    // else {
-    //     string temp = "__t" + to_string(temp_count - 1);
-    //     all_nodes[$$]->var = temp;
-    // }
     if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
         quad q("", "", "", "");
         q.make_code_from_none_return_val();
         all_nodes[$$]->ta_codes.push_back(q);
-        // all_nodes[$$]->var = "__t" + to_string(temp_count - 1);
     }
     else{
         string temp = get_new_temp();
@@ -1868,6 +1848,13 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     all_nodes[$$]->append_tac(all_nodes[$1]); // chitwan -- ye missing tha
     all_nodes[$$]->datatype = set_trailer_type_compatibility($$, all_nodes[$1],all_nodes[$1]->datatype, "functrailer");
     node_count += 3;
+    if(all_nodes[$1]->is_class_func != ""){
+        string b = all_nodes[$1]->is_class_func;
+        b = check_star_and_make(all_nodes[$$], b);
+        quad q0("", b , "push_param", "");
+        q0.make_code_push_param();
+        all_nodes[$$]->ta_codes.push_back(q0);
+    }
     int num_params = 0;
     if(all_nodes[$1]->sym_tab_func) {
         num_params = all_nodes[$1]->sym_tab_func->params.size();
@@ -1881,19 +1868,6 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
     q = quad("", "-", "", "");
     q.make_code_shift_pointer();
     all_nodes[$$]->ta_codes.push_back(q);  
-    // if(all_nodes[$$] -> datatype != "None" && all_nodes[$$] -> datatype != "UNDEFINED" /*&& is_not_class(all_nodes[$$] -> datatype)*/){
-    //     string temp = get_new_temp();
-    //     // quad q1(temp, "pop_param", "=", "");
-    //     // q1.make_code_from_assignment();
-    //     quad q1(temp, "", "", "");
-    //     q1.make_code_from_return_val();
-    //     all_nodes[$$]->ta_codes.push_back(q1);
-    //     all_nodes[$$]->var = temp;
-    // }
-    // else {
-    //     string temp = "__t" + to_string(temp_count - 1);
-    //     all_nodes[$$]->var = temp;
-    // }
     if(all_nodes[$$]->datatype == "None" || all_nodes[$1]->is_class) {
         quad q("", "", "", "");
         q.make_code_from_none_return_val();
@@ -2000,8 +1974,6 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     q = quad("", "-", "", "");
     q.make_code_shift_pointer(); 
     all_nodes[$$]->ta_codes.push_back(q);  
-    // quad q2(all_nodes[$$]->var, "pop_param", "=", "");
-    // q2.make_code_from_assignment();
     quad q2(all_nodes[$$]->var, "", "", "");
     q2.make_code_from_return_val();
     all_nodes[$$]->ta_codes.push_back(q2);

@@ -22,16 +22,16 @@ func1:
 		pushq	%r15
 		sub	$16,	%rsp
 
-		# __t69 = len@list;
+		# __t90 = len@list;
 		movq	16(%rbp),	%rdx
 		movq	%rdx,	-64(%rbp)
 
-		# __t70 = *(__t69);
+		# __t91 = *(__t90);
 		movq	-64(%rbp),	%rdx
 		movq	(%rdx),	%rdx
 		movq	%rdx,	-72(%rbp)
 
-		# return __t70;
+		# return __t91;
 		movq	-72(%rbp),	%rax
 		add	$16,	%rsp
 		popq	%r15
@@ -1417,7 +1417,11 @@ func9:
 		pushq	%r13
 		pushq	%r14
 		pushq	%r15
-		sub	$184,	%rsp
+		sub	$328,	%rsp
+
+		# string make .LC2 into var __t45
+		leaq	.LC2(%rip),	%rdi
+		movq	%rdi,	-64(%rbp)
 
 		# push_param 24;
 		pushq	%rax
@@ -1434,7 +1438,7 @@ func9:
 		add	$8,	%rsp
 
 		# __t46 = return_value;
-		mov	%rax,	-64(%rbp)
+		mov	%rax,	-72(%rbp)
 		popq	%r11
 		popq	%r10
 		popq	%r9
@@ -1451,14 +1455,10 @@ func9:
 		pushq	%r9
 		pushq	%r10
 		pushq	%r11
-		pushq	-64(%rbp)
-
-		# string make .LC2 into var __t45
-		leaq	.LC2(%rip),	%rdi
-		movq	%rdi,	-72(%rbp)
+		pushq	-72(%rbp)
 
 		# push_param __t45;
-		pushq	-72(%rbp)
+		pushq	-64(%rbp)
 
 		# push_param 100;
 		pushq	$100
@@ -1480,7 +1480,7 @@ func9:
 		popq	%rax
 
 		# main@c = __t46;
-		movq	-64(%rbp),	%rdx
+		movq	-72(%rbp),	%rdx
 		movq	%rdx,	-80(%rbp)
 
 		# push_param 8;
@@ -1567,8 +1567,8 @@ func9:
 		movq	(%rdx),	%rdx
 		movq	%rdx,	-120(%rbp)
 
-		# __t51 = 3 >= __t50;
-		movq	$3,	%rdx
+		# __t51 = 9 >= __t50;
+		movq	$9,	%rdx
 		movq	-120(%rbp),	%rcx
 		cmp	%rdx,	%rcx
 		jle	1f
@@ -1592,9 +1592,9 @@ func9:
 		xor	%rdi,	%rdi
 		syscall
 
-		# __t50 = 3 * 8;
+		# __t50 = 9 * 8;
 L316:
-		movq	$3,	%rdx
+		movq	$9,	%rdx
 		imul	$8,	%rdx
 		movq	%rdx,	-120(%rbp)
 
@@ -1608,12 +1608,22 @@ L316:
 		add	-120(%rbp),	%rdx
 		movq	%rdx,	-120(%rbp)
 
-		# __t53 = *(__t50);
+		# __t54 = *(__t50);
 		movq	-120(%rbp),	%rdx
 		movq	(%rdx),	%rdx
 		movq	%rdx,	-136(%rbp)
 
-		# push_param __t53;
+		# __t53 = __t54 + 8;
+		movq	-136(%rbp),	%rdx
+		add	$8,	%rdx
+		movq	%rdx,	-144(%rbp)
+
+		# __t55 = *(__t53);
+		movq	-144(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-152(%rbp)
+
+		# push_param __t55;
 		pushq	%rax
 		pushq	%rcx
 		pushq	%rdx
@@ -1621,14 +1631,116 @@ L316:
 		pushq	%r9
 		pushq	%r10
 		pushq	%r11
-		pushq	-136(%rbp)
+		pushq	-152(%rbp)
+
+		# call print, 1;
+		call	print
+		add	$8,	%rsp
+
+		# none type function call ends
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# push_param main@c;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-80(%rbp)
+
+		# call Child@ret_parent, 1;
+		call	func7
+		add	$8,	%rsp
+
+		# __t56 = return_value;
+		mov	%rax,	-160(%rbp)
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# __t57 = __t56;
+		movq	-160(%rbp),	%rdx
+		movq	%rdx,	-168(%rbp)
+
+		# __t58 = *(__t57);
+		movq	-168(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-176(%rbp)
+
+		# __t59 = 3 >= __t58;
+		movq	$3,	%rdx
+		movq	-176(%rbp),	%rcx
+		cmp	%rdx,	%rcx
+		jle	1f
+		movq	$0,	%rdx
+		jmp	2f
+1:
+		movq	$1,	%rdx
+		jmp	2f
+2:
+		movq	%rdx,	-184(%rbp)
+
+		# if_false __t59 goto 337;
+		movq	-184(%rbp),	%rdx
+		cmp	$0,	%rdx
+		je	L337
+
+		# exit_out_of_bound
+		leaq	.LC0(%rip),	%rdi
+		call	puts
+		movq	$60,	%rax
+		xor	%rdi,	%rdi
+		syscall
+
+		# __t58 = 3 * 8;
+L337:
+		movq	$3,	%rdx
+		imul	$8,	%rdx
+		movq	%rdx,	-176(%rbp)
+
+		# __t58 = __t58 + 8;
+		movq	-176(%rbp),	%rdx
+		add	$8,	%rdx
+		movq	%rdx,	-176(%rbp)
+
+		# __t58 = __t57 + __t58;
+		movq	-168(%rbp),	%rdx
+		add	-176(%rbp),	%rdx
+		movq	%rdx,	-176(%rbp)
+
+		# __t61 = *(__t58);
+		movq	-176(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-192(%rbp)
+
+		# push_param __t61;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-192(%rbp)
 
 		# call Parent@ret_grand_parent, 1;
 		call	func5
 		add	$8,	%rsp
 
-		# __t54 = return_value;
-		mov	%rax,	-144(%rbp)
+		# __t62 = return_value;
+		mov	%rax,	-200(%rbp)
 		popq	%r11
 		popq	%r10
 		popq	%r9
@@ -1637,150 +1749,58 @@ L316:
 		popq	%rcx
 		popq	%rax
 
-		# __t55 = __t54;
-		movq	-144(%rbp),	%rdx
-		movq	%rdx,	-152(%rbp)
-
-		# __t56 = *(__t55);
-		movq	-152(%rbp),	%rdx
-		movq	(%rdx),	%rdx
-		movq	%rdx,	-160(%rbp)
-
-		# __t57 = 1 >= __t56;
-		movq	$1,	%rdx
-		movq	-160(%rbp),	%rcx
-		cmp	%rdx,	%rcx
-		jle	1f
-		movq	$0,	%rdx
-		jmp	2f
-1:
-		movq	$1,	%rdx
-		jmp	2f
-2:
-		movq	%rdx,	-168(%rbp)
-
-		# if_false __t57 goto 330;
-		movq	-168(%rbp),	%rdx
-		cmp	$0,	%rdx
-		je	L330
-
-		# exit_out_of_bound
-		leaq	.LC0(%rip),	%rdi
-		call	puts
-		movq	$60,	%rax
-		xor	%rdi,	%rdi
-		syscall
-
-		# __t56 = 1 * 8;
-L330:
-		movq	$1,	%rdx
-		imul	$8,	%rdx
-		movq	%rdx,	-160(%rbp)
-
-		# __t56 = __t56 + 8;
-		movq	-160(%rbp),	%rdx
-		add	$8,	%rdx
-		movq	%rdx,	-160(%rbp)
-
-		# __t56 = __t55 + __t56;
-		movq	-152(%rbp),	%rdx
-		add	-160(%rbp),	%rdx
-		movq	%rdx,	-160(%rbp)
-
-		# __t59 = *(__t56);
-		movq	-160(%rbp),	%rdx
-		movq	(%rdx),	%rdx
-		movq	%rdx,	-176(%rbp)
-
-		# push_param __t59;
-		pushq	%rax
-		pushq	%rcx
-		pushq	%rdx
-		pushq	%r8
-		pushq	%r9
-		pushq	%r10
-		pushq	%r11
-		pushq	-176(%rbp)
-
-		# push_param main@c;
-		pushq	-80(%rbp)
-
-		# call Child@ret_parent, 1;
-		call	func7
-		add	$16,	%rsp
-
-		# __t60 = return_value;
-		mov	%rax,	-184(%rbp)
-		popq	%r11
-		popq	%r10
-		popq	%r9
-		popq	%r8
-		popq	%rdx
-		popq	%rcx
-		popq	%rax
-
-		# __t61 = __t60;
-		movq	-184(%rbp),	%rdx
-		movq	%rdx,	-192(%rbp)
-
-		# __t62 = *(__t61);
-		movq	-192(%rbp),	%rdx
-		movq	(%rdx),	%rdx
-		movq	%rdx,	-200(%rbp)
-
-		# __t63 = 9 >= __t62;
-		movq	$9,	%rdx
-		movq	-200(%rbp),	%rcx
-		cmp	%rdx,	%rcx
-		jle	1f
-		movq	$0,	%rdx
-		jmp	2f
-1:
-		movq	$1,	%rdx
-		jmp	2f
-2:
+		# __t63 = __t62;
+		movq	-200(%rbp),	%rdx
 		movq	%rdx,	-208(%rbp)
 
-		# if_false __t63 goto 345;
+		# __t64 = *(__t63);
 		movq	-208(%rbp),	%rdx
-		cmp	$0,	%rdx
-		je	L345
-
-		# exit_out_of_bound
-		leaq	.LC0(%rip),	%rdi
-		call	puts
-		movq	$60,	%rax
-		xor	%rdi,	%rdi
-		syscall
-
-		# __t62 = 9 * 8;
-L345:
-		movq	$9,	%rdx
-		imul	$8,	%rdx
-		movq	%rdx,	-200(%rbp)
-
-		# __t62 = __t62 + 8;
-		movq	-200(%rbp),	%rdx
-		add	$8,	%rdx
-		movq	%rdx,	-200(%rbp)
-
-		# __t62 = __t61 + __t62;
-		movq	-192(%rbp),	%rdx
-		add	-200(%rbp),	%rdx
-		movq	%rdx,	-200(%rbp)
-
-		# __t66 = *(__t62);
-		movq	-200(%rbp),	%rdx
 		movq	(%rdx),	%rdx
 		movq	%rdx,	-216(%rbp)
 
-		# __t65 = __t66 + 8;
-		movq	-216(%rbp),	%rdx
-		add	$8,	%rdx
+		# __t65 = 1 >= __t64;
+		movq	$1,	%rdx
+		movq	-216(%rbp),	%rcx
+		cmp	%rdx,	%rcx
+		jle	1f
+		movq	$0,	%rdx
+		jmp	2f
+1:
+		movq	$1,	%rdx
+		jmp	2f
+2:
 		movq	%rdx,	-224(%rbp)
 
-		# __t67 = *(__t65);
+		# if_false __t65 goto 351;
 		movq	-224(%rbp),	%rdx
+		cmp	$0,	%rdx
+		je	L351
+
+		# exit_out_of_bound
+		leaq	.LC0(%rip),	%rdi
+		call	puts
+		movq	$60,	%rax
+		xor	%rdi,	%rdi
+		syscall
+
+		# __t64 = 1 * 8;
+L351:
+		movq	$1,	%rdx
+		imul	$8,	%rdx
+		movq	%rdx,	-216(%rbp)
+
+		# __t64 = __t64 + 8;
+		movq	-216(%rbp),	%rdx
+		add	$8,	%rdx
+		movq	%rdx,	-216(%rbp)
+
+		# __t64 = __t63 + __t64;
+		movq	-208(%rbp),	%rdx
+		add	-216(%rbp),	%rdx
+		movq	%rdx,	-216(%rbp)
+
+		# __t67 = *(__t64);
+		movq	-216(%rbp),	%rdx
 		movq	(%rdx),	%rdx
 		movq	%rdx,	-232(%rbp)
 
@@ -1794,9 +1814,12 @@ L345:
 		pushq	%r11
 		pushq	-232(%rbp)
 
+		# push_param 5;
+		pushq	$5
+
 		# call GrandParent@show, 2;
 		call	func3
-		add	$8,	%rsp
+		add	$16,	%rsp
 
 		# __t68 = return_value;
 		mov	%rax,	-240(%rbp)
@@ -1817,6 +1840,303 @@ L345:
 		pushq	%r10
 		pushq	%r11
 		pushq	-240(%rbp)
+
+		# call print, 1;
+		call	print
+		add	$8,	%rsp
+
+		# none type function call ends
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# push_param main@c;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-80(%rbp)
+
+		# call Child@ret_parent, 1;
+		call	func7
+		add	$8,	%rsp
+
+		# __t69 = return_value;
+		mov	%rax,	-248(%rbp)
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# __t70 = __t69;
+		movq	-248(%rbp),	%rdx
+		movq	%rdx,	-256(%rbp)
+
+		# __t71 = *(__t70);
+		movq	-256(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-264(%rbp)
+
+		# __t72 = 3 >= __t71;
+		movq	$3,	%rdx
+		movq	-264(%rbp),	%rcx
+		cmp	%rdx,	%rcx
+		jle	1f
+		movq	$0,	%rdx
+		jmp	2f
+1:
+		movq	$1,	%rdx
+		jmp	2f
+2:
+		movq	%rdx,	-272(%rbp)
+
+		# if_false __t72 goto 376;
+		movq	-272(%rbp),	%rdx
+		cmp	$0,	%rdx
+		je	L376
+
+		# exit_out_of_bound
+		leaq	.LC0(%rip),	%rdi
+		call	puts
+		movq	$60,	%rax
+		xor	%rdi,	%rdi
+		syscall
+
+		# __t71 = 3 * 8;
+L376:
+		movq	$3,	%rdx
+		imul	$8,	%rdx
+		movq	%rdx,	-264(%rbp)
+
+		# __t71 = __t71 + 8;
+		movq	-264(%rbp),	%rdx
+		add	$8,	%rdx
+		movq	%rdx,	-264(%rbp)
+
+		# __t71 = __t70 + __t71;
+		movq	-256(%rbp),	%rdx
+		add	-264(%rbp),	%rdx
+		movq	%rdx,	-264(%rbp)
+
+		# __t74 = *(__t71);
+		movq	-264(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-280(%rbp)
+
+		# push_param __t74;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-280(%rbp)
+
+		# call Parent@ret_grand_parent, 1;
+		call	func5
+		add	$8,	%rsp
+
+		# __t75 = return_value;
+		mov	%rax,	-288(%rbp)
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# __t76 = __t75;
+		movq	-288(%rbp),	%rdx
+		movq	%rdx,	-296(%rbp)
+
+		# __t77 = *(__t76);
+		movq	-296(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-304(%rbp)
+
+		# __t78 = 1 >= __t77;
+		movq	$1,	%rdx
+		movq	-304(%rbp),	%rcx
+		cmp	%rdx,	%rcx
+		jle	1f
+		movq	$0,	%rdx
+		jmp	2f
+1:
+		movq	$1,	%rdx
+		jmp	2f
+2:
+		movq	%rdx,	-312(%rbp)
+
+		# if_false __t78 goto 390;
+		movq	-312(%rbp),	%rdx
+		cmp	$0,	%rdx
+		je	L390
+
+		# exit_out_of_bound
+		leaq	.LC0(%rip),	%rdi
+		call	puts
+		movq	$60,	%rax
+		xor	%rdi,	%rdi
+		syscall
+
+		# __t77 = 1 * 8;
+L390:
+		movq	$1,	%rdx
+		imul	$8,	%rdx
+		movq	%rdx,	-304(%rbp)
+
+		# __t77 = __t77 + 8;
+		movq	-304(%rbp),	%rdx
+		add	$8,	%rdx
+		movq	%rdx,	-304(%rbp)
+
+		# __t77 = __t76 + __t77;
+		movq	-296(%rbp),	%rdx
+		add	-304(%rbp),	%rdx
+		movq	%rdx,	-304(%rbp)
+
+		# push_param main@c;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-80(%rbp)
+
+		# call Child@ret_parent, 1;
+		call	func7
+		add	$8,	%rsp
+
+		# __t80 = return_value;
+		mov	%rax,	-320(%rbp)
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# __t81 = __t80;
+		movq	-320(%rbp),	%rdx
+		movq	%rdx,	-328(%rbp)
+
+		# __t82 = *(__t81);
+		movq	-328(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-336(%rbp)
+
+		# __t83 = 9 >= __t82;
+		movq	$9,	%rdx
+		movq	-336(%rbp),	%rcx
+		cmp	%rdx,	%rcx
+		jle	1f
+		movq	$0,	%rdx
+		jmp	2f
+1:
+		movq	$1,	%rdx
+		jmp	2f
+2:
+		movq	%rdx,	-344(%rbp)
+
+		# if_false __t83 goto 403;
+		movq	-344(%rbp),	%rdx
+		cmp	$0,	%rdx
+		je	L403
+
+		# exit_out_of_bound
+		leaq	.LC0(%rip),	%rdi
+		call	puts
+		movq	$60,	%rax
+		xor	%rdi,	%rdi
+		syscall
+
+		# __t82 = 9 * 8;
+L403:
+		movq	$9,	%rdx
+		imul	$8,	%rdx
+		movq	%rdx,	-336(%rbp)
+
+		# __t82 = __t82 + 8;
+		movq	-336(%rbp),	%rdx
+		add	$8,	%rdx
+		movq	%rdx,	-336(%rbp)
+
+		# __t82 = __t81 + __t82;
+		movq	-328(%rbp),	%rdx
+		add	-336(%rbp),	%rdx
+		movq	%rdx,	-336(%rbp)
+
+		# __t86 = *(__t82);
+		movq	-336(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-352(%rbp)
+
+		# __t85 = __t86 + 8;
+		movq	-352(%rbp),	%rdx
+		add	$8,	%rdx
+		movq	%rdx,	-360(%rbp)
+
+		# __t87 = *(__t77);
+		movq	-304(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-368(%rbp)
+
+		# push_param __t87;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-368(%rbp)
+
+		# __t88 = *(__t85);
+		movq	-360(%rbp),	%rdx
+		movq	(%rdx),	%rdx
+		movq	%rdx,	-376(%rbp)
+
+		# push_param __t88;
+		pushq	-376(%rbp)
+
+		# call GrandParent@show, 2;
+		call	func3
+		add	$16,	%rsp
+
+		# __t89 = return_value;
+		mov	%rax,	-384(%rbp)
+		popq	%r11
+		popq	%r10
+		popq	%r9
+		popq	%r8
+		popq	%rdx
+		popq	%rcx
+		popq	%rax
+
+		# push_param __t89;
+		pushq	%rax
+		pushq	%rcx
+		pushq	%rdx
+		pushq	%r8
+		pushq	%r9
+		pushq	%r10
+		pushq	%r11
+		pushq	-384(%rbp)
 
 		# call print, 1;
 		call	print
