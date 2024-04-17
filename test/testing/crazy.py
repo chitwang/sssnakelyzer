@@ -8,10 +8,6 @@ class GrandParent:
     print(self.a)
     return self.a
 
-  # def show(self) -> bool:
-  #   print("Hi")
-  #   return self.a
-
 
 class Parent(GrandParent):
   def __init__(self, num:int):
@@ -56,11 +52,7 @@ class Child(Parent):
 def main():
   c:Child = Child("Yello", 100, True)
   obj:GrandParent = GrandParent()
-  print(c.ret_parent()[9].num)
-  # print(c.ret_parent()[3].ret_grand_parent()[1].show())
-  print(c.ret_parent()[3].ret_grand_parent()[1].show(5))
   print(c.ret_parent()[3].ret_grand_parent()[1].show(c.ret_parent()[9].num))
-  # print(obj.show(1))
   c.display()
 
 if __name__ == "__main__":

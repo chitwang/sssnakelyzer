@@ -4,6 +4,7 @@ input_file="test.py"
 output_file="code.s"
 no_save_temps=false
 input=false
+execute=false
 
 for arg in "$@"; do
   if [[ "$arg" == "--input="* ]]; then
@@ -17,6 +18,10 @@ for arg in "$@"; do
 
   if [[ "$arg" == "--no-save-temps" ]]; then
     no_save_temps=true
+  fi
+
+  if [[ "$arg" == "--execute" ]]; then
+    execute=true
   fi
 done
 
@@ -56,7 +61,9 @@ if [[ $input == "true" ]]; then
     exit 1
   fi
 
-  ./"$output_file"
+  if [[ $execute == "true" ]]; then
+    ./"$output_file"
+  fi
 
   if [[ $no_save_temps == "true" ]]; then
     rm "$output_file".s "$output_file".o
@@ -64,4 +71,9 @@ if [[ $input == "true" ]]; then
 fi
 
 rm *.tab.* lex.yy.c parser
+
+if [[ $execute != "true" ]]; then
+  cp "$output_file" ../scripts/
+fi
+
 cd ../scripts

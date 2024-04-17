@@ -150,8 +150,7 @@ void node::print_tac(string filename){
     set<int> targets;
     for(auto (&q) : this -> ta_codes) {
         if(q.code != "") {
-            // change_bool_to_int(q);
-            q.check_jump(ins_count);    // Also sets q's ins_line
+            q.check_jump(ins_count);    
             if(q.abs_jump){
                 targets.insert(q.abs_jump);
             }
@@ -174,18 +173,13 @@ void node::print_tac(string filename){
 instruction::instruction(){;}
 
 instruction::instruction(string op, string a1, string a2, string a3, string it, string comment) : op(op), arg1(a1), arg2(a2), arg3(a3), ins_type(it), comment(comment){
-    if(it == "ins") {           // default instructions
-        if(arg3 == "") {
-            code = "\t\t" + op;
-            if(arg1 != ""){
-                code += "\t" + arg1;
-            } 
-            if(arg2 != ""){
-                code += ",\t" + arg2;
-            }
-        }
-        else {
-
+    if(it == "ins") {          
+        code = "\t\t" + op;
+        if(arg1 != ""){
+            code += "\t" + arg1;
+        } 
+        if(arg2 != ""){
+            code += ",\t" + arg2;
         }
     }
     else if(it == "segment") {  // text segment, global segment
@@ -198,11 +192,9 @@ instruction::instruction(string op, string a1, string a2, string a3, string it, 
         code = arg1 + ":";
     }
     else if(it == "comment") {
-        code = "\n\t\t# " + comment;
+        // code = "\n\t\t# " + comment;
+        code = "";
         return;
-    }
-    else {                      // other instruction types if used
-
     }
     if(comment != ""){
         code += "\t\t# " + comment;
@@ -210,8 +202,7 @@ instruction::instruction(string op, string a1, string a2, string a3, string it, 
     code += "\n";
 }
 
-bool isVariable(string s) {   // if the first character is a digit/-/+, then it is a constant and not a variable
-    // Undefined behaviour when s is ""
+bool isVariable(string s) {   
     if(s == "") {
         cout << "Empty string is neither constant/variable. Aborting...";
         exit(1);
@@ -243,12 +234,11 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
         }
     }
 
-    if(q.is_target) {   // if this is a target, a label needs to be added
+    if(q.is_target) {   
         ins = instruction("", "L" + to_string(q.ins_line), "", "", "label");
         insts.push_back(ins);
     }
     if(q.made_from == quad::BINARY){            // c(z) = a(x) op b(y)
-        // Load value of a into %rax
 
         if(q.op == "+") {
             if(!isVariable(q.arg1)) {
@@ -755,9 +745,9 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("test", "%rdx", "%rdx");
             insts.push_back(ins);
-            ins = instruction("sete", "%dl");
+            ins = instruction("sete", "%al");
             insts.push_back(ins);
-            ins = instruction("mov", "%rdx", "%rdi");
+            ins = instruction("movzbl", "%al", "%edx");
         }
         else if(q.op == "-"){
             ins = instruction("xor", "%rdx", "%rdx");
@@ -885,15 +875,13 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
         insts.push_back(ins);
         ins = instruction("pushq", "%r15");
         insts.push_back(ins);
-
-        // shift stack pointer to make space for locals and temporaries, ignore if no locals/temporaries in function
         if(x > 0) {
             ins = instruction("sub", "$" + to_string(x), "%rsp");
             insts.push_back(ins);
         }
     }
     else if(q.made_from == quad::RETURN) {    // clean up activation record
-        if(q.arg1 != "") {      // Load %rax with the return value if non-void function
+        if(q.arg1 != "") {     
             if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rax");
             }
@@ -958,7 +946,7 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
         }
     }
     else if(q.made_from == quad::SHIFT_POINTER) {
-        // no need to do anything really for x86
+        
     }
     else if(q.made_from == quad::FUNC_CALL) {
         if(x == 0) {        // if function is called without any parameters, we have yet to perform caller responsibilities
@@ -994,7 +982,6 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
         }
     }
     else if(q.made_from == quad::RETURN_VAL) {
-        // move the return value stored in %rax to the required location
         if(q.result != "") {      // if the function returns a value
             ins = instruction("mov", "%rax", to_string(x) + "(%rbp)");
             insts.push_back(ins);
@@ -1092,10 +1079,6 @@ task_struct::task_struct() {        // initialize the data members
     procedures.clear();
 }
 
-void task_struct::append_ins(instruction ins) {
-    this -> code.push_back(ins);
-}
-
 void task_struct::get_tac_procedures() {
     vector<quad> procedure;
 
@@ -1132,9 +1115,9 @@ void task_struct::gen_global() {
     ins = instruction(".string", "\"List Index OutofBound!\"");
     this->code.push_back(ins);
     for(auto it:string_list){
-        ins = instruction(it.first + ":", "", "", "", "segment");
+        ins = instruction(it.second + ":", "", "", "", "segment");
         this->code.push_back(ins);
-        ins = instruction(".string", it.second);
+        ins = instruction(".string", it.first);
         this->code.push_back(ins);
     }
 
@@ -1204,14 +1187,13 @@ void task_struct::gen_basic_block(vector<quad> BB, procedure_table* sub_table) {
             }
             insts = this -> make_x86_code(q, sub_table -> total_space - 8 * stack_offset, sub_table -> is_main_function); 
         }
-        else if(q.made_from == quad::END_FUNC) {    // clean up activation record
-            // ideally only reaches this place in a void function
+        else if(q.made_from == quad::END_FUNC) {    
             insts = this -> make_x86_code(q, sub_table -> is_main_function, sub_table -> total_space - 8 * stack_offset);
         }
-        else if(q.made_from == quad::SHIFT_POINTER) {       // no need to do anything really
+        else if(q.made_from == quad::SHIFT_POINTER) {       
             insts = this -> make_x86_code(q);
         }
-        else if(q.made_from == quad::RETURN) {     // clean up activation record
+        else if(q.made_from == quad::RETURN) {   
             insts = this -> make_x86_code(q, sub_table -> total_space - 8 * stack_offset, sub_table -> lookup_table[q.arg1].offset);
         }
         else if(q.made_from == quad::NONE_RETURN_VAL){
@@ -1232,7 +1214,7 @@ void task_struct::gen_basic_block(vector<quad> BB, procedure_table* sub_table) {
             insts = this -> make_x86_code(q);
         }
         for(instruction ins : insts) {
-            this -> append_ins(ins);
+            this -> code.push_back(ins);
         }
     }
 }

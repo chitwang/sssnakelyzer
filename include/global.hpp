@@ -126,12 +126,10 @@ struct task_struct {
     vector<instruction> code;
     vector<procedure_table* > sub_tables;
     task_struct();
-    void append_ins(instruction ins);
-    void print_code(string asm_file = "asm.s");
+    void print_code(string asm_file = "code.s");
 
-    void get_tac_procedures();                             // generates all the procedures from the tac
-    void gen_tac_basic_block(vector<quad>, procedure_table*);      // generates all the basic blocks from procedures
-    
+    void get_tac_procedures();                            
+    void gen_tac_basic_block(vector<quad>, procedure_table*); 
     string get_func_name(string s);          
 
     void gen_global();                                      

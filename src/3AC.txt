@@ -1,440 +1,294 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t90 = len@list;
-4:			__t91 = *(__t90);
-5:			return __t91;
+3:			__t88 = len@list;
+4:			__t89 = *(__t88);
+5:			return __t89;
 6:	end_func
 
-7:	begin_func GrandParent@__init__
-8:			self = pop_param;
-9:			__t0 = self + 0;
-10:			*(__t0) = 0;
-11:	end_func
+7:	begin_func bitwise_operations
+8:			bitwise_operations@b = pop_param;
+9:			bitwise_operations@a = pop_param;
+10:			__t0 = bitwise_operations@a & bitwise_operations@b;
+11:			bitwise_operations@result_and = __t0;
+12:			__t1 = bitwise_operations@a | bitwise_operations@b;
+13:			bitwise_operations@result_or = __t1;
+14:			__t2 = bitwise_operations@a ^ bitwise_operations@b;
+15:			bitwise_operations@result_xor = __t2;
+16:			__t3 = ~(bitwise_operations@a);
+17:			bitwise_operations@result_not_a = __t3;
+18:			__t4 = ~(bitwise_operations@b);
+19:			bitwise_operations@result_not_b = __t4;
+20:			__t5 = bitwise_operations@a << 1;
+21:			bitwise_operations@result_left_shift_a = __t5;
+22:			__t6 = bitwise_operations@b << 1;
+23:			bitwise_operations@result_left_shift_b = __t6;
+24:			__t7 = bitwise_operations@a >> 1;
+25:			bitwise_operations@result_right_shift_a = __t7;
+26:			__t8 = bitwise_operations@b >> 1;
+27:			bitwise_operations@result_right_shift_b = __t8;
+28:			push_param 80;
+29:			stack_pointer +xxx
+30:			call allocmem, 1;
+31:			stack_pointer -xxx
+32:			__t9 = return_value;
+33:			*(__t9) = 9;
+34:			__t10 = __t9 + 8;
+35:			*(__t10) = bitwise_operations@result_and;
+36:			__t11 = __t9 + 16;
+37:			*(__t11) = bitwise_operations@result_or;
+38:			__t12 = __t9 + 24;
+39:			*(__t12) = bitwise_operations@result_xor;
+40:			__t13 = __t9 + 32;
+41:			*(__t13) = bitwise_operations@result_not_a;
+42:			__t14 = __t9 + 40;
+43:			*(__t14) = bitwise_operations@result_not_b;
+44:			__t15 = __t9 + 48;
+45:			*(__t15) = bitwise_operations@result_left_shift_a;
+46:			__t16 = __t9 + 56;
+47:			*(__t16) = bitwise_operations@result_left_shift_b;
+48:			__t17 = __t9 + 64;
+49:			*(__t17) = bitwise_operations@result_right_shift_a;
+50:			__t18 = __t9 + 72;
+51:			*(__t18) = bitwise_operations@result_right_shift_b;
+52:			return __t9;
+53:	end_func
 
-12:	begin_func GrandParent@show
-13:			GrandParent@show@num = pop_param;
-14:			self = pop_param;
-15:			string make .LC1 into var __t1
-16:			string print __t1
-17:			push_param GrandParent@show@num;
-18:			stack_pointer +xxx
-19:			call print, 1;
-20:			stack_pointer -xxx
-21:			none type function call ends
-22:			__t2 = self + 0;
-23:			__t3 = *(__t2);
-24:			push_param __t3;
-25:			stack_pointer +xxx
-26:			call print, 1;
-27:			stack_pointer -xxx
-28:			none type function call ends
-29:			__t4 = self + 0;
-30:			__t5 = *(__t4);
-31:			return __t5;
-32:	end_func
+54:	begin_func relational_operations
+55:			relational_operations@b = pop_param;
+56:			relational_operations@a = pop_param;
+57:			__t19 = relational_operations@a == relational_operations@b;
+58:			relational_operations@result_equal = __t19;
+59:			__t20 = relational_operations@a != relational_operations@b;
+60:			relational_operations@result_not_equal = __t20;
+61:			__t21 = relational_operations@a > relational_operations@b;
+62:			relational_operations@result_greater_than = __t21;
+63:			__t22 = relational_operations@a < relational_operations@b;
+64:			relational_operations@result_less_than = __t22;
+65:			__t23 = relational_operations@a >= relational_operations@b;
+66:			relational_operations@result_greater_than_or_equal = __t23;
+67:			__t24 = relational_operations@a <= relational_operations@b;
+68:			relational_operations@result_less_than_or_equal = __t24;
+69:			push_param 56;
+70:			stack_pointer +xxx
+71:			call allocmem, 1;
+72:			stack_pointer -xxx
+73:			__t25 = return_value;
+74:			*(__t25) = 6;
+75:			__t26 = __t25 + 8;
+76:			*(__t26) = relational_operations@result_equal;
+77:			__t27 = __t25 + 16;
+78:			*(__t27) = relational_operations@result_not_equal;
+79:			__t28 = __t25 + 24;
+80:			*(__t28) = relational_operations@result_greater_than;
+81:			__t29 = __t25 + 32;
+82:			*(__t29) = relational_operations@result_less_than;
+83:			__t30 = __t25 + 40;
+84:			*(__t30) = relational_operations@result_greater_than_or_equal;
+85:			__t31 = __t25 + 48;
+86:			*(__t31) = relational_operations@result_less_than_or_equal;
+87:			return __t25;
+88:	end_func
 
-33:	begin_func Parent@__init__
-34:			Parent@__init__@num = pop_param;
-35:			self = pop_param;
-36:			__t6 = self + 8;
-37:			*(__t6) = Parent@__init__@num;
-38:			__t7 = self + 0;
-39:			*(__t7) = 1;
-40:	end_func
+89:	begin_func arithmetic_operations
+90:			arithmetic_operations@b = pop_param;
+91:			arithmetic_operations@a = pop_param;
+92:			__t32 = arithmetic_operations@a + arithmetic_operations@b;
+93:			arithmetic_operations@result_addition = __t32;
+94:			__t33 = arithmetic_operations@a - arithmetic_operations@b;
+95:			arithmetic_operations@result_subtraction = __t33;
+96:			__t34 = arithmetic_operations@a * arithmetic_operations@b;
+97:			arithmetic_operations@result_multiplication = __t34;
+98:			__t35 = arithmetic_operations@a / arithmetic_operations@b;
+99:			arithmetic_operations@result_division = __t35;
+100:		__t36 = arithmetic_operations@a % arithmetic_operations@b;
+101:		arithmetic_operations@result_modulus = __t36;
+102:		__t37 = arithmetic_operations@a ** arithmetic_operations@b;
+103:		arithmetic_operations@result_exponentiation = __t37;
+104:		__t38 = arithmetic_operations@a // arithmetic_operations@b;
+105:		arithmetic_operations@result_floor_division = __t38;
+106:		push_param 64;
+107:		stack_pointer +xxx
+108:		call allocmem, 1;
+109:		stack_pointer -xxx
+110:		__t39 = return_value;
+111:		*(__t39) = 7;
+112:		__t40 = __t39 + 8;
+113:		*(__t40) = arithmetic_operations@result_addition;
+114:		__t41 = __t39 + 16;
+115:		*(__t41) = arithmetic_operations@result_subtraction;
+116:		__t42 = __t39 + 24;
+117:		*(__t42) = arithmetic_operations@result_multiplication;
+118:		__t43 = __t39 + 32;
+119:		*(__t43) = arithmetic_operations@result_division;
+120:		__t44 = __t39 + 40;
+121:		*(__t44) = arithmetic_operations@result_modulus;
+122:		__t45 = __t39 + 48;
+123:		*(__t45) = arithmetic_operations@result_exponentiation;
+124:		__t46 = __t39 + 56;
+125:		*(__t46) = arithmetic_operations@result_floor_division;
+126:		return __t39;
+127:end_func
 
-41:	begin_func Parent@ret_grand_parent
-42:			self = pop_param;
-43:			push_param 8;
-44:			stack_pointer +xxx
-45:			call allocmem, 1;
-46:			stack_pointer -xxx
-47:			__t8 = return_value;
-48:			push_param __t8;
-49:			stack_pointer +xxx
-50:			call GrandParent@__init__, 1;
-51:			stack_pointer -xxx
-52:			none type function call ends
-53:			Parent@ret_grand_parent@g1 = __t8;
-54:			push_param 8;
-55:			stack_pointer +xxx
-56:			call allocmem, 1;
-57:			stack_pointer -xxx
-58:			__t9 = return_value;
-59:			push_param __t9;
-60:			stack_pointer +xxx
-61:			call GrandParent@__init__, 1;
-62:			stack_pointer -xxx
-63:			none type function call ends
-64:			Parent@ret_grand_parent@g2 = __t9;
-65:			push_param 8;
-66:			stack_pointer +xxx
-67:			call allocmem, 1;
-68:			stack_pointer -xxx
-69:			__t10 = return_value;
-70:			push_param __t10;
-71:			stack_pointer +xxx
-72:			call GrandParent@__init__, 1;
-73:			stack_pointer -xxx
-74:			none type function call ends
-75:			Parent@ret_grand_parent@g3 = __t10;
-76:			push_param 8;
-77:			stack_pointer +xxx
-78:			call allocmem, 1;
-79:			stack_pointer -xxx
-80:			__t11 = return_value;
-81:			push_param __t11;
-82:			stack_pointer +xxx
-83:			call GrandParent@__init__, 1;
-84:			stack_pointer -xxx
-85:			none type function call ends
-86:			Parent@ret_grand_parent@g4 = __t11;
-87:			push_param 40;
-88:			stack_pointer +xxx
-89:			call allocmem, 1;
-90:			stack_pointer -xxx
-91:			__t12 = return_value;
-92:			*(__t12) = 4;
-93:			__t13 = __t12 + 8;
-94:			*(__t13) = Parent@ret_grand_parent@g1;
-95:			__t14 = __t12 + 16;
-96:			*(__t14) = Parent@ret_grand_parent@g2;
-97:			__t15 = __t12 + 24;
-98:			*(__t15) = Parent@ret_grand_parent@g3;
-99:			__t16 = __t12 + 32;
-100:		*(__t16) = Parent@ret_grand_parent@g4;
-101:		return __t12;
-102:end_func
+128:begin_func logical_operations
+129:		logical_operations@b = pop_param;
+130:		logical_operations@a = pop_param;
+131:		__t47 = logical_operations@a && logical_operations@b;
+132:		logical_operations@result_and = __t47;
+133:		__t48 = logical_operations@a || logical_operations@b;
+134:		logical_operations@result_or = __t48;
+135:		__t49 = !(logical_operations@a);
+136:		logical_operations@result_not_a = __t49;
+137:		__t50 = !(logical_operations@b);
+138:		logical_operations@result_not_b = __t50;
+139:		push_param 40;
+140:		stack_pointer +xxx
+141:		call allocmem, 1;
+142:		stack_pointer -xxx
+143:		__t51 = return_value;
+144:		*(__t51) = 4;
+145:		__t52 = __t51 + 8;
+146:		*(__t52) = logical_operations@result_and;
+147:		__t53 = __t51 + 16;
+148:		*(__t53) = logical_operations@result_or;
+149:		__t54 = __t51 + 24;
+150:		*(__t54) = logical_operations@result_not_a;
+151:		__t55 = __t51 + 32;
+152:		*(__t55) = logical_operations@result_not_b;
+153:		return __t51;
+154:end_func
 
-103:begin_func Child@__init__
-104:		Child@__init__@b = pop_param;
-105:		Child@__init__@num = pop_param;
-106:		Child@__init__@name = pop_param;
-107:		self = pop_param;
-108:		__t17 = self + 8;
-109:		*(__t17) = Child@__init__@num;
-110:		__t18 = self + 16;
-111:		*(__t18) = Child@__init__@name;
-112:		__t19 = self + 0;
-113:		*(__t19) = Child@__init__@b;
-114:end_func
-
-115:begin_func Child@ret_parent
-116:		self = pop_param;
-117:		push_param 16;
-118:		stack_pointer +xxx
-119:		call allocmem, 1;
-120:		stack_pointer -xxx
-121:		__t20 = return_value;
-122:		push_param __t20;
-123:		push_param 1;
-124:		stack_pointer +xxx
-125:		call Parent@__init__, 2;
-126:		stack_pointer -xxx
-127:		none type function call ends
-128:		Child@ret_parent@p1 = __t20;
-129:		push_param 16;
-130:		stack_pointer +xxx
-131:		call allocmem, 1;
-132:		stack_pointer -xxx
-133:		__t21 = return_value;
-134:		push_param __t21;
-135:		push_param 2;
-136:		stack_pointer +xxx
-137:		call Parent@__init__, 2;
-138:		stack_pointer -xxx
-139:		none type function call ends
-140:		Child@ret_parent@p2 = __t21;
-141:		push_param 16;
-142:		stack_pointer +xxx
-143:		call allocmem, 1;
-144:		stack_pointer -xxx
-145:		__t22 = return_value;
-146:		push_param __t22;
-147:		push_param 3;
-148:		stack_pointer +xxx
-149:		call Parent@__init__, 2;
-150:		stack_pointer -xxx
-151:		none type function call ends
-152:		Child@ret_parent@p3 = __t22;
-153:		push_param 16;
-154:		stack_pointer +xxx
-155:		call allocmem, 1;
-156:		stack_pointer -xxx
-157:		__t23 = return_value;
-158:		push_param __t23;
-159:		push_param 4;
+155:begin_func main
+156:		main@num1 = 10;
+157:		main@num2 = 5;
+158:		push_param main@num1;
+159:		push_param main@num2;
 160:		stack_pointer +xxx
-161:		call Parent@__init__, 2;
+161:		call bitwise_operations, 2;
 162:		stack_pointer -xxx
-163:		none type function call ends
-164:		Child@ret_parent@p4 = __t23;
-165:		push_param 16;
-166:		stack_pointer +xxx
-167:		call allocmem, 1;
-168:		stack_pointer -xxx
-169:		__t24 = return_value;
-170:		push_param __t24;
-171:		push_param 5;
-172:		stack_pointer +xxx
-173:		call Parent@__init__, 2;
-174:		stack_pointer -xxx
-175:		none type function call ends
-176:		Child@ret_parent@p5 = __t24;
-177:		push_param 16;
-178:		stack_pointer +xxx
-179:		call allocmem, 1;
-180:		stack_pointer -xxx
-181:		__t25 = return_value;
-182:		push_param __t25;
-183:		push_param 6;
+163:		__t56 = return_value;
+164:		main@results_bitwise = __t56;
+165:		main@i = 0;
+166:		push_param main@results_bitwise;
+167:		stack_pointer +xxx
+168:		call len, 1;
+169:		stack_pointer -xxx
+170:		__t57 = return_value;
+171:		main@i = 0;
+172:		__t63 = main@i < __t57;
+173:		if_false __t63 goto 190;
+174:		__t58 = main@results_bitwise;
+175:		__t59 = *(__t58);
+176:		__t60 = main@i >= __t59;
+177:		if_false __t60 goto 179;
+178:		exit_out_of_bound
+179:		__t59 = main@i * 8;
+180:		__t59 = __t59 + 8;
+181:		__t59 = __t58 + __t59;
+182:		__t62 = *(__t59);
+183:		push_param __t62;
 184:		stack_pointer +xxx
-185:		call Parent@__init__, 2;
+185:		call print, 1;
 186:		stack_pointer -xxx
 187:		none type function call ends
-188:		Child@ret_parent@p6 = __t25;
-189:		push_param 16;
-190:		stack_pointer +xxx
-191:		call allocmem, 1;
-192:		stack_pointer -xxx
-193:		__t26 = return_value;
-194:		push_param __t26;
-195:		push_param 7;
-196:		stack_pointer +xxx
-197:		call Parent@__init__, 2;
-198:		stack_pointer -xxx
-199:		none type function call ends
-200:		Child@ret_parent@p7 = __t26;
-201:		push_param 16;
-202:		stack_pointer +xxx
-203:		call allocmem, 1;
-204:		stack_pointer -xxx
-205:		__t27 = return_value;
-206:		push_param __t27;
-207:		push_param 8;
-208:		stack_pointer +xxx
-209:		call Parent@__init__, 2;
-210:		stack_pointer -xxx
-211:		none type function call ends
-212:		Child@ret_parent@p8 = __t27;
-213:		push_param 16;
-214:		stack_pointer +xxx
-215:		call allocmem, 1;
-216:		stack_pointer -xxx
-217:		__t28 = return_value;
-218:		push_param __t28;
-219:		push_param 9;
-220:		stack_pointer +xxx
-221:		call Parent@__init__, 2;
-222:		stack_pointer -xxx
-223:		none type function call ends
-224:		Child@ret_parent@p9 = __t28;
-225:		push_param 16;
-226:		stack_pointer +xxx
-227:		call allocmem, 1;
-228:		stack_pointer -xxx
-229:		__t29 = return_value;
-230:		push_param __t29;
-231:		push_param 10;
-232:		stack_pointer +xxx
-233:		call Parent@__init__, 2;
-234:		stack_pointer -xxx
-235:		none type function call ends
-236:		Child@ret_parent@p10 = __t29;
-237:		push_param 88;
-238:		stack_pointer +xxx
-239:		call allocmem, 1;
-240:		stack_pointer -xxx
-241:		__t30 = return_value;
-242:		*(__t30) = 10;
-243:		__t31 = __t30 + 8;
-244:		*(__t31) = Child@ret_parent@p1;
-245:		__t32 = __t30 + 16;
-246:		*(__t32) = Child@ret_parent@p2;
-247:		__t33 = __t30 + 24;
-248:		*(__t33) = Child@ret_parent@p3;
-249:		__t34 = __t30 + 32;
-250:		*(__t34) = Child@ret_parent@p4;
-251:		__t35 = __t30 + 40;
-252:		*(__t35) = Child@ret_parent@p5;
-253:		__t36 = __t30 + 48;
-254:		*(__t36) = Child@ret_parent@p6;
-255:		__t37 = __t30 + 56;
-256:		*(__t37) = Child@ret_parent@p7;
-257:		__t38 = __t30 + 64;
-258:		*(__t38) = Child@ret_parent@p8;
-259:		__t39 = __t30 + 72;
-260:		*(__t39) = Child@ret_parent@p9;
-261:		__t40 = __t30 + 80;
-262:		*(__t40) = Child@ret_parent@p10;
-263:		Child@ret_parent@obj = __t30;
-264:		return Child@ret_parent@obj;
-265:end_func
+188:		main@i = main@i + 1;
+189:		goto 172;
+190:		push_param main@num1;
+191:		push_param main@num2;
+192:		stack_pointer +xxx
+193:		call relational_operations, 2;
+194:		stack_pointer -xxx
+195:		__t64 = return_value;
+196:		main@results_relational = __t64;
+197:		push_param main@results_relational;
+198:		stack_pointer +xxx
+199:		call len, 1;
+200:		stack_pointer -xxx
+201:		__t65 = return_value;
+202:		main@i = 0;
+203:		__t71 = main@i < __t65;
+204:		if_false __t71 goto 221;
+205:		__t66 = main@results_relational;
+206:		__t67 = *(__t66);
+207:		__t68 = main@i >= __t67;
+208:		if_false __t68 goto 210;
+209:		exit_out_of_bound
+210:		__t67 = main@i * 8;
+211:		__t67 = __t67 + 8;
+212:		__t67 = __t66 + __t67;
+213:		__t70 = *(__t67);
+214:		push_param __t70;
+215:		stack_pointer +xxx
+216:		call print, 1;
+217:		stack_pointer -xxx
+218:		none type function call ends
+219:		main@i = main@i + 1;
+220:		goto 203;
+221:		push_param main@num1;
+222:		push_param main@num2;
+223:		stack_pointer +xxx
+224:		call arithmetic_operations, 2;
+225:		stack_pointer -xxx
+226:		__t72 = return_value;
+227:		main@results_arithmetic = __t72;
+228:		push_param main@results_arithmetic;
+229:		stack_pointer +xxx
+230:		call len, 1;
+231:		stack_pointer -xxx
+232:		__t73 = return_value;
+233:		main@i = 0;
+234:		__t79 = main@i < __t73;
+235:		if_false __t79 goto 252;
+236:		__t74 = main@results_arithmetic;
+237:		__t75 = *(__t74);
+238:		__t76 = main@i >= __t75;
+239:		if_false __t76 goto 241;
+240:		exit_out_of_bound
+241:		__t75 = main@i * 8;
+242:		__t75 = __t75 + 8;
+243:		__t75 = __t74 + __t75;
+244:		__t78 = *(__t75);
+245:		push_param __t78;
+246:		stack_pointer +xxx
+247:		call print, 1;
+248:		stack_pointer -xxx
+249:		none type function call ends
+250:		main@i = main@i + 1;
+251:		goto 234;
+252:		push_param 1;
+253:		push_param 0;
+254:		stack_pointer +xxx
+255:		call logical_operations, 2;
+256:		stack_pointer -xxx
+257:		__t80 = return_value;
+258:		main@results_logical = __t80;
+259:		push_param main@results_logical;
+260:		stack_pointer +xxx
+261:		call len, 1;
+262:		stack_pointer -xxx
+263:		__t81 = return_value;
+264:		main@i = 0;
+265:		__t87 = main@i < __t81;
+266:		if_false __t87 goto 283;
+267:		__t82 = main@results_logical;
+268:		__t83 = *(__t82);
+269:		__t84 = main@i >= __t83;
+270:		if_false __t84 goto 272;
+271:		exit_out_of_bound
+272:		__t83 = main@i * 8;
+273:		__t83 = __t83 + 8;
+274:		__t83 = __t82 + __t83;
+275:		__t86 = *(__t83);
+276:		push_param __t86;
+277:		stack_pointer +xxx
+278:		call print, 1;
+279:		stack_pointer -xxx
+280:		none type function call ends
+281:		main@i = main@i + 1;
+282:		goto 265;
+283:end_func
 
-266:begin_func Child@display
-267:		self = pop_param;
-268:		__t41 = self + 16;
-269:		__t42 = *(__t41);
-270:		string print __t42
-271:		__t43 = self + 8;
-272:		__t44 = *(__t43);
-273:		push_param __t44;
-274:		stack_pointer +xxx
-275:		call print, 1;
-276:		stack_pointer -xxx
-277:		none type function call ends
-278:end_func
-
-279:begin_func main
-280:		string make .LC2 into var __t45
-281:		push_param 24;
-282:		stack_pointer +xxx
-283:		call allocmem, 1;
-284:		stack_pointer -xxx
-285:		__t46 = return_value;
-286:		push_param __t46;
-287:		push_param __t45;
-288:		push_param 100;
-289:		push_param 1;
-290:		stack_pointer +xxx
-291:		call Child@__init__, 4;
-292:		stack_pointer -xxx
-293:		none type function call ends
-294:		main@c = __t46;
-295:		push_param 8;
-296:		stack_pointer +xxx
-297:		call allocmem, 1;
-298:		stack_pointer -xxx
-299:		__t47 = return_value;
-300:		push_param __t47;
-301:		stack_pointer +xxx
-302:		call GrandParent@__init__, 1;
-303:		stack_pointer -xxx
-304:		none type function call ends
-305:		main@obj = __t47;
-306:		push_param main@c;
-307:		stack_pointer +xxx
-308:		call Child@ret_parent, 1;
-309:		stack_pointer -xxx
-310:		__t48 = return_value;
-311:		__t49 = __t48;
-312:		__t50 = *(__t49);
-313:		__t51 = 9 >= __t50;
-314:		if_false __t51 goto 316;
-315:		exit_out_of_bound
-316:		__t50 = 9 * 8;
-317:		__t50 = __t50 + 8;
-318:		__t50 = __t49 + __t50;
-319:		__t54 = *(__t50);
-320:		__t53 = __t54 + 8;
-321:		__t55 = *(__t53);
-322:		push_param __t55;
-323:		stack_pointer +xxx
-324:		call print, 1;
-325:		stack_pointer -xxx
-326:		none type function call ends
-327:		push_param main@c;
-328:		stack_pointer +xxx
-329:		call Child@ret_parent, 1;
-330:		stack_pointer -xxx
-331:		__t56 = return_value;
-332:		__t57 = __t56;
-333:		__t58 = *(__t57);
-334:		__t59 = 3 >= __t58;
-335:		if_false __t59 goto 337;
-336:		exit_out_of_bound
-337:		__t58 = 3 * 8;
-338:		__t58 = __t58 + 8;
-339:		__t58 = __t57 + __t58;
-340:		__t61 = *(__t58);
-341:		push_param __t61;
-342:		stack_pointer +xxx
-343:		call Parent@ret_grand_parent, 1;
-344:		stack_pointer -xxx
-345:		__t62 = return_value;
-346:		__t63 = __t62;
-347:		__t64 = *(__t63);
-348:		__t65 = 1 >= __t64;
-349:		if_false __t65 goto 351;
-350:		exit_out_of_bound
-351:		__t64 = 1 * 8;
-352:		__t64 = __t64 + 8;
-353:		__t64 = __t63 + __t64;
-354:		__t67 = *(__t64);
-355:		push_param __t67;
-356:		push_param 5;
-357:		stack_pointer +xxx
-358:		call GrandParent@show, 2;
-359:		stack_pointer -xxx
-360:		__t68 = return_value;
-361:		push_param __t68;
-362:		stack_pointer +xxx
-363:		call print, 1;
-364:		stack_pointer -xxx
-365:		none type function call ends
-366:		push_param main@c;
-367:		stack_pointer +xxx
-368:		call Child@ret_parent, 1;
-369:		stack_pointer -xxx
-370:		__t69 = return_value;
-371:		__t70 = __t69;
-372:		__t71 = *(__t70);
-373:		__t72 = 3 >= __t71;
-374:		if_false __t72 goto 376;
-375:		exit_out_of_bound
-376:		__t71 = 3 * 8;
-377:		__t71 = __t71 + 8;
-378:		__t71 = __t70 + __t71;
-379:		__t74 = *(__t71);
-380:		push_param __t74;
-381:		stack_pointer +xxx
-382:		call Parent@ret_grand_parent, 1;
-383:		stack_pointer -xxx
-384:		__t75 = return_value;
-385:		__t76 = __t75;
-386:		__t77 = *(__t76);
-387:		__t78 = 1 >= __t77;
-388:		if_false __t78 goto 390;
-389:		exit_out_of_bound
-390:		__t77 = 1 * 8;
-391:		__t77 = __t77 + 8;
-392:		__t77 = __t76 + __t77;
-393:		push_param main@c;
-394:		stack_pointer +xxx
-395:		call Child@ret_parent, 1;
-396:		stack_pointer -xxx
-397:		__t80 = return_value;
-398:		__t81 = __t80;
-399:		__t82 = *(__t81);
-400:		__t83 = 9 >= __t82;
-401:		if_false __t83 goto 403;
-402:		exit_out_of_bound
-403:		__t82 = 9 * 8;
-404:		__t82 = __t82 + 8;
-405:		__t82 = __t81 + __t82;
-406:		__t86 = *(__t82);
-407:		__t85 = __t86 + 8;
-408:		__t87 = *(__t77);
-409:		push_param __t87;
-410:		__t88 = *(__t85);
-411:		push_param __t88;
-412:		stack_pointer +xxx
-413:		call GrandParent@show, 2;
-414:		stack_pointer -xxx
-415:		__t89 = return_value;
-416:		push_param __t89;
-417:		stack_pointer +xxx
-418:		call print, 1;
-419:		stack_pointer -xxx
-420:		none type function call ends
-421:		push_param main@c;
-422:		stack_pointer +xxx
-423:		call Child@display, 1;
-424:		stack_pointer -xxx
-425:		none type function call ends
-426:end_func
-
-427:program start: 
-428:		stack_pointer +xxx
-429:		call main, 0;
-430:		stack_pointer -xxx
-431:		none type function call ends
+284:program start: 
+285:		stack_pointer +xxx
+286:		call main, 0;
+287:		stack_pointer -xxx
+288:		none type function call ends

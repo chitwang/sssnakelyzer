@@ -118,6 +118,7 @@ void print_help() {
     cout << "The following options can be used" << endl;
     cout << endl;
     cout << "--output=<output_file_path> \t: Output file specification (default is 3AC.txt)" << endl;
+    cout << "--execute \t\t\t: Run the generated executable" << endl; 
     cout << "--help \t\t\t\t: Instruction regarding usage instructions and options" << endl;
     cout << "--symbtab \t\t\t: Print the symbol tables in separate .csv files" << endl;
     cout << "--no-save-temps \t\t: To remove temporary files after execution (by default they are saved)" << endl;
@@ -2011,9 +2012,9 @@ atom: DELIM_LEFT_PAREN test DELIM_RIGHT_PAREN {node_attr = {"(", ")", "atom"}; n
     if(str[0] == '\'') {
         str = "\"" + str.substr(1, str.size() - 2) + "\"";
     }
-    string temp = get_new_str_temp();
     all_nodes[$$]->var = get_new_temp();
-    string_list[temp] = str;
+    string temp = (string_list.find(str) != string_list.end()) ? string_list[str] : get_new_str_temp();
+    string_list[str] = temp;
     quad q(all_nodes[$$]->var, temp, "", "");
     q.make_code_from_new_str();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -2243,27 +2244,30 @@ int main(int argc, char* argv[]) {
             help_flag = true;
             continue;
         }
-        if(s == "--verbose2") {
+        else if(s == "--verbose2") {
             yydebug = 1;
             continue;
         }
-        if(s == "--verbose1") {
+        else if(s == "--verbose1") {
             our_debug = true;
             continue;
         }
-        if(s == "--symbtab") {
+        else if(s == "--symbtab") {
             print_symbtab = true;
         }
-        if(s == "--no-save-temps") {
+        else if(s == "--no-save-temps") {
             // Do nothing
         }
-        if(s.length() <= 7) {
+        else if(s == "--execute") {
+            // Do nothing
+        }
+        else if(s.length() <= 7) {
             cerr << "Wrong flag used!!" << endl;
             cout << endl;
             print_help();
             exit(1);
         }
-        if(s.substr(0, 8) == "--input=") {
+        else if(s.substr(0, 8) == "--input=") {
             input_file = s.substr(8);
         } 
         else if(s.substr(0, 9) == "--output=") {
