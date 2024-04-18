@@ -1200,6 +1200,13 @@ if_stmt: KEY_IF namedexpr_test DELIM_COLON suite {node_attr = {"if",":","if_stmt
         }
     }
     /* chitwan */
+    for (auto it = all_nodes[$5]->ta_codes.rbegin(); it != all_nodes[$5]->ta_codes.rend(); ++it) {
+        auto& qu = *it;
+        if (qu.result == "******last_elif") { 
+            qu.rel_jump += 1;
+            qu.result = "";
+        }
+    }
     all_nodes[$$]->append_tac(all_nodes[$5]);
     arg1 = "J+" + to_string(all_nodes[$8]->ta_codes.size() + 1);
     q2 =  quad("", arg1, op, "");
@@ -1217,6 +1224,7 @@ elif_plus: KEY_ELIF namedexpr_test DELIM_COLON suite {node_attr = {"elif",":","e
     string arg2 = "J+" + to_string(all_nodes[$4]->ta_codes.size() + 1);
     quad q("", arg1, op, arg2);
     q.make_code_from_conditional();
+    q.result = "******last_elif";
     all_nodes[$$]->ta_codes.push_back(q);
     all_nodes[$$]->append_tac(all_nodes[$4]);
 }

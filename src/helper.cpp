@@ -324,22 +324,24 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rbx");
             }
+            string tm = "_" + to_string(this->power_op);
+            this->power_op++;
             insts.push_back(ins);
             ins = instruction("movq", "$1", "%rcx");
             insts.push_back(ins);
-            ins = instruction("", "exp_loop", "", "", "label");
+            ins = instruction("", "exp_loop" + tm, "", "", "label");
             insts.push_back(ins);
             ins = instruction("test", "%rbx", "%rbx");
             insts.push_back(ins);
-            ins = instruction("jz", "exp_done");
+            ins = instruction("jz", "exp_done" + tm);
             insts.push_back(ins);
             ins = instruction("imul", "%rax", "%rcx");
             insts.push_back(ins);
             ins = instruction("dec", "%rbx");
             insts.push_back(ins);
-            ins = instruction("jmp", "exp_loop");
+            ins = instruction("jmp", "exp_loop" + tm);
             insts.push_back(ins);
-            ins = instruction("", "exp_done", "", "", "label");
+            ins = instruction("", "exp_done" + tm, "", "", "label");
             insts.push_back(ins);
             ins = instruction("movq", "%rcx", "%rdx");
             // insts.push_back(ins);

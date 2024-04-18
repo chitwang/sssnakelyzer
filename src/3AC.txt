@@ -1,294 +1,251 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t88 = len@list;
-4:			__t89 = *(__t88);
-5:			return __t89;
+3:			__t97 = len@list;
+4:			__t98 = *(__t97);
+5:			return __t98;
 6:	end_func
 
-7:	begin_func bitwise_operations
-8:			bitwise_operations@b = pop_param;
-9:			bitwise_operations@a = pop_param;
-10:			__t0 = bitwise_operations@a & bitwise_operations@b;
-11:			bitwise_operations@result_and = __t0;
-12:			__t1 = bitwise_operations@a | bitwise_operations@b;
-13:			bitwise_operations@result_or = __t1;
-14:			__t2 = bitwise_operations@a ^ bitwise_operations@b;
-15:			bitwise_operations@result_xor = __t2;
-16:			__t3 = ~(bitwise_operations@a);
-17:			bitwise_operations@result_not_a = __t3;
-18:			__t4 = ~(bitwise_operations@b);
-19:			bitwise_operations@result_not_b = __t4;
-20:			__t5 = bitwise_operations@a << 1;
-21:			bitwise_operations@result_left_shift_a = __t5;
-22:			__t6 = bitwise_operations@b << 1;
-23:			bitwise_operations@result_left_shift_b = __t6;
-24:			__t7 = bitwise_operations@a >> 1;
-25:			bitwise_operations@result_right_shift_a = __t7;
-26:			__t8 = bitwise_operations@b >> 1;
-27:			bitwise_operations@result_right_shift_b = __t8;
-28:			push_param 80;
-29:			stack_pointer +xxx
-30:			call allocmem, 1;
-31:			stack_pointer -xxx
-32:			__t9 = return_value;
-33:			*(__t9) = 9;
-34:			__t10 = __t9 + 8;
-35:			*(__t10) = bitwise_operations@result_and;
-36:			__t11 = __t9 + 16;
-37:			*(__t11) = bitwise_operations@result_or;
-38:			__t12 = __t9 + 24;
-39:			*(__t12) = bitwise_operations@result_xor;
-40:			__t13 = __t9 + 32;
-41:			*(__t13) = bitwise_operations@result_not_a;
-42:			__t14 = __t9 + 40;
-43:			*(__t14) = bitwise_operations@result_not_b;
-44:			__t15 = __t9 + 48;
-45:			*(__t15) = bitwise_operations@result_left_shift_a;
-46:			__t16 = __t9 + 56;
-47:			*(__t16) = bitwise_operations@result_left_shift_b;
-48:			__t17 = __t9 + 64;
-49:			*(__t17) = bitwise_operations@result_right_shift_a;
-50:			__t18 = __t9 + 72;
-51:			*(__t18) = bitwise_operations@result_right_shift_b;
-52:			return __t9;
-53:	end_func
+7:	begin_func Temp@__init__
+8:			self = pop_param;
+9:			__t0 = self + 0;
+10:			*(__t0) = 1;
+11:	end_func
 
-54:	begin_func relational_operations
-55:			relational_operations@b = pop_param;
-56:			relational_operations@a = pop_param;
-57:			__t19 = relational_operations@a == relational_operations@b;
-58:			relational_operations@result_equal = __t19;
-59:			__t20 = relational_operations@a != relational_operations@b;
-60:			relational_operations@result_not_equal = __t20;
-61:			__t21 = relational_operations@a > relational_operations@b;
-62:			relational_operations@result_greater_than = __t21;
-63:			__t22 = relational_operations@a < relational_operations@b;
-64:			relational_operations@result_less_than = __t22;
-65:			__t23 = relational_operations@a >= relational_operations@b;
-66:			relational_operations@result_greater_than_or_equal = __t23;
-67:			__t24 = relational_operations@a <= relational_operations@b;
-68:			relational_operations@result_less_than_or_equal = __t24;
-69:			push_param 56;
-70:			stack_pointer +xxx
-71:			call allocmem, 1;
-72:			stack_pointer -xxx
-73:			__t25 = return_value;
-74:			*(__t25) = 6;
-75:			__t26 = __t25 + 8;
-76:			*(__t26) = relational_operations@result_equal;
-77:			__t27 = __t25 + 16;
-78:			*(__t27) = relational_operations@result_not_equal;
-79:			__t28 = __t25 + 24;
-80:			*(__t28) = relational_operations@result_greater_than;
-81:			__t29 = __t25 + 32;
-82:			*(__t29) = relational_operations@result_less_than;
-83:			__t30 = __t25 + 40;
-84:			*(__t30) = relational_operations@result_greater_than_or_equal;
-85:			__t31 = __t25 + 48;
-86:			*(__t31) = relational_operations@result_less_than_or_equal;
-87:			return __t25;
-88:	end_func
+12:	begin_func complicated_flow
+13:			complicated_flow@num = pop_param;
+14:			__t1 = complicated_flow@num % 2;
+15:			__t2 = __t1 == 0;
+16:			if_false __t2 goto 34;
+17:			string make .LC1 into var __t3
+18:			string print __t3
+19:			__t4 = complicated_flow@num > 10;
+20:			if_false __t4 goto 31;
+21:			string make .LC2 into var __t5
+22:			string print __t5
+23:			__t6 = complicated_flow@num > 20;
+24:			if_false __t6 goto 28;
+25:			string make .LC3 into var __t7
+26:			string print __t7
+27:			goto 30;
+28:			string make .LC4 into var __t8
+29:			string print __t8
+30:			goto 33;
+31:			string make .LC5 into var __t9
+32:			string print __t9
+33:			goto 61;
+34:			__t10 = complicated_flow@num % 3;
+35:			__t11 = __t10 == 0;
+36:			if_false __t11 goto 47;
+37:			string make .LC6 into var __t12
+38:			string print __t12
+39:			__t13 = complicated_flow@num > 15;
+40:			if_false __t13 goto 44;
+41:			string make .LC7 into var __t14
+42:			string print __t14
+43:			goto 61;
+44:			string make .LC8 into var __t15
+45:			string print __t15
+46:			goto 61;
+47:			string make .LC9 into var __t16
+48:			string print __t16
+49:			__t17 = complicated_flow@num < 5;
+50:			if_false __t17 goto 54;
+51:			string make .LC10 into var __t18
+52:			string print __t18
+53:			goto 61;
+54:			__t19 = complicated_flow@num < 10;
+55:			if_false __t19 goto 59;
+56:			string make .LC11 into var __t20
+57:			string print __t20
+58:			goto 61;
+59:			string make .LC12 into var __t21
+60:			string print __t21
+61:	end_func
 
-89:	begin_func arithmetic_operations
-90:			arithmetic_operations@b = pop_param;
-91:			arithmetic_operations@a = pop_param;
-92:			__t32 = arithmetic_operations@a + arithmetic_operations@b;
-93:			arithmetic_operations@result_addition = __t32;
-94:			__t33 = arithmetic_operations@a - arithmetic_operations@b;
-95:			arithmetic_operations@result_subtraction = __t33;
-96:			__t34 = arithmetic_operations@a * arithmetic_operations@b;
-97:			arithmetic_operations@result_multiplication = __t34;
-98:			__t35 = arithmetic_operations@a / arithmetic_operations@b;
-99:			arithmetic_operations@result_division = __t35;
-100:		__t36 = arithmetic_operations@a % arithmetic_operations@b;
-101:		arithmetic_operations@result_modulus = __t36;
-102:		__t37 = arithmetic_operations@a ** arithmetic_operations@b;
-103:		arithmetic_operations@result_exponentiation = __t37;
-104:		__t38 = arithmetic_operations@a // arithmetic_operations@b;
-105:		arithmetic_operations@result_floor_division = __t38;
-106:		push_param 64;
-107:		stack_pointer +xxx
-108:		call allocmem, 1;
-109:		stack_pointer -xxx
-110:		__t39 = return_value;
-111:		*(__t39) = 7;
-112:		__t40 = __t39 + 8;
-113:		*(__t40) = arithmetic_operations@result_addition;
-114:		__t41 = __t39 + 16;
-115:		*(__t41) = arithmetic_operations@result_subtraction;
-116:		__t42 = __t39 + 24;
-117:		*(__t42) = arithmetic_operations@result_multiplication;
-118:		__t43 = __t39 + 32;
-119:		*(__t43) = arithmetic_operations@result_division;
-120:		__t44 = __t39 + 40;
-121:		*(__t44) = arithmetic_operations@result_modulus;
-122:		__t45 = __t39 + 48;
-123:		*(__t45) = arithmetic_operations@result_exponentiation;
-124:		__t46 = __t39 + 56;
-125:		*(__t46) = arithmetic_operations@result_floor_division;
-126:		return __t39;
-127:end_func
+62:	begin_func complicated_flow11
+63:			complicated_flow11@num = pop_param;
+64:			__t22 = complicated_flow11@num % 2;
+65:			__t23 = __t22 == 0;
+66:			if_false __t23 goto 136;
+67:			string make .LC1 into var __t24
+68:			string print __t24
+69:			__t25 = complicated_flow11@num > 10;
+70:			if_false __t25 goto 97;
+71:			string make .LC2 into var __t26
+72:			string print __t26
+73:			__t27 = complicated_flow11@num > 20;
+74:			if_false __t27 goto 86;
+75:			string make .LC3 into var __t28
+76:			string print __t28
+77:			__t29 = complicated_flow11@num % 3;
+78:			__t30 = __t29 == 1;
+79:			if_false __t30 goto 83;
+80:			string make .LC13 into var __t31
+81:			string print __t31
+82:			goto 85;
+83:			string make .LC14 into var __t32
+84:			string print __t32
+85:			goto 96;
+86:			string make .LC15 into var __t33
+87:			string print __t33
+88:			__t34 = complicated_flow11@num % 3;
+89:			__t35 = __t34 == 1;
+90:			if_false __t35 goto 94;
+91:			string make .LC13 into var __t36
+92:			string print __t36
+93:			goto 96;
+94:			string make .LC14 into var __t37
+95:			string print __t37
+96:			goto 135;
+97:			string make .LC16 into var __t38
+98:			string print __t38
+99:			__t39 = complicated_flow11@num > 5;
+100:		if_false __t39 goto 112;
+101:		string make .LC17 into var __t40
+102:		string print __t40
+103:		__t41 = complicated_flow11@num % 3;
+104:		__t42 = __t41 == 1;
+105:		if_false __t42 goto 109;
+106:		string make .LC13 into var __t43
+107:		string print __t43
+108:		goto 111;
+109:		string make .LC14 into var __t44
+110:		string print __t44
+111:		goto 135;
+112:		__t45 = complicated_flow11@num == 5;
+113:		if_false __t45 goto 125;
+114:		string make .LC18 into var __t46
+115:		string print __t46
+116:		__t47 = complicated_flow11@num % 3;
+117:		__t48 = __t47 == 1;
+118:		if_false __t48 goto 122;
+119:		string make .LC13 into var __t49
+120:		string print __t49
+121:		goto 135;
+122:		string make .LC14 into var __t50
+123:		string print __t50
+124:		goto 135;
+125:		string make .LC10 into var __t51
+126:		string print __t51
+127:		__t52 = complicated_flow11@num % 3;
+128:		__t53 = __t52 == 1;
+129:		if_false __t53 goto 133;
+130:		string make .LC13 into var __t54
+131:		string print __t54
+132:		goto 135;
+133:		string make .LC14 into var __t55
+134:		string print __t55
+135:		goto 218;
+136:		string make .LC9 into var __t56
+137:		string print __t56
+138:		__t57 = complicated_flow11@num % 3;
+139:		__t58 = __t57 == 0;
+140:		if_false __t58 goto 180;
+141:		string make .LC6 into var __t59
+142:		string print __t59
+143:		__t60 = complicated_flow11@num > 15;
+144:		if_false __t60 goto 156;
+145:		string make .LC7 into var __t61
+146:		string print __t61
+147:		__t62 = complicated_flow11@num % 3;
+148:		__t63 = __t62 == 1;
+149:		if_false __t63 goto 153;
+150:		string make .LC13 into var __t64
+151:		string print __t64
+152:		goto 155;
+153:		string make .LC14 into var __t65
+154:		string print __t65
+155:		goto 179;
+156:		__t66 = complicated_flow11@num == 15;
+157:		if_false __t66 goto 169;
+158:		string make .LC19 into var __t67
+159:		string print __t67
+160:		__t68 = complicated_flow11@num % 3;
+161:		__t69 = __t68 == 1;
+162:		if_false __t69 goto 166;
+163:		string make .LC13 into var __t70
+164:		string print __t70
+165:		goto 179;
+166:		string make .LC14 into var __t71
+167:		string print __t71
+168:		goto 179;
+169:		string make .LC20 into var __t72
+170:		string print __t72
+171:		__t73 = complicated_flow11@num % 3;
+172:		__t74 = __t73 == 1;
+173:		if_false __t74 goto 177;
+174:		string make .LC13 into var __t75
+175:		string print __t75
+176:		goto 179;
+177:		string make .LC14 into var __t76
+178:		string print __t76
+179:		goto 218;
+180:		string make .LC21 into var __t77
+181:		string print __t77
+182:		__t78 = complicated_flow11@num > 20;
+183:		if_false __t78 goto 195;
+184:		string make .LC3 into var __t79
+185:		string print __t79
+186:		__t80 = complicated_flow11@num % 3;
+187:		__t81 = __t80 == 1;
+188:		if_false __t81 goto 192;
+189:		string make .LC13 into var __t82
+190:		string print __t82
+191:		goto 194;
+192:		string make .LC14 into var __t83
+193:		string print __t83
+194:		goto 218;
+195:		__t84 = complicated_flow11@num == 20;
+196:		if_false __t84 goto 208;
+197:		string make .LC22 into var __t85
+198:		string print __t85
+199:		__t86 = complicated_flow11@num % 3;
+200:		__t87 = __t86 == 1;
+201:		if_false __t87 goto 205;
+202:		string make .LC13 into var __t88
+203:		string print __t88
+204:		goto 218;
+205:		string make .LC14 into var __t89
+206:		string print __t89
+207:		goto 218;
+208:		string make .LC23 into var __t90
+209:		string print __t90
+210:		__t91 = complicated_flow11@num % 3;
+211:		__t92 = __t91 == 1;
+212:		if_false __t92 goto 216;
+213:		string make .LC13 into var __t93
+214:		string print __t93
+215:		goto 218;
+216:		string make .LC14 into var __t94
+217:		string print __t94
+218:end_func
 
-128:begin_func logical_operations
-129:		logical_operations@b = pop_param;
-130:		logical_operations@a = pop_param;
-131:		__t47 = logical_operations@a && logical_operations@b;
-132:		logical_operations@result_and = __t47;
-133:		__t48 = logical_operations@a || logical_operations@b;
-134:		logical_operations@result_or = __t48;
-135:		__t49 = !(logical_operations@a);
-136:		logical_operations@result_not_a = __t49;
-137:		__t50 = !(logical_operations@b);
-138:		logical_operations@result_not_b = __t50;
-139:		push_param 40;
-140:		stack_pointer +xxx
-141:		call allocmem, 1;
-142:		stack_pointer -xxx
-143:		__t51 = return_value;
-144:		*(__t51) = 4;
-145:		__t52 = __t51 + 8;
-146:		*(__t52) = logical_operations@result_and;
-147:		__t53 = __t51 + 16;
-148:		*(__t53) = logical_operations@result_or;
-149:		__t54 = __t51 + 24;
-150:		*(__t54) = logical_operations@result_not_a;
-151:		__t55 = __t51 + 32;
-152:		*(__t55) = logical_operations@result_not_b;
-153:		return __t51;
-154:end_func
+219:begin_func main
+220:		push_param 8;
+221:		stack_pointer +xxx
+222:		call allocmem, 1;
+223:		stack_pointer -xxx
+224:		__t95 = return_value;
+225:		push_param __t95;
+226:		stack_pointer +xxx
+227:		call Temp@__init__, 1;
+228:		stack_pointer -xxx
+229:		none type function call ends
+230:		main@obj = __t95;
+231:		main@i = 0;
+232:		__t96 = main@i < 200000;
+233:		if_false __t96 goto 241;
+234:		push_param main@i;
+235:		stack_pointer +xxx
+236:		call complicated_flow11, 1;
+237:		stack_pointer -xxx
+238:		none type function call ends
+239:		main@i = main@i + 1;
+240:		goto 232;
+241:end_func
 
-155:begin_func main
-156:		main@num1 = 10;
-157:		main@num2 = 5;
-158:		push_param main@num1;
-159:		push_param main@num2;
-160:		stack_pointer +xxx
-161:		call bitwise_operations, 2;
-162:		stack_pointer -xxx
-163:		__t56 = return_value;
-164:		main@results_bitwise = __t56;
-165:		main@i = 0;
-166:		push_param main@results_bitwise;
-167:		stack_pointer +xxx
-168:		call len, 1;
-169:		stack_pointer -xxx
-170:		__t57 = return_value;
-171:		main@i = 0;
-172:		__t63 = main@i < __t57;
-173:		if_false __t63 goto 190;
-174:		__t58 = main@results_bitwise;
-175:		__t59 = *(__t58);
-176:		__t60 = main@i >= __t59;
-177:		if_false __t60 goto 179;
-178:		exit_out_of_bound
-179:		__t59 = main@i * 8;
-180:		__t59 = __t59 + 8;
-181:		__t59 = __t58 + __t59;
-182:		__t62 = *(__t59);
-183:		push_param __t62;
-184:		stack_pointer +xxx
-185:		call print, 1;
-186:		stack_pointer -xxx
-187:		none type function call ends
-188:		main@i = main@i + 1;
-189:		goto 172;
-190:		push_param main@num1;
-191:		push_param main@num2;
-192:		stack_pointer +xxx
-193:		call relational_operations, 2;
-194:		stack_pointer -xxx
-195:		__t64 = return_value;
-196:		main@results_relational = __t64;
-197:		push_param main@results_relational;
-198:		stack_pointer +xxx
-199:		call len, 1;
-200:		stack_pointer -xxx
-201:		__t65 = return_value;
-202:		main@i = 0;
-203:		__t71 = main@i < __t65;
-204:		if_false __t71 goto 221;
-205:		__t66 = main@results_relational;
-206:		__t67 = *(__t66);
-207:		__t68 = main@i >= __t67;
-208:		if_false __t68 goto 210;
-209:		exit_out_of_bound
-210:		__t67 = main@i * 8;
-211:		__t67 = __t67 + 8;
-212:		__t67 = __t66 + __t67;
-213:		__t70 = *(__t67);
-214:		push_param __t70;
-215:		stack_pointer +xxx
-216:		call print, 1;
-217:		stack_pointer -xxx
-218:		none type function call ends
-219:		main@i = main@i + 1;
-220:		goto 203;
-221:		push_param main@num1;
-222:		push_param main@num2;
-223:		stack_pointer +xxx
-224:		call arithmetic_operations, 2;
-225:		stack_pointer -xxx
-226:		__t72 = return_value;
-227:		main@results_arithmetic = __t72;
-228:		push_param main@results_arithmetic;
-229:		stack_pointer +xxx
-230:		call len, 1;
-231:		stack_pointer -xxx
-232:		__t73 = return_value;
-233:		main@i = 0;
-234:		__t79 = main@i < __t73;
-235:		if_false __t79 goto 252;
-236:		__t74 = main@results_arithmetic;
-237:		__t75 = *(__t74);
-238:		__t76 = main@i >= __t75;
-239:		if_false __t76 goto 241;
-240:		exit_out_of_bound
-241:		__t75 = main@i * 8;
-242:		__t75 = __t75 + 8;
-243:		__t75 = __t74 + __t75;
-244:		__t78 = *(__t75);
-245:		push_param __t78;
-246:		stack_pointer +xxx
-247:		call print, 1;
-248:		stack_pointer -xxx
-249:		none type function call ends
-250:		main@i = main@i + 1;
-251:		goto 234;
-252:		push_param 1;
-253:		push_param 0;
-254:		stack_pointer +xxx
-255:		call logical_operations, 2;
-256:		stack_pointer -xxx
-257:		__t80 = return_value;
-258:		main@results_logical = __t80;
-259:		push_param main@results_logical;
-260:		stack_pointer +xxx
-261:		call len, 1;
-262:		stack_pointer -xxx
-263:		__t81 = return_value;
-264:		main@i = 0;
-265:		__t87 = main@i < __t81;
-266:		if_false __t87 goto 283;
-267:		__t82 = main@results_logical;
-268:		__t83 = *(__t82);
-269:		__t84 = main@i >= __t83;
-270:		if_false __t84 goto 272;
-271:		exit_out_of_bound
-272:		__t83 = main@i * 8;
-273:		__t83 = __t83 + 8;
-274:		__t83 = __t82 + __t83;
-275:		__t86 = *(__t83);
-276:		push_param __t86;
-277:		stack_pointer +xxx
-278:		call print, 1;
-279:		stack_pointer -xxx
-280:		none type function call ends
-281:		main@i = main@i + 1;
-282:		goto 265;
-283:end_func
-
-284:program start: 
-285:		stack_pointer +xxx
-286:		call main, 0;
-287:		stack_pointer -xxx
-288:		none type function call ends
+242:program start: 
+243:		stack_pointer +xxx
+244:		call main, 0;
+245:		stack_pointer -xxx
+246:		none type function call ends

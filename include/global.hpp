@@ -127,7 +127,7 @@ struct task_struct {
     vector<procedure_table* > sub_tables;
     task_struct();
     void print_code(string asm_file = "code.s");
-
+    int power_op = 0;
     void get_tac_procedures();                            
     void gen_tac_basic_block(vector<quad>, procedure_table*); 
     string get_func_name(string s);          
