@@ -1,251 +1,30 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t97 = len@list;
-4:			__t98 = *(__t97);
-5:			return __t98;
+3:			__t3 = len@list;
+4:			__t4 = *(__t3);
+5:			return __t4;
 6:	end_func
 
-7:	begin_func Temp@__init__
-8:			self = pop_param;
-9:			__t0 = self + 0;
-10:			*(__t0) = 1;
-11:	end_func
+7:	begin_func main
+8:			main@a = 5;
+9:			main@b = 4;
+10:			__t0 = main@a ** main@b;
+11:			push_param __t0;
+12:			stack_pointer +xxx
+13:			call print, 1;
+14:			stack_pointer -xxx
+15:			none type function call ends
+16:			__t1 = 4 ** 6;
+17:			push_param __t1;
+18:			stack_pointer +xxx
+19:			call print, 1;
+20:			stack_pointer -xxx
+21:			none type function call ends
+22:			__t2 = 65 ** 2;
+23:			push_param __t2;
+24:			stack_pointer +xxx
+25:			call print, 1;
+26:			stack_pointer -xxx
+27:			none type function call ends
+28:	end_func
 
-12:	begin_func complicated_flow
-13:			complicated_flow@num = pop_param;
-14:			__t1 = complicated_flow@num % 2;
-15:			__t2 = __t1 == 0;
-16:			if_false __t2 goto 34;
-17:			string make .LC1 into var __t3
-18:			string print __t3
-19:			__t4 = complicated_flow@num > 10;
-20:			if_false __t4 goto 31;
-21:			string make .LC2 into var __t5
-22:			string print __t5
-23:			__t6 = complicated_flow@num > 20;
-24:			if_false __t6 goto 28;
-25:			string make .LC3 into var __t7
-26:			string print __t7
-27:			goto 30;
-28:			string make .LC4 into var __t8
-29:			string print __t8
-30:			goto 33;
-31:			string make .LC5 into var __t9
-32:			string print __t9
-33:			goto 61;
-34:			__t10 = complicated_flow@num % 3;
-35:			__t11 = __t10 == 0;
-36:			if_false __t11 goto 47;
-37:			string make .LC6 into var __t12
-38:			string print __t12
-39:			__t13 = complicated_flow@num > 15;
-40:			if_false __t13 goto 44;
-41:			string make .LC7 into var __t14
-42:			string print __t14
-43:			goto 61;
-44:			string make .LC8 into var __t15
-45:			string print __t15
-46:			goto 61;
-47:			string make .LC9 into var __t16
-48:			string print __t16
-49:			__t17 = complicated_flow@num < 5;
-50:			if_false __t17 goto 54;
-51:			string make .LC10 into var __t18
-52:			string print __t18
-53:			goto 61;
-54:			__t19 = complicated_flow@num < 10;
-55:			if_false __t19 goto 59;
-56:			string make .LC11 into var __t20
-57:			string print __t20
-58:			goto 61;
-59:			string make .LC12 into var __t21
-60:			string print __t21
-61:	end_func
-
-62:	begin_func complicated_flow11
-63:			complicated_flow11@num = pop_param;
-64:			__t22 = complicated_flow11@num % 2;
-65:			__t23 = __t22 == 0;
-66:			if_false __t23 goto 136;
-67:			string make .LC1 into var __t24
-68:			string print __t24
-69:			__t25 = complicated_flow11@num > 10;
-70:			if_false __t25 goto 97;
-71:			string make .LC2 into var __t26
-72:			string print __t26
-73:			__t27 = complicated_flow11@num > 20;
-74:			if_false __t27 goto 86;
-75:			string make .LC3 into var __t28
-76:			string print __t28
-77:			__t29 = complicated_flow11@num % 3;
-78:			__t30 = __t29 == 1;
-79:			if_false __t30 goto 83;
-80:			string make .LC13 into var __t31
-81:			string print __t31
-82:			goto 85;
-83:			string make .LC14 into var __t32
-84:			string print __t32
-85:			goto 96;
-86:			string make .LC15 into var __t33
-87:			string print __t33
-88:			__t34 = complicated_flow11@num % 3;
-89:			__t35 = __t34 == 1;
-90:			if_false __t35 goto 94;
-91:			string make .LC13 into var __t36
-92:			string print __t36
-93:			goto 96;
-94:			string make .LC14 into var __t37
-95:			string print __t37
-96:			goto 135;
-97:			string make .LC16 into var __t38
-98:			string print __t38
-99:			__t39 = complicated_flow11@num > 5;
-100:		if_false __t39 goto 112;
-101:		string make .LC17 into var __t40
-102:		string print __t40
-103:		__t41 = complicated_flow11@num % 3;
-104:		__t42 = __t41 == 1;
-105:		if_false __t42 goto 109;
-106:		string make .LC13 into var __t43
-107:		string print __t43
-108:		goto 111;
-109:		string make .LC14 into var __t44
-110:		string print __t44
-111:		goto 135;
-112:		__t45 = complicated_flow11@num == 5;
-113:		if_false __t45 goto 125;
-114:		string make .LC18 into var __t46
-115:		string print __t46
-116:		__t47 = complicated_flow11@num % 3;
-117:		__t48 = __t47 == 1;
-118:		if_false __t48 goto 122;
-119:		string make .LC13 into var __t49
-120:		string print __t49
-121:		goto 135;
-122:		string make .LC14 into var __t50
-123:		string print __t50
-124:		goto 135;
-125:		string make .LC10 into var __t51
-126:		string print __t51
-127:		__t52 = complicated_flow11@num % 3;
-128:		__t53 = __t52 == 1;
-129:		if_false __t53 goto 133;
-130:		string make .LC13 into var __t54
-131:		string print __t54
-132:		goto 135;
-133:		string make .LC14 into var __t55
-134:		string print __t55
-135:		goto 218;
-136:		string make .LC9 into var __t56
-137:		string print __t56
-138:		__t57 = complicated_flow11@num % 3;
-139:		__t58 = __t57 == 0;
-140:		if_false __t58 goto 180;
-141:		string make .LC6 into var __t59
-142:		string print __t59
-143:		__t60 = complicated_flow11@num > 15;
-144:		if_false __t60 goto 156;
-145:		string make .LC7 into var __t61
-146:		string print __t61
-147:		__t62 = complicated_flow11@num % 3;
-148:		__t63 = __t62 == 1;
-149:		if_false __t63 goto 153;
-150:		string make .LC13 into var __t64
-151:		string print __t64
-152:		goto 155;
-153:		string make .LC14 into var __t65
-154:		string print __t65
-155:		goto 179;
-156:		__t66 = complicated_flow11@num == 15;
-157:		if_false __t66 goto 169;
-158:		string make .LC19 into var __t67
-159:		string print __t67
-160:		__t68 = complicated_flow11@num % 3;
-161:		__t69 = __t68 == 1;
-162:		if_false __t69 goto 166;
-163:		string make .LC13 into var __t70
-164:		string print __t70
-165:		goto 179;
-166:		string make .LC14 into var __t71
-167:		string print __t71
-168:		goto 179;
-169:		string make .LC20 into var __t72
-170:		string print __t72
-171:		__t73 = complicated_flow11@num % 3;
-172:		__t74 = __t73 == 1;
-173:		if_false __t74 goto 177;
-174:		string make .LC13 into var __t75
-175:		string print __t75
-176:		goto 179;
-177:		string make .LC14 into var __t76
-178:		string print __t76
-179:		goto 218;
-180:		string make .LC21 into var __t77
-181:		string print __t77
-182:		__t78 = complicated_flow11@num > 20;
-183:		if_false __t78 goto 195;
-184:		string make .LC3 into var __t79
-185:		string print __t79
-186:		__t80 = complicated_flow11@num % 3;
-187:		__t81 = __t80 == 1;
-188:		if_false __t81 goto 192;
-189:		string make .LC13 into var __t82
-190:		string print __t82
-191:		goto 194;
-192:		string make .LC14 into var __t83
-193:		string print __t83
-194:		goto 218;
-195:		__t84 = complicated_flow11@num == 20;
-196:		if_false __t84 goto 208;
-197:		string make .LC22 into var __t85
-198:		string print __t85
-199:		__t86 = complicated_flow11@num % 3;
-200:		__t87 = __t86 == 1;
-201:		if_false __t87 goto 205;
-202:		string make .LC13 into var __t88
-203:		string print __t88
-204:		goto 218;
-205:		string make .LC14 into var __t89
-206:		string print __t89
-207:		goto 218;
-208:		string make .LC23 into var __t90
-209:		string print __t90
-210:		__t91 = complicated_flow11@num % 3;
-211:		__t92 = __t91 == 1;
-212:		if_false __t92 goto 216;
-213:		string make .LC13 into var __t93
-214:		string print __t93
-215:		goto 218;
-216:		string make .LC14 into var __t94
-217:		string print __t94
-218:end_func
-
-219:begin_func main
-220:		push_param 8;
-221:		stack_pointer +xxx
-222:		call allocmem, 1;
-223:		stack_pointer -xxx
-224:		__t95 = return_value;
-225:		push_param __t95;
-226:		stack_pointer +xxx
-227:		call Temp@__init__, 1;
-228:		stack_pointer -xxx
-229:		none type function call ends
-230:		main@obj = __t95;
-231:		main@i = 0;
-232:		__t96 = main@i < 200000;
-233:		if_false __t96 goto 241;
-234:		push_param main@i;
-235:		stack_pointer +xxx
-236:		call complicated_flow11, 1;
-237:		stack_pointer -xxx
-238:		none type function call ends
-239:		main@i = main@i + 1;
-240:		goto 232;
-241:end_func
-
-242:program start: 
-243:		stack_pointer +xxx
-244:		call main, 0;
-245:		stack_pointer -xxx
-246:		none type function call ends
