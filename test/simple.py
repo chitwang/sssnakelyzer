@@ -38,6 +38,10 @@ def f1(a : int, b : int) -> int:
  
 def main() -> None:
     f1(1, 2)
+    a:int = 0
+    print(a)
+    a = 453 
+    print(a)
 
 if __name__ == "__main__":
    main()

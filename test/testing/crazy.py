@@ -28,6 +28,7 @@ class Child(Parent):
     self.num = num
     self.name: str = name
     self.a = b
+    print(self.a)
 
   def ret_parent(self) -> list[Parent]:
     p1:Parent = Parent(1)
@@ -50,7 +51,7 @@ class Child(Parent):
   
 
 def main():
-  c:Child = Child("Yello", 100, True)
+  c:Child = Child("Yello", 100, -123)
   obj:GrandParent = GrandParent()
   print(c.ret_parent()[3].ret_grand_parent()[1].show(c.ret_parent()[9].num))
   c.display()
