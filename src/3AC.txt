@@ -1,30 +1,78 @@
 1:	begin_func len
 2:			len@list = pop_param;
-3:			__t3 = len@list;
-4:			__t4 = *(__t3);
-5:			return __t4;
+3:			__t7 = len@list;
+4:			__t8 = *(__t7);
+5:			return __t8;
 6:	end_func
 
-7:	begin_func main
-8:			main@a = 5;
-9:			main@b = 4;
-10:			__t0 = main@a ** main@b;
-11:			push_param __t0;
-12:			stack_pointer +xxx
-13:			call print, 1;
-14:			stack_pointer -xxx
-15:			none type function call ends
-16:			__t1 = 4 ** 6;
-17:			push_param __t1;
-18:			stack_pointer +xxx
-19:			call print, 1;
-20:			stack_pointer -xxx
-21:			none type function call ends
-22:			__t2 = 65 ** 2;
-23:			push_param __t2;
-24:			stack_pointer +xxx
-25:			call print, 1;
-26:			stack_pointer -xxx
-27:			none type function call ends
-28:	end_func
+7:	begin_func foo
+8:			foo@x = pop_param;
+9:			if_false foo@x goto 11;
+10:			foo@x = 1;
+11:			foo@a = 767667;
+12:			if_false foo@a goto 14;
+13:			foo@a = 1;
+14:			if_false foo@x goto 17;
+15:			bool print 1
+16:			goto 18;
+17:			bool print 0
+18:			__t0 = foo@a + 1;
+19:			if_false __t0 goto 21;
+20:			__t0 = 1;
+21:			return __t0;
+22:	end_func
 
+23:	begin_func func
+24:			func@a = pop_param;
+25:			return 54646;
+26:	end_func
+
+27:	begin_func gnrjg
+28:			gnrjg@d = pop_param;
+29:			if_false gnrjg@d goto 31;
+30:			gnrjg@d = 1;
+31:			if_false gnrjg@d goto 34;
+32:			bool print 1
+33:			goto 35;
+34:			bool print 0
+35:	end_func
+
+36:	begin_func A@__init__
+37:			A@__init__@f = pop_param;
+38:			if_false A@__init__@f goto 40;
+39:			A@__init__@f = 1;
+40:			A@__init__@foo = pop_param;
+41:			self = pop_param;
+42:			__t1 = self + 0;
+43:			*(__t1) = A@__init__@foo;
+44:			__t2 = *(__t1);
+45:			if_false __t2 goto 47;
+46:			*(__t1) = 1;
+47:			__t3 = self + 8;
+48:			*(__t3) = 68;
+49:			__t4 = *(__t3);
+50:			if_false __t4 goto 52;
+51:			*(__t3) = 1;
+52:			__t5 = self + 8;
+53:			__t6 = *(__t5);
+54:			if_false __t6 goto 57;
+55:			bool print 1
+56:			goto 58;
+57:			bool print 0
+58:			if_false A@__init__@f goto 61;
+59:			bool print 1
+60:			goto 62;
+61:			bool print 0
+62:	end_func
+
+63:	begin_func main
+64:			if_false 1 goto 67;
+65:			bool print 1
+66:			goto 68;
+67:			bool print 0
+68:	end_func
+
+69:			stack_pointer +xxx
+70:			call main, 0;
+71:			stack_pointer -xxx
+72:			none type function call ends

@@ -10,7 +10,7 @@ extern int in_loop;
 int node_count = 0;
 int ins_count = 0;
 int temp_count = 0;
-int str_count = 1;
+int str_count = 3;
 bool our_debug = false;
 vector <string> nodes;
 vector <vector <int>> adj;
@@ -410,9 +410,6 @@ string check_attribute_in_class(symbol_table_class* symtab, string &name, node *
     }
     else {
         string tmp = get_new_temp();
-        // if(b[0] == '*') {
-        //     b = b.substr(1);
-        // }
         b = check_star_and_make(current_node, b);
 
         quad q(tmp, b , "+", to_string(existing_entry->offset));
@@ -505,8 +502,6 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
                 q = quad("", "-", "", "");
                 q.make_code_shift_pointer();
                 current_node->ta_codes.push_back(q);  
-                // quad q1(temp, "pop_param", "=", "");
-                // q1.make_code_from_assignment();
                 quad q1(temp, "", "", "");
                 q1.make_code_from_return_val();
                 current_node->ta_codes.push_back(q1);
@@ -543,9 +538,6 @@ string set_trailer_type_compatibility(int node_num,  node *leftnode, string type
         for(int i = 0; i < actual_params.size(); i++) {
             is_compatible(actual_params[i], func_table -> params[i + flag]-> type);
         }
-        // if(func_table -> return_type == "None"){
-        //     current_node->var = 
-        // }
         return func_table -> return_type;
     }
     return "UNDEFINED";
@@ -592,6 +584,42 @@ void set_var_class_func(int n1, int n2) {
     if(all_nodes[n1]->is_func) all_nodes[n1]->sym_tab_func = all_nodes[n2]->sym_tab_func;
     return ;
 }
+
+void typecast_int_to_bool_no_star(int n1, int n2) {
+    // n2 = $$, 
+    quad q("", all_nodes[n1]->var, "if_false", "J+2");
+    q.make_code_from_conditional();
+    all_nodes[n2] -> ta_codes.push_back(q);
+    q = quad(all_nodes[n1]->var, "1", "=", "");
+    q.make_code_from_assignment();
+    all_nodes[n2] -> ta_codes.push_back(q);
+}
+
+void typecast_int_to_bool_var(string var, int n2) {
+    // n2 = $$, 
+    quad q("", var, "if_false", "J+2");
+    q.make_code_from_conditional();
+    all_nodes[n2] -> ta_codes.push_back(q);
+    q = quad(var, "1", "=", "");
+    q.make_code_from_assignment();
+    all_nodes[n2] -> ta_codes.push_back(q);
+}
+
+void typecast_int_to_bool_star(int n1, int n2) {
+    // n2 = $$, 
+    string tmp = get_new_temp();
+    quad q(tmp, all_nodes[n1]->var.substr(1), "", "");
+    q.make_code_from_load();
+    all_nodes[n2] -> ta_codes.push_back(q);
+    q = quad("", tmp, "if_false", "J+2");
+    q.make_code_from_conditional();
+    all_nodes[n2] -> ta_codes.push_back(q);
+    q = quad(all_nodes[n1]->var.substr(1), "1", "", "");
+    q.make_code_from_store();
+    all_nodes[n2] -> ta_codes.push_back(q);
+}
+
+
 
 extern int yylex(void);
 void yyerror(const char*);
@@ -681,7 +709,7 @@ func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
     quad q("", newf->mangled_name, "", "");
     q.make_code_begin_func();
     all_nodes[$$]->ta_codes.push_back(q);
-    for(int i = all_nodes[$3]->entry_list.size()-1;i>=0;i--) {
+    for(int i = all_nodes[$3]->entry_list.size() - 1; i >= 0; i--) {
         auto entry = all_nodes[$3]->entry_list[i];
         if(entry->name == "self") {
             entry -> mangled_name = "self";
@@ -689,9 +717,12 @@ func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
         else {
             entry -> mangled_name = newf -> mangled_name + "@" + entry->name;
         }
-        quad q1( entry -> mangled_name , "", "", "");
+        quad q1(entry -> mangled_name, "", "", "");
         q1.make_code_pop_param();
         all_nodes[$$]->ta_codes.push_back(q1);
+        if(entry -> type == "bool") {
+            typecast_int_to_bool_var(entry -> mangled_name, $$);
+        }
     }
 }
 | KEY_DEF NAME parameters DELIM_COLON {
@@ -715,6 +746,9 @@ func_header: KEY_DEF NAME parameters DELIM_ARROW test DELIM_COLON {
         quad q1(entry -> mangled_name , "", "", "");
         q1.make_code_pop_param();
         all_nodes[$$]->ta_codes.push_back(q1);
+        if(entry -> type == "bool"){
+            typecast_int_to_bool_var(entry->mangled_name, $$);
+        }
     }
 }
 
@@ -817,20 +851,27 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
 }
 | type_declaration DELIM_ASSIGN test {node_attr = {"=", "expr_stmt"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
     is_compatible(all_nodes[$1]->datatype, all_nodes[$3]->datatype);
+    all_nodes[$$]->append_tac(all_nodes[$1]);
     string arg1 = all_nodes[$3]->var;
     arg1 = check_star_and_make(all_nodes[$3], arg1);
+    all_nodes[$$]->append_tac(all_nodes[$3]);
     quad q("", "", "", "");
     if((all_nodes[$1]->var)[0] == '*') {
         q = quad((all_nodes[$1]->var).substr(1), arg1, "", "");
         q.make_code_from_store();
+        all_nodes[$$]->ta_codes.push_back(q);
+        if(all_nodes[$1]->datatype == "bool") {
+            typecast_int_to_bool_star($1, $$);
+        }
     }
     else {
         q = quad (all_nodes[$1]->var, arg1, "=", "");
         q.make_code_from_assignment();
+        all_nodes[$$]->ta_codes.push_back(q);
+        if(all_nodes[$1]->datatype == "bool") {
+            typecast_int_to_bool_no_star($1, $$);
+        }
     }
-    all_nodes[$$]->append_tac(all_nodes[$1]);
-    all_nodes[$$]->append_tac(all_nodes[$3]);
-    all_nodes[$$]->ta_codes.push_back(q);
 }
 | test augassign testlist {node_attr = {"expr_stmt"}; node_numbers = {$1, $2, $3}; insert_node(); $$ = node_count; node_count += 1;
     string op = all_nodes[$2]->name.substr(9);
@@ -860,11 +901,17 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
         q = quad((all_nodes[$1] -> var).substr(1), tmp , "", "");
         q.make_code_from_store();
         all_nodes[$$]->ta_codes.push_back(q);
+        if(all_nodes[$1]->datatype == "bool") {
+            typecast_int_to_bool_star($1, $$);
+        }
     }
     else{
         quad q(all_nodes[$1] -> var, arg1, op, arg2);
         q.make_code_from_binary();
         all_nodes[$$]->ta_codes.push_back(q);
+        if(all_nodes[$1]->datatype == "bool") {
+            typecast_int_to_bool_no_star($1, $$);
+        }
     }
 }
 | test DELIM_ASSIGN test {node_attr = {"=","expr_stmt"}; node_numbers = {$1, node_count, $3}; insert_node(); $$ = node_count + 1; node_count += 2;
@@ -881,12 +928,19 @@ expr_stmt: type_declaration {node_attr = {"expr_stmt"}; node_numbers = {$1}; ins
     if((all_nodes[$1]->var)[0]=='*') {
         q = quad((all_nodes[$1]->var).substr(1), arg1, "", "");
         q.make_code_from_store();
+        all_nodes[$$]->ta_codes.push_back(q);
+        if(all_nodes[$1]->datatype == "bool") {
+            typecast_int_to_bool_star($1, $$);
+        }
     }
     else {
         q = quad(all_nodes[$1]->var, arg1, "", "");
         q.make_code_from_assignment();
+        all_nodes[$$]->ta_codes.push_back(q);
+        if(all_nodes[$1]->datatype == "bool") {
+            typecast_int_to_bool_no_star($1, $$);
+        }
     }
-    all_nodes[$$]->ta_codes.push_back(q);
 }
 | test {node_attr = {"expr_stmt"}; node_numbers = {$1}; insert_node(); $$ = node_count; node_count += 1;
     all_nodes[$$]->append_tac(all_nodes[$1]);
@@ -1034,9 +1088,9 @@ return_stmt: KEY_RETURN test {node_attr = {"return", "return_stmt"}; node_number
     all_nodes[$$]->append_tac(all_nodes[$2]);
     string arg1 = all_nodes[$2]->var;
     arg1 = check_star_and_make(all_nodes[$$], arg1);
-    // quad q("", arg1, "push", "");
-    // q.make_code_push_param();
-    // all_nodes[$$]->ta_codes.push_back(q);
+    if(((symbol_table_func *)current_table)->return_type == "bool") {
+        typecast_int_to_bool_var(arg1, $$);
+    }
     quad q("", arg1, "return", "");
     q.make_code_from_return();
     all_nodes[$$]->ta_codes.push_back(q);
@@ -1660,6 +1714,21 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         q.make_code_from_print_str();
         all_nodes[$$]->ta_codes.push_back(q);
     }
+    else if(all_nodes[$1]->var == "print_bol") {
+        string arg1 = check_star_and_make(all_nodes[$$], all_nodes[$3]->var_list[0]);
+        quad q("", arg1, "if_false", "J+3");
+        q.make_code_from_conditional();
+        all_nodes[$$]->ta_codes.push_back(q);
+        q = quad("", "1", "", "");
+        q.make_code_from_print_bool();
+        all_nodes[$$]->ta_codes.push_back(q);
+        q = quad("", "J+2", "goto", "");
+        q.make_code_from_goto();
+        all_nodes[$$]->ta_codes.push_back(q);
+        q = quad("", "0", "", "");
+        q.make_code_from_print_bool();
+        all_nodes[$$]->ta_codes.push_back(q);
+    }
     else {
         if(all_nodes[$1]->is_class_func != ""){
             string b = all_nodes[$1]->is_class_func;
@@ -1846,7 +1915,7 @@ trailored_atom: atom DELIM_LEFT_PAREN arglist DELIM_RIGHT_PAREN {node_attr = {"(
         q.make_code_from_none_return_val();
         all_nodes[$$]->ta_codes.push_back(q);
     }
-    else{
+    else {
         string temp = get_new_temp();
         quad q1(temp, "", "", "");
         q1.make_code_from_return_val();

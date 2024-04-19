@@ -35,12 +35,12 @@ void quad::make_code_from_store() {
     code = "\t\t*(" + result + ") = " + arg1 + ";\n";
 }
 
-void quad::make_code_from_load(){
+void quad::make_code_from_load() {
     made_from = LOAD;
     code = "\t\t" + result + " = *(" + arg1 + ");\n";
 }
 
-void quad::make_code_from_conditional(){
+void quad::make_code_from_conditional() {
     made_from = CONDITIONAL;
     rel_jump = stoi(arg2.substr(1, arg2.size() - 1));
     code = "\t\t" + op + " " + arg1 + " goto ";
@@ -57,16 +57,16 @@ void quad::make_code_from_goto() {
     code = "\t\t" + op + " ";      
 }
 
-void quad::make_code_push_param(){
+void quad::make_code_push_param() {
     made_from = PUSH_PARAM;
     code = "\t\t" + op + " " + arg1 + ";\n";
     arg2 = "";
     result = "";
 }
 
-void quad::check_jump(const int ins_line){
+void quad::check_jump(const int ins_line) {
     this->ins_line = ins_line;
-    if(rel_jump){
+    if(rel_jump) {
         abs_jump = ins_line + rel_jump;
         code += to_string(abs_jump) + ";\n";
     }
@@ -116,6 +116,11 @@ void quad::make_code_from_print_str() {
     code = "\t\tstring print " + arg1 +  "\n";
 }
 
+void quad::make_code_from_print_bool() {
+    made_from =  PRINT_BOOL;
+    code = "\t\tbool print " + arg1 +  "\n";
+}
+
 void quad::make_code_from_new_str() {
     made_from =  MAKE_STR;
     code = "\t\tstring make " + arg1 + " into var " + result + "\n";
@@ -143,7 +148,7 @@ void node::append_tac(node* v) {
     v -> ta_codes.clear();
 }
 
-void node::print_tac(string filename){
+void node::print_tac(string filename) {
     ofstream out(filename);
 
     int ins_count = 1;
@@ -151,7 +156,7 @@ void node::print_tac(string filename){
     for(auto (&q) : this -> ta_codes) {
         if(q.code != "") {
             q.check_jump(ins_count);    
-            if(q.abs_jump){
+            if(q.abs_jump) {
                 targets.insert(q.abs_jump);
             }
             
@@ -160,8 +165,8 @@ void node::print_tac(string filename){
         }
     }
 
-    for(auto (&q) : this -> ta_codes){
-        if(q.code != "" && targets.find(q.ins_line) != targets.end()){
+    for(auto (&q) : this -> ta_codes) {
+        if(q.code != "" && targets.find(q.ins_line) != targets.end()) {
             q.is_target = true;
         }
     }
@@ -170,15 +175,15 @@ void node::print_tac(string filename){
 }
 
 
-instruction::instruction(){;}
+instruction::instruction() {}
 
-instruction::instruction(string op, string a1, string a2, string a3, string it, string comment) : op(op), arg1(a1), arg2(a2), arg3(a3), ins_type(it), comment(comment){
+instruction::instruction(string op, string a1, string a2, string a3, string it, string comment) : op(op), arg1(a1), arg2(a2), arg3(a3), ins_type(it), comment(comment) {
     if(it == "ins") {          
         code = "\t\t" + op;
-        if(arg1 != ""){
+        if(arg1 != "") {
             code += "\t" + arg1;
         } 
-        if(arg2 != ""){
+        if(arg2 != "") {
             code += ",\t" + arg2;
         }
     }
@@ -196,7 +201,7 @@ instruction::instruction(string op, string a1, string a2, string a3, string it, 
         code = "";
         return;
     }
-    if(comment != ""){
+    if(comment != "") {
         code += "\t\t# " + comment;
     }
     code += "\n";
@@ -238,20 +243,20 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
         ins = instruction("", "L" + to_string(q.ins_line), "", "", "label");
         insts.push_back(ins);
     }
-    if(q.made_from == quad::BINARY){            // c(z) = a(x) op b(y)
+    if(q.made_from == quad::BINARY) {            // c(z) = a(x) op b(y)
 
         if(q.op == "+") {
             if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
             if(!isVariable(q.arg2)) {
                 ins = instruction("add", "$" + q.arg2, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("add", to_string(y) + "(%rbp)", "%rdx");
             }
         }
@@ -259,48 +264,48 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
             if(!isVariable(q.arg2)) {
                 ins = instruction("sub", "$" + q.arg2, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("sub", to_string(y) + "(%rbp)", "%rdx");
             }
         }
         else if(q.op == "*") {
-            if(!isVariable(q.arg1)){
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("imul", "$" + q.arg2, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("imul", to_string(y) + "(%rbp)", "%rdx");
             }
         }
         else if(q.op == "//" || q.op == "/") {
-            if(!isVariable(q.arg1)){   // arg1 is a literal
+            if(!isVariable(q.arg1)) {   // arg1 is a literal
                 ins = instruction("movq", "$" + q.arg1, "%rax");
                 insts.push_back(ins);
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rax");
                 insts.push_back(ins);                
             }
             ins = instruction("cqto");
             insts.push_back(ins);
 
-            if(!isVariable(q.arg2)){  // arg2 is a literal
+            if(!isVariable(q.arg2)) {  // arg2 is a literal
                 ins = instruction("movq", "$" + q.arg2, "%rbx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rbx");
             }
             insts.push_back(ins);
@@ -308,7 +313,7 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("movq", "%rax", "%rdx");
         }
-        else if(q.op == "**"){
+        else if(q.op == "**") {
             if(!isVariable(q.arg1)) {   // arg1 is a literal
                 ins = instruction("movq", "$" + q.arg1, "%rax");
                 insts.push_back(ins);
@@ -347,90 +352,90 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             // insts.push_back(ins);
         }
         else if(q.op == "%") {
-            if(!isVariable(q.arg1)){   // arg1 is a literal
+            if(!isVariable(q.arg1)) {   // arg1 is a literal
                 ins = instruction("movq", "$" + q.arg1, "%rax");
                 insts.push_back(ins);
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rax");
                 insts.push_back(ins);                
             }
             ins = instruction("cqto");
             insts.push_back(ins);
 
-            if(!isVariable(q.arg2)){  // arg2 is a literal
+            if(!isVariable(q.arg2)) {  // arg2 is a literal
                 ins = instruction("movq", "$" + q.arg2, "%rbx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rbx");
             }
             insts.push_back(ins);
             ins = instruction("idiv", "%rbx", "");
         }
-        else if(q.op == "<<"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "<<") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
             ins = instruction("sal", "%cl", "%rdx");
         }
-        else if(q.op == ">>"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == ">>") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
             ins = instruction("sar", "%cl", "%rdx");
         }
-        else if(q.op == ">>>"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == ">>>") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
             ins = instruction("shr", "%cl", "%rdx");
         }
-        else if(q.op == ">"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == ">") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
 
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
@@ -450,19 +455,19 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("", "2", "", "", "label");
         }
-        else if(q.op == "<"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "<") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
 
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
@@ -482,19 +487,19 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("", "2", "", "", "label");
         }
-        else if(q.op == ">="){
-            if(!isVariable(q.arg1)){
+        else if(q.op == ">=") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
 
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
@@ -514,19 +519,19 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("", "2", "", "", "label");
         }
-        else if(q.op == "<="){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "<=") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
 
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
@@ -546,19 +551,19 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("", "2", "", "", "label");
         }
-        else if(q.op == "=="){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "==") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
 
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
@@ -578,19 +583,19 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("", "2", "", "", "label");
         }
-        else if(q.op == "!="){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "!=") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
 
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rcx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rcx");
             }
             insts.push_back(ins);
@@ -610,56 +615,56 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("", "2", "", "", "label");
         }
-        else if(q.op == "&"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "&") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("and", "$" + q.arg2, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("and", to_string(y) + "(%rbp)", "%rdx");
             }     
         }
-        else if(q.op == "|"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "|") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("or", "$" + q.arg2, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("or", to_string(y) + "(%rbp)", "%rdx");
             }     
         }
-        else if(q.op == "^"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "^") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("xor", "$" + q.arg2, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("xor", to_string(y) + "(%rbp)", "%rdx");
             }
         }
-        else if(q.op == "&&"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "&&") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
@@ -667,10 +672,10 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("je", "1f");
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
@@ -688,11 +693,11 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("", "2", "", "", "label");
         }
-        else if(q.op == "||"){
-            if(!isVariable(q.arg1)){
+        else if(q.op == "||") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
@@ -700,10 +705,10 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("jne", "1f");     // true
             insts.push_back(ins);
-            if(!isVariable(q.arg2)){
+            if(!isVariable(q.arg2)) {
                 ins = instruction("movq", "$" + q.arg2, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(y) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
@@ -726,12 +731,12 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
         ins = instruction("movq", "%rdx", to_string(z) + "(%rbp)");
         insts.push_back(ins);
     }
-    else if(q.made_from == quad::UNARY){        // b(y) = op a(x)
-        if(q.op == "~"){
-            if(!isVariable(q.arg1)){
+    else if(q.made_from == quad::UNARY) {        // b(y) = op a(x)
+        if(q.op == "~") {
+            if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
@@ -741,7 +746,7 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             if(!isVariable(q.arg1)) {
                 ins = instruction("movq", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             }
             insts.push_back(ins);
@@ -751,23 +756,23 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);
             ins = instruction("movzbl", "%al", "%edx");
         }
-        else if(q.op == "-"){
+        else if(q.op == "-") {
             ins = instruction("xor", "%rdx", "%rdx");
             insts.push_back(ins);
-            if(!isVariable(q.arg1)){
+            if(!isVariable(q.arg1)) {
                 ins = instruction("sub", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("sub", to_string(x) + "(%rbp)", "%rdx");
             }
         }
-        else if(q.op == "+"){
+        else if(q.op == "+") {
             ins = instruction("xor", "%rdx", "%rdx");
             insts.push_back(ins);
-            if(!isVariable(q.arg1)){
+            if(!isVariable(q.arg1)) {
                 ins = instruction("add", "$" + q.arg1, "%rdx");
             }
-            else{
+            else {
                 ins = instruction("add", to_string(x) + "(%rbp)", "%rdx");
             }
         }
@@ -776,47 +781,47 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
         ins = instruction("movq", "%rdx", to_string(y) + "(%rbp)");
         insts.push_back(ins);
     }
-    else if(q.made_from == quad::ASSIGNMENT){   // b(y) = a(x)
-        if(!isVariable(q.arg1)){
+    else if(q.made_from == quad::ASSIGNMENT) {   // b(y) = a(x)
+        if(!isVariable(q.arg1)) {
             ins = instruction("movq", "$" + q.arg1, to_string(y) + "(%rbp)");
             insts.push_back(ins);
         }
-        else{
+        else {
             ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
             insts.push_back(ins);            
             ins = instruction("movq", "%rdx", to_string(y) + "(%rbp)");
             insts.push_back(ins);
         }
     }
-    else if(q.made_from == quad::CONDITIONAL){  // if_false/if_true(op) a(x) goto y
-        if(!isVariable(q.arg1)){
+    else if(q.made_from == quad::CONDITIONAL) {  // if_false/if_true(op) a(x) goto y
+        if(!isVariable(q.arg1)) {
             ins = instruction("movq", "$" + q.arg1, "%rdx");
         }
-        else{
+        else {
             ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
         }
         insts.push_back(ins);
         ins = instruction("cmp", "$0", "%rdx");
         insts.push_back(ins);
         
-        if(q.op == "if_false"){
+        if(q.op == "if_false") {
             ins = instruction("je", "L" + to_string(y));
         }
-        else if(q.op == "if_true"){
+        else if(q.op == "if_true") {
             ins = instruction("jne", "L" + to_string(y));
         }
         insts.push_back(ins);
     } 
-    else if(q.made_from == quad::GOTO){         // goto (x)
+    else if(q.made_from == quad::GOTO) {         // goto (x)
         ins = instruction("jmp", "L" + to_string(x));
         insts.push_back(ins);
     }
-    else if(q.made_from == quad::STORE){       // *(r(z) + a2) = a1(x)
+    else if(q.made_from == quad::STORE) {       // *(r(z) + a2) = a1(x)
         // cout<<"store\t"<<q.result<<" "<<q.arg1<<endl;
-        if(!isVariable(q.arg1)){
+        if(!isVariable(q.arg1)) {
             ins = instruction("movq", "$" + q.arg1, "%rax");
         }
-        else{
+        else {
             ins = instruction("movq", to_string(x) + "(%rbp)", "%rax");
         }
         insts.push_back(ins);
@@ -833,7 +838,7 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             exit(1);  
         }
     }
-    else if(q.made_from == quad::LOAD){         // r(z) = *(a1(x) + a2(y))
+    else if(q.made_from == quad::LOAD) {         // r(z) = *(a1(x) + a2(y))
         ins = instruction("movq", to_string(x) + "(%rbp)", "%rdx");
         insts.push_back(ins);
 
@@ -1022,7 +1027,7 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
         ins = instruction("popq", "%rax");
         insts.push_back(ins);
     }
-    else if(q.made_from == quad::PUSH_PARAM){   // pushq a(x) || pushq const
+    else if(q.made_from == quad::PUSH_PARAM) {   // pushq a(x) || pushq const
         if(y == 1) {        // first parameter, perform caller saved registers
             ins = instruction("pushq", "%rax");
             insts.push_back(ins);
@@ -1048,20 +1053,26 @@ vector<instruction> task_struct::make_x86_code(quad q, int x, int y, int z) {
             insts.push_back(ins);    
         }
     }
-    else if(q.made_from == quad::PRINT_STR){
+    else if(q.made_from == quad::PRINT_STR) {
         ins = instruction("movq", to_string(x) + "(%rbp)", "%rdi");
         insts.push_back(ins);
         ins = instruction("call", "puts");
         insts.push_back(ins);
     }
-    else if(q.made_from == quad::MAKE_STR){
+    else if(q.made_from == quad::PRINT_BOOL) {
+        ins = instruction("leaq", ".LC" + q.arg1 + "(%rip)", "%rdi");
+        insts.push_back(ins);
+        ins = instruction("call", "puts");
+        insts.push_back(ins);
+    }
+    else if(q.made_from == quad::MAKE_STR) {
         ins = instruction("leaq", q.arg1 + "(%rip)", "%rdi");
         insts.push_back(ins);
         ins = instruction("movq", "%rdi", to_string(x) + "(%rbp)");
         insts.push_back(ins);
     }
-    else if(q.made_from == quad::EXIT){
-        ins = instruction("leaq", ".LC0(%rip)", "%rdi");
+    else if(q.made_from == quad::EXIT) {
+        ins = instruction("leaq", ".LC2(%rip)", "%rdi");
         insts.push_back(ins);
         ins = instruction("call", "puts");
         insts.push_back(ins);
@@ -1097,7 +1108,7 @@ void task_struct::get_tac_procedures() {
 
         if(q.made_from == quad::END_FUNC) {
             func_started = false;
-            if(procedure.size()){
+            if(procedure.size()) {
                 this -> procedures.push_back(procedure);
                 procedure.clear();
             }
@@ -1114,9 +1125,18 @@ void task_struct::gen_global() {
     this -> code.push_back(ins);
     ins = instruction(".LC0:", "", "", "", "segment");
     this->code.push_back(ins);
+    ins = instruction(".string", "\"False\"");
+    this->code.push_back(ins);
+    ins = instruction(".LC1:", "", "", "", "segment");
+    this->code.push_back(ins);
+    ins = instruction(".string", "\"True\"");
+    this->code.push_back(ins);
+    ins = instruction(".LC2:", "", "", "", "segment");
+    this->code.push_back(ins);
     ins = instruction(".string", "\"List Index OutofBound!\"");
     this->code.push_back(ins);
-    for(auto it:string_list){
+   
+    for(auto it:string_list) {
         ins = instruction(it.second + ":", "", "", "", "segment");
         this->code.push_back(ins);
         ins = instruction(".string", it.first);
@@ -1130,50 +1150,50 @@ void task_struct::gen_global() {
 void task_struct::gen_basic_block(vector<quad> BB, procedure_table* sub_table) {
     for(quad q : BB) {
         vector<instruction> insts;
-        if(q.made_from == quad::CONDITIONAL){
+        if(q.made_from == quad::CONDITIONAL) {
             int x = sub_table -> lookup_table[q.arg1].offset;
             int y = q.abs_jump;
             insts = this -> make_x86_code(q, x, y);
         }
-        else if(q.made_from == quad::GOTO){
+        else if(q.made_from == quad::GOTO) {
             insts = this -> make_x86_code(q, q.abs_jump);
         }
-        else if(q.made_from == quad::BINARY){
+        else if(q.made_from == quad::BINARY) {
             int z = sub_table -> lookup_table[q.result].offset;
             int x = sub_table -> lookup_table[q.arg1].offset;
             int y = sub_table -> lookup_table[q.arg2].offset;
             insts = this -> make_x86_code(q, x, y, z);            
         }
-        else if(q.made_from == quad::UNARY){    // b(y) = op a(x)
+        else if(q.made_from == quad::UNARY) {    // b(y) = op a(x)
             int y = sub_table -> lookup_table[q.result].offset;
             int x = sub_table -> lookup_table[q.arg1].offset;
             insts = this -> make_x86_code(q, x, y);           
         }
-        else if(q.made_from == quad::ASSIGNMENT){   // b(y) = a(x)
+        else if(q.made_from == quad::ASSIGNMENT) {   // b(y) = a(x)
             int y = sub_table -> lookup_table[q.result].offset;
             int x = sub_table -> lookup_table[q.arg1].offset;
             insts = this -> make_x86_code(q, x, y);                
         }
-        else if(q.made_from == quad::STORE){        // *(r(z) + a2) = a1(x)
+        else if(q.made_from == quad::STORE) {        // *(r(z) + a2) = a1(x)
             int x = sub_table -> lookup_table[q.arg1].offset;
             int y = sub_table -> lookup_table[q.arg2].offset;   // always 0 since q.arg2 contains a constant always
             int z = sub_table -> lookup_table[q.result].offset;
 
             insts = this -> make_x86_code(q, x, y, z);
         }
-        else if(q.made_from == quad::LOAD){         // r(z) = *(a1(x) + a2)
+        else if(q.made_from == quad::LOAD) {         // r(z) = *(a1(x) + a2)
             int x = sub_table -> lookup_table[q.arg1].offset;
             int y = sub_table -> lookup_table[q.arg2].offset; // always 0 since q.arg2 contains a constant always
             int z = sub_table -> lookup_table[q.result].offset;
 
             insts = this -> make_x86_code(q, x, y, z);
         }
-        else if(q.made_from == quad::PUSH_PARAM){   // push_param a1(x)
+        else if(q.made_from == quad::PUSH_PARAM) {   // push_param a1(x)
             int x = sub_table -> lookup_table[q.arg1].offset;
             sub_table -> number_of_params++;
             insts = this -> make_x86_code(q, x, sub_table -> number_of_params);
         }
-        else if(q.made_from == quad::POP_PARAM){   // r(x) = pop_param
+        else if(q.made_from == quad::POP_PARAM) {   // r(x) = pop_param
             insts = this -> make_x86_code(q);
         }
         else if(q.made_from == quad::FUNC_CALL) {
@@ -1198,21 +1218,24 @@ void task_struct::gen_basic_block(vector<quad> BB, procedure_table* sub_table) {
         else if(q.made_from == quad::RETURN) {   
             insts = this -> make_x86_code(q, sub_table -> total_space - 8 * stack_offset, sub_table -> lookup_table[q.arg1].offset);
         }
-        else if(q.made_from == quad::NONE_RETURN_VAL){
+        else if(q.made_from == quad::NONE_RETURN_VAL) {
             insts = this -> make_x86_code(q);
         }
-        else if(q.made_from == quad::PRINT_STR){
+        else if(q.made_from == quad::PRINT_STR) {
             int y = sub_table -> lookup_table[q.arg1].offset;
             insts = this -> make_x86_code(q, y);
         }
-        else if(q.made_from == quad::MAKE_STR){
+        else if(q.made_from == quad::MAKE_STR) {
             int y = sub_table -> lookup_table[q.result].offset;
             insts = this -> make_x86_code(q, y);
         }
-        else if(q.made_from == quad::EXIT){
+        else if(q.made_from == quad::PRINT_BOOL) {
+            insts = this -> make_x86_code(q);
+        }
+        else if(q.made_from == quad::EXIT) {
             insts = this->make_x86_code(q);
         }
-        else{
+        else {
             insts = this -> make_x86_code(q);
         }
         for(instruction ins : insts) {
@@ -1292,7 +1315,7 @@ void task_struct::print_code(string asm_file) {
     }
     string line;
     ifstream helper_func("helper_func.s");
-    while(getline(helper_func, line)){
+    while(getline(helper_func, line)) {
         out << line << '\n';
     }
 }
@@ -1304,7 +1327,7 @@ procedure_entry::procedure_entry(string name, int offset) {
     this -> offset = offset;
 }
 
-procedure_table::procedure_table(){}
+procedure_table::procedure_table() {}
 
 void procedure_table::construct_procedure_table(vector<quad> procedure_ins) {
     int pop_cnt = 2;         // 1 8 byte space for the return address + old base pointer
@@ -1325,7 +1348,7 @@ void procedure_table::construct_procedure_table(vector<quad> procedure_ins) {
                     local_offset++;
                 }
             }
-            else if(q.made_from == quad::MAKE_STR){
+            else if(q.made_from == quad::MAKE_STR) {
                 if(q.result != "" && this -> lookup_table.find(q.result) == this -> lookup_table.end() && isVariable(q.result)) {
                     this -> lookup_table[q.result] = procedure_entry(q.result, -stack_offset*local_offset);
                     local_offset++;
