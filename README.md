@@ -1,6 +1,6 @@
 # Python to x86-64 Compiler
 
-This repository contains a Python to x86-64 compiler developed as a semester project for the Compiler Design (CS335) course during the first semester of 2023-24, under the guidance of Professor Swarnendu Biswas.
+***sssnakelyzer*** is a Python to x86-64 compiler developed as a semester project for the Compiler Design (CS335) course during the first semester of 2023-24, under the guidance of Professor Swarnendu Biswas.
 
 ## Team Members
 - Chitwan Goel (me)
